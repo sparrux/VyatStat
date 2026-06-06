@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="vyatka-db" uuid="c9a9088e-42f7-4d8c-8497-68b860c0c252">
+    <data-source source="LOCAL" name="vyatka-db" uuid="f3f67865-65b8-49f8-b88b-11470fc5ebfa">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:57974/?password=D9f1ghkF%2800XXHPksWgxx9&amp;user=postgres</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:64995/?password=D9f1ghkF%2800XXHPksWgxx9&amp;user=postgres</jdbc-url>
       <jdbc-additional-properties>
-        <property name="aspireResourceId" value="vyatka-db-zezjtdqj" />
+        <property name="aspireResourceId" value="vyatka-db-adxfdtny" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
