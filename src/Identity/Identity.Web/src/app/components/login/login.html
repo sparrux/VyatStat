@@ -1,0 +1,13 @@
+<div class="login-container">
+  <h2>Вход в Vyatka Identity Server</h2>
+
+  <form (submit)="onSubmit($event)">
+    <input type="text" placeholder="Логин" [(ngModel)]="username" name="username" required>
+    <input type="password" placeholder="Пароль" [(ngModel)]="password" name="password" required>
+    <button type="submit">Войти</button>
+  </form>
+
+  <div class="register-navigation">
+    <button type="button" routerLink="/register" class="btn-register">Зарегистрироваться</button>
+  </div>
+</div>

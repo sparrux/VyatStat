@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Identity/">
+    <Project Path="src/Identity/Identity.WebAPI/Identity.WebAPI.csproj" />
+  </Folder>
+  <Folder Name="/Vyatka/">
+    <Project Path="src/Vyatka/Vyatka.Domain/Vyatka.Domain.csproj" />
+    <Project Path="src/Vyatka/Vyatka.Infrastructure/Vyatka.Infrastructure.csproj" />
+  </Folder>
+  <Project Path="src/ServiceDefaults/ServiceDefaults.csproj" />
+  <Project Path="src/Shared/Shared.csproj" />
+  <Project Path="src/Vyatka.AppHost/Vyatka.AppHost.csproj" />
+</Solution>

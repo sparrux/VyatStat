@@ -1,0 +1,21 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.2.4">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>24c247ca-cead-4e16-8ebc-1958f1563f46</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Identity\Identity.WebAPI\Identity.WebAPI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.AppHost" Version="13.4.2" />
+      <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.4.2" />
+      <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.4.2" />
+    </ItemGroup>
+
+</Project>

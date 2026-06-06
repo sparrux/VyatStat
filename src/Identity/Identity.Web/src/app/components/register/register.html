@@ -1,0 +1,24 @@
+<div class="register-container">
+  <h2>Регистрация нового пользователя</h2>
+
+  <form (submit)="onSubmit($event)">
+    <div class="form-group">
+      <input type="text" placeholder="Придумайте логин" [(ngModel)]="username" name="username" required>
+    </div>
+
+    <div class="form-group">
+      <input type="password" placeholder="Придумайте пароль" [(ngModel)]="password" name="password" required>
+    </div>
+
+    <button type="submit">Зарегистрироваться</button>
+  </form>
+
+
+  <div *ngIf="errors.length > 0" class="error-messages">
+    <ul>
+      <li *ngFor="let err of errors">{{ err }}</li>
+    </ul>
+  </div>
+
+  <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
+</div>
