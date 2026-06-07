@@ -2,6 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface UserProfile {
+  id: string,
+  userName: string
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,6 +16,22 @@ export class AuthService {
   private redirectUri = window.location.origin + '/callback';
 
   constructor(private http: HttpClient) {}
+
+  getProfile() : Observable<UserProfile> {
+    const token = localStorage.getItem('access_token');
+
+    const headers = new HttpHeaders({
+      'Authorization': 'Bearer ' + token
+    })
+
+    return this.http.get<UserProfile>(`${this.authServerUrl}/profile`, { headers })
+  }
+
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('access_token');
+
+    return !!token;
+  }
 
   // 1. Генерация случайной строки для PKCE (Code Verifier)
   private generateVerifier(): string {
@@ -89,6 +110,7 @@ export class AuthService {
 
     const body = new HttpParams()
       .set('client_id', this.clientId)
+      .set('aud', 'vyatka-identity-api')
       .set('grant_type', 'authorization_code')
       .set('code', code)
       .set('redirect_uri', this.redirectUri)

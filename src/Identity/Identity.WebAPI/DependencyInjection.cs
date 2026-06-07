@@ -13,7 +13,10 @@ static class DependencyInjection
         builder.Services.AddOpenApi();
         builder.Services.AddControllers();
         
-        builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+        });
         builder.Services.AddAuthorization();
         
         builder.AddCors();

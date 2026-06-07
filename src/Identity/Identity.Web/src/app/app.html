@@ -1,1 +1,20 @@
-<router-outlet></router-outlet>
+<div class="app-layout">
+  <!-- В будущем сюда можно добавить <app-header></app-header> -->
+
+  <!-- Динамический контент (здесь будет рендериться наша форма входа/регистрации) -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- СТАТИЧЕСКИЙ ОБЩИЙ ФУТЕР ИЗ МАКЕТА -->
+  <footer class="app-footer">
+    <div class="footer-left">
+      <span>© Все права защищены 2026</span>
+    </div>
+    <div class="footer-right">
+      <a routerLink="/privacy">Политика конфиденциальности</a>
+      <a routerLink="/terms">Пользовательское соглашение</a>
+      <a routerLink="/contact">Связаться с нами</a>
+    </div>
+  </footer>
+</div>

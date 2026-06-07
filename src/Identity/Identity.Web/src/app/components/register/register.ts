@@ -1,26 +1,35 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, CommonModule], // Обязательно импортируем для форм и директив (*ngIf / *ngFor)
+  imports: [FormsModule, CommonModule, RouterLink], // Обязательно импортируем для форм и директив (*ngIf / *ngFor)
   templateUrl: './register.html',
   styleUrls: ['./register.scss']
 })
 export class RegisterComponent {
   username = '';
   password = '';
-  errors: string[] = []; // Массив для хранения ошибок от ASP.NET Core
+  confirmPassword = '';
+
+  showPassword = false;
+  showConfirmPassword = false;
+  errors: string[] = [];
 
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit(event: Event) {
     event.preventDefault();
     this.errors = []; // Сбрасываем старые ошибки
+
+    if (this.password !== this.confirmPassword) {
+      this.errors.push('Пароли не совпадают.');
+      return;
+    }
 
     this.authService.register(this.username, this.password).subscribe({
       next: (response) => {

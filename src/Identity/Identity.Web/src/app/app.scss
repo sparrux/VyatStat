@@ -1,0 +1,40 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1; // Растягивает контент, прижимая футер к самому низу
+}
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #e6e6e2; // Чуть более темный песочный оттенок подвала
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(0,0,0,0.05);
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 20px;
+
+    @media (max-width: 600px) { gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+    a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      &:hover { color: var(--text-primary); }
+    }
+  }
+}

@@ -13,6 +13,7 @@ import { RouterLink } from '@angular/router';
 export class LoginComponent {
   username = '';
   password = '';
+  showPassword = false;
 
   constructor(private authService: AuthService) {}
 

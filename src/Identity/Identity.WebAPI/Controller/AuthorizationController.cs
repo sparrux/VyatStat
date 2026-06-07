@@ -136,7 +136,7 @@ public class AuthorizationController(
                 _ => [OpenIddictConstants.Destinations.AccessToken]
             });
 
-            return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            return SignIn(new(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
 
         return BadRequest(new OpenIddictResponse

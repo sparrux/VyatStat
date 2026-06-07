@@ -1,20 +1,35 @@
 using System.Security.Claims;
 using Identity.WebAPI.Contracts;
-using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
+using OpenIddict.Validation.AspNetCore;
 
 namespace Identity.WebAPI.Controller;
 
 [ApiController]
 public class IdentityController(
-    UserManager<IdentityUser<Guid>> userManager,
-    SignInManager<IdentityUser<Guid>> signInManager
+    UserManager<IdentityUser<Guid>> userManager
 ) : ControllerBase
 {
+    [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+    [HttpGet("/profile")]
+    public async Task<ActionResult<ProfileResponse>> GetProfileInfo()
+    {
+        if (User.Identity is null || !User.Identity.IsAuthenticated)
+            return Unauthorized();
+        
+        var username = User.FindFirst("username")?.Value;
+        var user = await userManager.FindByNameAsync(username!);
+
+        if (user is null)
+            return NotFound();
+
+        return Ok(new ProfileResponse(user.Id, user.UserName));
+    }
+    
     [HttpPost("/register")]
     public async Task<IActionResult> Register(RegistrationRequest request)
     {
