@@ -1,16 +1,18 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var postgresDb = builder.AddPostgres("vyatka-db")
+var postgresDb = builder.AddPostgres(
+        "vyatka-db")
     .WithDataVolume("vyatka_postgres-db")
     .AddDatabase("vyatka-identity");
 
-var identityApi = builder.AddProject<Projects.Identity_WebAPI>("identity-api")
+var identityApi = builder.AddProject<Projects.Identity_WebAPI>(
+        "identity-api")
     .WithExternalHttpEndpoints()
     .WithReference(postgresDb)
-    .WithEnvironment("Clients:WebClient:Url", "")
     .WithHttpHealthCheck("/health");
 
-var webClient = builder.AddJavaScriptApp("identity-client", "../Identity/Identity.Web")
+var webClient = builder.AddJavaScriptApp(
+        "identity-app", "../../Frontend/identity-app")
     .WithReference(identityApi)
     .WithHttpEndpoint(port: 4200, env: "PORT")
     .WaitFor(identityApi);
