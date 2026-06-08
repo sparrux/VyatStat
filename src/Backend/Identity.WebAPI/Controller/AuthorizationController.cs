@@ -13,7 +13,7 @@ public class AuthorizationController(
     UserManager<IdentityUser<Guid>> userManager,
     SignInManager<IdentityUser<Guid>> signInManager,
     IOpenIddictApplicationManager applicationManager
-) : ControllerBase
+) : IdentityControllerBase
 {
     [HttpGet("/connect/authorize")]
     [HttpPost("/connect/authorize")]
@@ -53,6 +53,8 @@ public class AuthorizationController(
                 ErrorDescription = "Неверный логин или пароль."
             });
         }
+        
+        var claims = await userManager.GetClaimsAsync(user);
 
         // 3. Создание ClaimsPrincipal для генерации OAuth токена
         var identity = new ClaimsIdentity(
@@ -63,6 +65,8 @@ public class AuthorizationController(
         // Добавляем обязательные OAuth claims
         identity.AddClaim(OpenIddictConstants.Claims.Subject, user.Id.ToString());
         identity.AddClaim(OpenIddictConstants.Claims.Username, user.UserName!);
+
+        identity.AddClaims(claims);
 
         // Настраиваем, какие клеймы попадут и в Access Token, и в Refresh Token
         identity.SetDestinations(claim => [

@@ -1,4 +1,6 @@
+using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Persistence;
+using Identity.WebAPI.Services.Account;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
@@ -12,12 +14,25 @@ static class DependencyInjection
     {
         builder.Services.AddOpenApi();
         builder.Services.AddControllers();
+
+        builder.Services.AddScoped<IAccountService, AccountService>();
         
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
         });
-        builder.Services.AddAuthorization();
+        
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy(Policies.Admin, policy => 
+                policy.RequireClaim(UserClaimTypes.Role, UserClaims.Admin));
+            
+            options.AddPolicy(Policies.ReadUsers, policy => 
+                policy.RequireClaim(UserClaimTypes.Permission, UserClaims.CanReadUsers));
+            
+            options.AddPolicy(Policies.UpdateUserPermissions, policy => 
+                policy.RequireClaim(UserClaimTypes.Permission, UserClaims.CanUpdateUserPermissions));
+        });
         
         builder.AddCors();
         builder.AddOpenIddict();
@@ -76,7 +91,7 @@ static class DependencyInjection
                 // Enable the token endpoint.
                 options.SetAuthorizationEndpointUris("connect/authorize")
                     .SetTokenEndpointUris("connect/token");
-
+                
                 // Enable the client credentials flow.
                 options.AllowClientCredentialsFlow()
                     .AllowAuthorizationCodeFlow()
@@ -92,6 +107,9 @@ static class DependencyInjection
                 options.UseAspNetCore()
                     .EnableTokenEndpointPassthrough()
                     .EnableAuthorizationEndpointPassthrough();
+
+                options.SetAccessTokenLifetime(TimeSpan.FromMinutes(5));
+                options.SetRefreshTokenLifetime(TimeSpan.FromDays(30));
             })
             .AddValidation(options => 
             {

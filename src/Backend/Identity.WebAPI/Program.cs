@@ -26,6 +26,7 @@ if (app.Environment.IsDevelopment())
     await DatabaseSeeder.SeedDatabaseAsync(app);
 }
 
+await UsersSeeder.SeedAsync(app);
 await OAuthApplicationSeeder.SeedClientsAsync(app);
 
 app.Run();
