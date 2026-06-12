@@ -7,6 +7,6 @@ public interface IAccountService
 {
     Task<Result<ProfileResponse>> CreateAsync(RegistrationRequest request);
     Task<Result<ProfileResponse>> GetProfileAsync(Guid userId);
-    Task<Result<UserPermissionsResponse>> GetUserPermissionsAsync(Guid userId);
-    Task<Result<UserPermissionsResponse>> UpdateUserPermissionsAsync(Guid userId, UpdateUserPermissionsRequest request);
+    Task<Result<UserClaimsResponse>> GetUserClaimsAsync(Guid userId);
+    Task<Result<UserClaimsResponse>> UpdateUserPermissionsAsync(Guid userId, UpdateUserPermissionsRequest request);
 }

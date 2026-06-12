@@ -31,20 +31,20 @@ public class AccountController(
     }
     
     [HttpGet("/{userId:guid}/permissions")]
-    public async Task<ActionResult<UserPermissionsResponse>> GetUserPermissions(Guid userId)
+    public async Task<ActionResult<UserClaimsResponse>> GetUserPermissions(Guid userId)
     {
-        Result<UserPermissionsResponse>? result;
+        Result<UserClaimsResponse>? result;
 
         var isOwner = UserId == userId;
         var canReadPermissions = (await CanReadUsersAsync()).Succeeded;
 
         if (isOwner || canReadPermissions)
         {
-            result = await accountService.GetUserPermissionsAsync(UserId);
+            result = await accountService.GetUserClaimsAsync(UserId);
         }
         else
         {
-            result = Result.Fail<UserPermissionsResponse>("Has no access");
+            result = Result.Fail<UserClaimsResponse>("Has no access");
         }
             
         return result.ToActionResult();
@@ -52,7 +52,7 @@ public class AccountController(
 
     [Authorize(Policy = Policies.UpdateUserPermissions, AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
     [HttpPost("/{userId:guid}/permissions")]
-    public async Task<ActionResult<UserPermissionsResponse>> UpdateUserPermissions(
+    public async Task<ActionResult<UserClaimsResponse>> UpdateUserPermissions(
         Guid userId, UpdateUserPermissionsRequest request)
     {
         var result = await accountService.UpdateUserPermissionsAsync(UserId, request);

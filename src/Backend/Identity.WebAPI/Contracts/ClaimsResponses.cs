@@ -1,6 +1,6 @@
 namespace Identity.WebAPI.Contracts;
 
-public record UserPermissionsResponse(
+public record UserClaimsResponse(
     bool IsAdmin,
     bool ReadUsers,
     bool UpdateUserPermissions

@@ -59,25 +59,25 @@ sealed class AccountService(
         }
     }
 
-    public async Task<Result<UserPermissionsResponse>> GetUserPermissionsAsync(Guid userId)
+    public async Task<Result<UserClaimsResponse>> GetUserClaimsAsync(Guid userId)
     {
         if (await userManager.FindByIdAsync(userId.ToString()) is var user && user is null)
-            return Result.Fail<UserPermissionsResponse>("User not found");
+            return Result.Fail<UserClaimsResponse>("User not found");
 
         var claims = await userManager.GetClaimsAsync(user);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
-        return Result.Ok(new UserPermissionsResponse(
+        return Result.Ok(new UserClaimsResponse(
             IsAdmin: principal.HasClaim(UserClaimTypes.Role, UserClaims.Admin),
             ReadUsers: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanReadUsers),
             UpdateUserPermissions: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanUpdateUserPermissions)
         ));
     }
 
-    public async Task<Result<UserPermissionsResponse>> UpdateUserPermissionsAsync(Guid userId, UpdateUserPermissionsRequest request)
+    public async Task<Result<UserClaimsResponse>> UpdateUserPermissionsAsync(Guid userId, UpdateUserPermissionsRequest request)
     {
         if (await userManager.FindByIdAsync(userId.ToString()) is var user && user is null)
-            return Result.Fail<UserPermissionsResponse>("User not found");
+            return Result.Fail<UserClaimsResponse>("User not found");
 
         var claims = await userManager.GetClaimsAsync(user);
         var claimsMap = claims.ToDictionary(x => x.Value, x => x);
@@ -98,7 +98,7 @@ sealed class AccountService(
                 await RemoveClaim(user, userClaim);
         }
         
-        return await GetUserPermissionsAsync(user.Id);
+        return await GetUserClaimsAsync(user.Id);
     }
 
     async Task AddClaim(IdentityUser<Guid> user, Claim claim)
