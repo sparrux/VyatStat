@@ -1,7 +1,16 @@
 import { HttpBackend, HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, catchError, firstValueFrom, from, throwError } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  defer,
+  firstValueFrom,
+  from,
+  of,
+  switchMap,
+  throwError,
+} from 'rxjs';
 import { getJwtExpirationUtcMs } from '../utils/jwt-exp';
 
 export interface UserProfile {
@@ -51,7 +60,18 @@ export class AuthService {
     }
     const access = localStorage.getItem('access_token');
     const refresh = localStorage.getItem('refresh_token');
-    if (!access || !refresh) {
+    if (!refresh) {
+      return;
+    }
+    if (!access) {
+      void this.refreshAccessTokenSilently()
+        .pipe(
+          catchError(() => {
+            this.invalidateSessionAndRedirectToLogin();
+            return throwError(() => new Error('Silent refresh failed'));
+          }),
+        )
+        .subscribe();
       return;
     }
     const expMs = getJwtExpirationUtcMs(access);
@@ -87,25 +107,35 @@ export class AuthService {
   }
 
   getProfile(): Observable<UserProfile> {
-    const token = localStorage.getItem('access_token');
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token ?? ''}`,
-    });
-
-    return this.http.get<UserProfile>(`${this.authServerUrl}/profile`, { headers });
+    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
+      switchMap(() => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          return throwError(() => new Error('Missing access token after refresh'));
+        }
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+        return this.http.get<UserProfile>(`${this.authServerUrl}/profile`, { headers });
+      }),
+    );
   }
 
   getUserPermissions(userId: string): Observable<UserClaims> {
-    const token = localStorage.getItem('access_token');
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token ?? ''}`,
-    });
-
-    return this.http.get<UserClaims>(`${this.authServerUrl}/${userId}/permissions`, {
-      headers,
-    });
+    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
+      switchMap(() => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          return throwError(() => new Error('Missing access token after refresh'));
+        }
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+        return this.http.get<UserClaims>(`${this.authServerUrl}/${userId}/permissions`, {
+          headers,
+        });
+      }),
+    );
   }
 
   logout(): void {
@@ -116,9 +146,11 @@ export class AuthService {
     localStorage.removeItem('code_verifier');
   }
 
+  /**
+   * True if there is a usable access token or a refresh token that can mint a new one.
+   */
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('access_token');
-    return !!token;
+    return !!localStorage.getItem('access_token') || !!localStorage.getItem('refresh_token');
   }
 
   /**
@@ -232,6 +264,19 @@ export class AuthService {
     });
   }
 
+  /**
+   * Ensures an access token exists when a refresh token is present (OAuth refresh grant).
+   */
+  private ensureAccessTokenIfNeeded(): Observable<void> {
+    if (localStorage.getItem('access_token')) {
+      return of(undefined);
+    }
+    if (!localStorage.getItem('refresh_token')) {
+      return throwError(() => new Error('Missing refresh token'));
+    }
+    return this.refreshAccessTokenSilently();
+  }
+
   private runRefreshRequest(refreshToken: string): Promise<OAuthTokenResponse> {
     const body = new HttpParams()
       .set('client_id', this.clientId)
@@ -254,7 +299,18 @@ export class AuthService {
 
     const access = localStorage.getItem('access_token');
     const refresh = localStorage.getItem('refresh_token');
-    if (!access || !refresh) {
+    if (!refresh) {
+      return;
+    }
+    if (!access) {
+      void this.refreshAccessTokenSilently()
+        .pipe(
+          catchError(() => {
+            this.invalidateSessionAndRedirectToLogin();
+            return throwError(() => new Error('Restore access token failed'));
+          }),
+        )
+        .subscribe();
       return;
     }
 
