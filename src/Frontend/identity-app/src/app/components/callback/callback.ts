@@ -22,13 +22,8 @@ export class CallbackComponent implements OnInit {
         // Обмениваем его на токены
         this.authService.exchangeCodeForToken(code).subscribe({
           next: (tokens) => {
-            // Сохраняем полученные токены
-            localStorage.setItem('access_token', tokens.access_token);
-            localStorage.setItem('refresh_token', tokens.refresh_token);
-            console.log('Токены успешно получены:', tokens);
-
-            // Перенаправляем пользователя на главную страницу приложения
-            this.router.navigate(['/account']);
+            this.authService.applyOAuthTokens(tokens);
+            void this.router.navigate(['/account']);
           },
           error: (err) => console.error('Ошибка обмена кода на токен:', err)
         });

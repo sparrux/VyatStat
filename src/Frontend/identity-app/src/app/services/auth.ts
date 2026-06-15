@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpBackend, HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable, catchError, firstValueFrom, from, throwError } from 'rxjs';
+import { getJwtExpirationUtcMs } from '../utils/jwt-exp';
 
 export interface UserProfile {
   id: string;
@@ -13,21 +15,82 @@ export interface UserClaims {
   updateUserPermissions: boolean;
 }
 
+export interface OAuthTokenResponse {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+}
+
+/** Refresh this many ms before JWT exp (target ~30–60 s window with skew). */
+const PROACTIVE_LEAD_MS = 50_000;
+/** Extra safety for client clock drift and slow networks. */
+const CLOCK_SKEW_MS = 10_000;
+
+const OAUTH_SCOPE = 'openid profile offline_access';
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private authServerUrl = 'https://localhost:7019'; // Укажите порт вашего .NET API
-  private clientId = 'angular-client';
-  private redirectUri = window.location.origin + '/callback';
+  private readonly authServerUrl = 'https://localhost:7019';
+  private readonly clientId = 'angular-client';
+  private readonly redirectUri = window.location.origin + '/callback';
 
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
+  private readonly directHttp = new HttpClient(inject(HttpBackend));
+  private readonly router = inject(Router);
+
+  private proactiveRefreshTimer: ReturnType<typeof setTimeout> | null = null;
+  private refreshInFlight: Promise<void> | null = null;
+  private visibilityHandlerBound = false;
+  /** Bumps on logout / invalidation so in-flight refresh cannot resurrect a session. */
+  private authEpoch = 0;
+  private readonly onDocumentVisibilityChange = (): void => {
+    if (typeof document === 'undefined' || document.visibilityState !== 'visible') {
+      return;
+    }
+    const access = localStorage.getItem('access_token');
+    const refresh = localStorage.getItem('refresh_token');
+    if (!access || !refresh) {
+      return;
+    }
+    const expMs = getJwtExpirationUtcMs(access);
+    if (expMs === null) {
+      this.scheduleProactiveRefresh();
+      return;
+    }
+    const threshold = expMs - PROACTIVE_LEAD_MS - CLOCK_SKEW_MS;
+    if (Date.now() >= threshold) {
+      void this.refreshAccessTokenSilently()
+        .pipe(
+          catchError(() => {
+            this.invalidateSessionAndRedirectToLogin();
+            return throwError(() => new Error('Silent refresh failed'));
+          }),
+        )
+        .subscribe();
+    } else {
+      this.scheduleProactiveRefresh();
+    }
+  };
+
+  getAuthServerUrl(): string {
+    return this.authServerUrl;
+  }
+
+  /**
+   * Call once at app startup: schedules proactive refresh and tab visibility handling.
+   */
+  onAppBootstrap(): void {
+    this.scheduleProactiveRefresh();
+    this.attachVisibilityListener();
+  }
 
   getProfile(): Observable<UserProfile> {
     const token = localStorage.getItem('access_token');
 
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
+      Authorization: `Bearer ${token ?? ''}`,
     });
 
     return this.http.get<UserProfile>(`${this.authServerUrl}/profile`, { headers });
@@ -37,16 +100,17 @@ export class AuthService {
     const token = localStorage.getItem('access_token');
 
     const headers = new HttpHeaders({
-      'Authorization': 'Bearer ' + token
+      Authorization: `Bearer ${token ?? ''}`,
     });
 
-    return this.http.get<UserClaims>(
-      `${this.authServerUrl}/${userId}/permissions`,
-      { headers }
-    );
+    return this.http.get<UserClaims>(`${this.authServerUrl}/${userId}/permissions`, {
+      headers,
+    });
   }
 
   logout(): void {
+    this.authEpoch++;
+    this.clearProactiveRefreshTimer();
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('code_verifier');
@@ -54,84 +118,104 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem('access_token');
-
     return !!token;
   }
 
-  // 1. Генерация случайной строки для PKCE (Code Verifier)
+  /**
+   * Persists tokens from the authorization server and (re)schedules background refresh.
+   */
+  applyOAuthTokens(tokens: OAuthTokenResponse): void {
+    localStorage.setItem('access_token', tokens.access_token);
+    if (tokens.refresh_token) {
+      localStorage.setItem('refresh_token', tokens.refresh_token);
+    }
+    this.scheduleProactiveRefresh();
+  }
+
+  /**
+   * Refresh using the refresh_token grant. Uses HttpBackend so interceptors are not involved.
+   * Concurrent callers share one in-flight refresh (promise mutex).
+   */
+  refreshAccessTokenSilently(): Observable<void> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      return throwError(() => new Error('Missing refresh token'));
+    }
+
+    if (!this.refreshInFlight) {
+      const epoch = this.authEpoch;
+      this.refreshInFlight = this.runRefreshRequest(refreshToken)
+        .then((tokens) => {
+          if (epoch !== this.authEpoch) {
+            return;
+          }
+          this.applyOAuthTokens(tokens);
+        })
+        .finally(() => {
+          this.refreshInFlight = null;
+        });
+    }
+
+    return from(this.refreshInFlight);
+  }
+
   private generateVerifier(): string {
     const array = new Uint32Array(56);
     crypto.getRandomValues(array);
-    return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
+    return Array.from(array, (dec) => ('0' + dec.toString(16)).slice(-2)).join('');
   }
 
-  // 2. Хэширование строки через SHA-256 (Code Challenge)
   private async generateChallenge(verifier: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(verifier);
     const hash = await crypto.subtle.digest('SHA-256', data);
     return btoa(String.fromCharCode(...new Uint8Array(hash)))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
   }
 
-  register(username: string, password: string): Observable<any> {
+  register(username: string, password: string): Observable<unknown> {
     const url = `${this.authServerUrl}/register`;
-
-    // Структура должна строго соответствовать вашему классу RegistrationRequest на бэкенде
-    const body = {
-      login: username,
-      password: password
-    };
-
+    const body = { login: username, password };
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-
-    // Отправляем обычный JSON-запрос
-    return this.http.post<any>(url, body, { headers });
+    return this.http.post(url, body, { headers });
   }
 
-  // 3. Отправка логина/пароля на /connect/authorize
   async login(username: string, password: string): Promise<void> {
     const verifier = this.generateVerifier();
     localStorage.setItem('code_verifier', verifier);
-
     const challenge = await this.generateChallenge(verifier);
 
-    // 1. Создаем объект с параметрами запроса
-    const params: { [key: string]: string } = {
-      'client_id': this.clientId,
-      'response_type': 'code',
-      'scope': 'openid profile offline_access',
-      'redirect_uri': this.redirectUri,
-      'code_challenge': challenge,
-      'code_challenge_method': 'S256',
-      'username': username,
-      'password': password
+    const params: Record<string, string> = {
+      client_id: this.clientId,
+      response_type: 'code',
+      scope: OAUTH_SCOPE,
+      redirect_uri: this.redirectUri,
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      username,
+      password,
     };
 
-    // 2. Создаем виртуальную HTML-форму
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `${this.authServerUrl}/connect/authorize`; // Ссылка на бэкенд
+    form.action = `${this.authServerUrl}/connect/authorize`;
 
-    // 3. Наполняем форму скрытыми полями input
-    for (const key in params) {
-      if (params.hasOwnProperty(key)) {
-        const hiddenField = document.createElement('input');
-        hiddenField.type = 'hidden';
-        hiddenField.name = key;
-        hiddenField.value = params[key];
-        form.appendChild(hiddenField);
-      }
+    for (const key of Object.keys(params)) {
+      const hiddenField = document.createElement('input');
+      hiddenField.type = 'hidden';
+      hiddenField.name = key;
+      hiddenField.value = params[key]!;
+      form.appendChild(hiddenField);
     }
 
-    // 4. Добавляем форму на страницу и принудительно отправляем её
     document.body.appendChild(form);
-    form.submit(); // Браузер сам сделает POST и сам перейдет по редиректу 302 на /callback
+    form.submit();
   }
 
-  // 4. Обмен полученного кода на Access и Refresh токены
-  exchangeCodeForToken(code: string): Observable<any> {
-    const verifier = localStorage.getItem('code_verifier') || '';
+  exchangeCodeForToken(code: string): Observable<OAuthTokenResponse> {
+    const verifier = localStorage.getItem('code_verifier') ?? '';
 
     const body = new HttpParams()
       .set('client_id', this.clientId)
@@ -143,6 +227,82 @@ export class AuthService {
 
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
 
-    return this.http.post(`${this.authServerUrl}/connect/token`, body.toString(), { headers });
+    return this.directHttp.post<OAuthTokenResponse>(`${this.authServerUrl}/connect/token`, body.toString(), {
+      headers,
+    });
+  }
+
+  private runRefreshRequest(refreshToken: string): Promise<OAuthTokenResponse> {
+    const body = new HttpParams()
+      .set('client_id', this.clientId)
+      .set('aud', 'vyatka-identity-api')
+      .set('grant_type', 'refresh_token')
+      .set('refresh_token', refreshToken)
+      .set('scope', OAUTH_SCOPE);
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
+
+    return firstValueFrom(
+      this.directHttp.post<OAuthTokenResponse>(`${this.authServerUrl}/connect/token`, body.toString(), {
+        headers,
+      }),
+    );
+  }
+
+  private scheduleProactiveRefresh(): void {
+    this.clearProactiveRefreshTimer();
+
+    const access = localStorage.getItem('access_token');
+    const refresh = localStorage.getItem('refresh_token');
+    if (!access || !refresh) {
+      return;
+    }
+
+    const expMs = getJwtExpirationUtcMs(access);
+    if (expMs === null) {
+      return;
+    }
+
+    const fireAt = expMs - PROACTIVE_LEAD_MS - CLOCK_SKEW_MS;
+    const delayMs = Math.max(0, fireAt - Date.now());
+
+    this.proactiveRefreshTimer = setTimeout(() => {
+      this.refreshAccessTokenSilently()
+        .pipe(
+          catchError(() => {
+            this.invalidateSessionAndRedirectToLogin();
+            return throwError(() => new Error('Proactive refresh failed'));
+          }),
+        )
+        .subscribe();
+    }, delayMs);
+  }
+
+  private clearProactiveRefreshTimer(): void {
+    if (this.proactiveRefreshTimer !== null) {
+      clearTimeout(this.proactiveRefreshTimer);
+      this.proactiveRefreshTimer = null;
+    }
+  }
+
+  private attachVisibilityListener(): void {
+    if (this.visibilityHandlerBound || typeof document === 'undefined') {
+      return;
+    }
+    document.addEventListener('visibilitychange', this.onDocumentVisibilityChange);
+    this.visibilityHandlerBound = true;
+  }
+
+  /**
+   * Clears stored tokens and sends the user to login (refresh failure, revoked session).
+   */
+  invalidateSessionAndRedirectToLogin(): void {
+    this.authEpoch++;
+    this.clearProactiveRefreshTimer();
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('code_verifier');
+    void this.router.navigate(['/login']);
   }
 }
+
