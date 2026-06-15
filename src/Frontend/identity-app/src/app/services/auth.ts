@@ -3,8 +3,14 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface UserProfile {
-  id: string,
-  userName: string
+  id: string;
+  userName: string | null;
+}
+
+export interface UserClaims {
+  isAdmin: boolean;
+  readUsers: boolean;
+  updateUserPermissions: boolean;
 }
 
 @Injectable({
@@ -17,14 +23,33 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  getProfile() : Observable<UserProfile> {
+  getProfile(): Observable<UserProfile> {
     const token = localStorage.getItem('access_token');
 
     const headers = new HttpHeaders({
       'Authorization': 'Bearer ' + token
-    })
+    });
 
-    return this.http.get<UserProfile>(`${this.authServerUrl}/profile`, { headers })
+    return this.http.get<UserProfile>(`${this.authServerUrl}/profile`, { headers });
+  }
+
+  getUserPermissions(userId: string): Observable<UserClaims> {
+    const token = localStorage.getItem('access_token');
+
+    const headers = new HttpHeaders({
+      'Authorization': 'Bearer ' + token
+    });
+
+    return this.http.get<UserClaims>(
+      `${this.authServerUrl}/${userId}/permissions`,
+      { headers }
+    );
+  }
+
+  logout(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('code_verifier');
   }
 
   isAuthenticated(): boolean {

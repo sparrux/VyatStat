@@ -1,0 +1,150 @@
+<div class="account-page">
+  <header class="account-page__header">
+    <div class="account-page__header-inner">
+      <a routerLink="/" class="account-page__brand" aria-label="Home">
+        <img
+          class="account-page__brand-logo"
+          src="/logo.png"
+          alt=""
+          width="40"
+          height="40"
+          decoding="async"
+        />
+      </a>
+
+      <details class="account-page__user-menu">
+        <summary class="account-page__user-summary">
+          <span
+            class="account-page__avatar"
+            [attr.aria-label]="profile()?.userName ?? 'User'"
+          >
+            {{ displayInitials(profile()?.userName) }}
+          </span>
+          <span class="account-page__chevron-wrap" aria-hidden="true">
+            <span class="account-page__chevron"></span>
+          </span>
+        </summary>
+        <div class="account-page__user-panel">
+          <button
+            type="button"
+            class="account-page__menu-item"
+            (click)="onLogout()"
+          >
+            Log out
+          </button>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  <main class="account-page__main">
+    <div class="account-page__content">
+      <h1 class="account-page__title">Profile</h1>
+      <p class="account-page__subtitle">
+        Manage your account settings and data
+      </p>
+
+      @if (isLoading()) {
+        <p class="account-page__status" role="status">Loading…</p>
+      } @else if (loadError(); as err) {
+        <p class="account-page__error" role="alert">{{ err }}</p>
+        <button
+          type="button"
+          class="vt-btn vt-btn--primary account-page__retry"
+          (click)="reload()"
+        >
+          Try again
+        </button>
+      } @else if (profile(); as p) {
+        <section class="account-page__card" aria-labelledby="about-heading">
+          <div class="account-page__card-head">
+            <span class="account-page__avatar account-page__avatar--sm">
+              {{ displayInitials(p.userName) }}
+            </span>
+            <h2 id="about-heading" class="account-page__card-title">About</h2>
+          </div>
+          <div class="account-page__card-body">
+            <div class="account-page__rows">
+              <div class="account-page__row">
+                <div class="account-page__row-name">Login</div>
+                <div class="account-page__row-value">
+                  {{ displayOrNull(p.userName) }}
+                </div>
+                <div
+                  class="account-page__row-actions account-page__row-actions--empty"
+                  aria-hidden="true"
+                ></div>
+              </div>
+              <div class="account-page__row">
+                <div class="account-page__row-name">Email</div>
+                <div class="account-page__row-value">
+                  {{ displayOrNull(undefined) }}
+                </div>
+                <div class="account-page__row-actions">
+                  <button
+                    type="button"
+                    class="vt-btn account-page__btn-change"
+                    (click)="onChangeEmailClick()"
+                  >
+                    Change
+                  </button>
+                </div>
+              </div>
+              <div class="account-page__row">
+                <div class="account-page__row-name">Created At</div>
+                <div class="account-page__row-value">
+                  {{ displayOrNull(undefined) }}
+                </div>
+                <div
+                  class="account-page__row-actions account-page__row-actions--empty"
+                  aria-hidden="true"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <div class="account-page__card-foot">
+            <button
+              type="button"
+              class="vt-btn vt-btn--primary account-page__foot-btn"
+              (click)="onUpdatePhotoClick()"
+            >
+              Update Photo
+            </button>
+          </div>
+        </section>
+
+        <section
+          class="account-page__card"
+          aria-labelledby="role-heading"
+        >
+          <div class="account-page__card-head account-page__card-head--plain">
+            <h2 id="role-heading" class="account-page__card-title">
+              Role and Permissions
+            </h2>
+          </div>
+          <div class="account-page__card-body">
+            <p class="account-page__badge">{{ roleLabel() }}</p>
+            <p class="account-page__role-text">{{ roleDescription() }}</p>
+            <p class="account-page__opp-heading">Available opportunities:</p>
+            <ul class="account-page__checklist">
+              @for (item of opportunities(); track item) {
+                <li class="account-page__checklist-item">
+                  <span class="account-page__check" aria-hidden="true">✓</span>
+                  {{ item }}
+                </li>
+              }
+            </ul>
+          </div>
+          <div class="account-page__card-foot">
+            <a
+              class="vt-btn vt-btn--primary account-page__foot-btn"
+              routerLink="/"
+            >
+              Go to Dashboard
+            </a>
+          </div>
+        </section>
+      }
+    </div>
+  </main>
+</div>

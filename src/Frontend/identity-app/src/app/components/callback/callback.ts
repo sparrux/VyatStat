@@ -28,7 +28,7 @@ export class CallbackComponent implements OnInit {
             console.log('Токены успешно получены:', tokens);
 
             // Перенаправляем пользователя на главную страницу приложения
-            this.router.navigate(['/']);
+            this.router.navigate(['/account']);
           },
           error: (err) => console.error('Ошибка обмена кода на токен:', err)
         });

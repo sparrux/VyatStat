@@ -40,7 +40,7 @@ public class AccountController(
 
         if (isOwner || canReadPermissions)
         {
-            result = await accountService.GetUserClaimsAsync(UserId);
+            result = await accountService.GetUserClaimsAsync(userId);
         }
         else
         {
