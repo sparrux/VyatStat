@@ -4,6 +4,66 @@
   min-height: 100vh;
 }
 
+.header {
+  background: #8c8273;
+  min-height: 30px;
+  position: relative;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* верхняя панель */
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* логотип по центру */
+.header-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-logo img {
+  height: 36px;
+}
+
+/* иконка справа сверху */
+.header-info {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: #d6d0c2;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* контент (заголовок) */
+.header-content {
+  text-align: center;
+  margin-top: 60px;
+  color: #2f3a2f;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.header-content p {
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
 .main-content {
   flex: 1; // Растягивает контент, прижимая футер к самому низу
 }
