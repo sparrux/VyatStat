@@ -1,17 +1,12 @@
-:root {
-  --bg-main: #f4f4f0;       // Светло-песочный фон страницы
-  --bg-card: #ffffff;       // Белый фон карточки
-  --text-primary: #333333;  // Темно-серый текст
-  --text-muted: #777777;    // Светло-серый текст подсказок
-  --color-primary: #555d50; // Хаки / оливковый для кнопок
-  --color-primary-hover: #444a40;
-  --border-color: #dddddd;  // Серые границы инпутов
-}
+@use '@vyatka-tracker/ui/styles';
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-primary);
+// Алиасы под существующие экраны identity-app (до полного перехода на --vt-*).
+:root {
+  --bg-main: var(--vt-surface-page);
+  --bg-card: var(--vt-surface-card);
+  --text-primary: var(--vt-font-color-primary);
+  --text-muted: var(--vt-color-gray-green);
+  --color-primary: var(--vt-action-primary);
+  --color-primary-hover: var(--vt-action-primary-hover);
+  --border-color: var(--vt-border-subtle);
 }

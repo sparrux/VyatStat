@@ -1,0 +1,27 @@
+{
+  "name": "@vyatka-tracker/ui",
+  "version": "0.1.0",
+  "description": "Shared Angular UI components and design tokens for VyatkaTracker frontends.",
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json"
+  },
+  "sideEffects": [
+    "**/*.scss"
+  ],
+  "exports": {
+    "./styles": "./styles.scss",
+    "./styles.scss": "./styles.scss"
+  },
+  "peerDependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/compiler-cli": "^22.0.0",
+    "ng-packagr": "^22.0.0",
+    "typescript": "~6.0.2"
+  }
+}
