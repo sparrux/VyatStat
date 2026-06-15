@@ -97,23 +97,6 @@
 
 .login-page__submit {
   margin-top: 0.25rem;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: var(--vt-corner-default);
-  background: var(--vt-action-primary);
-  color: var(--vt-action-primary-contrast);
-  font-weight: 700;
-  cursor: pointer;
-
-  &:hover:not(:disabled) {
-    background: var(--vt-action-primary-hover);
-  }
-
-  &:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-  }
 }
 
 .login-page__divider {
@@ -138,40 +121,3 @@
   text-transform: lowercase;
 }
 
-.login-page__secondary {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 0.65rem 1rem;
-  border: 1px solid var(--vt-font-color-primary);
-  border-radius: var(--vt-corner-default);
-  background: transparent;
-  color: var(--vt-font-color-primary);
-  font-size: 0.95rem;
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    background: var(--vt-surface-muted);
-    color: var(--vt-font-color-primary);
-    border-color: var(--vt-color-gray-green);
-    box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--vt-color-gray-green);
-    outline-offset: 2px;
-  }
-}

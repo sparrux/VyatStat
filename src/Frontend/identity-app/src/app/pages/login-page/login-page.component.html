@@ -43,7 +43,7 @@
         }
 
         <button
-          class="login-page__submit"
+          class="vt-btn vt-btn--primary vt-btn--block login-page__submit"
           type="submit"
           [disabled]="isSubmitting()"
         >
@@ -55,7 +55,10 @@
         <span class="login-page__divider-text">or</span>
       </div>
 
-      <a class="login-page__secondary" routerLink="/register">
+      <a
+        class="vt-btn vt-btn--secondary vt-btn--block login-page__secondary"
+        routerLink="/register"
+      >
         No account? Create
       </a>
     </div>

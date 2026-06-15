@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="register-placeholder">
       <p class="register-placeholder__text">Регистрация скоро будет доступна.</p>
-      <a routerLink="/login" class="register-placeholder__link">Ко входу</a>
+      <a routerLink="/login" class="vt-btn vt-btn--link register-placeholder__link">Ко входу</a>
     </div>
   `,
   styles: `
@@ -23,8 +23,7 @@ import { RouterLink } from '@angular/router';
       font-family: var(--vt-font-family-default);
     }
     .register-placeholder__link {
-      color: var(--vt-action-primary);
-      font-weight: 600;
+      margin-top: 0.25rem;
     }
   `,
 })

@@ -8,6 +8,7 @@
   "exports": {
     "./styles": "./styles.scss",
     "./styles.scss": "./styles.scss",
+    "./styles/buttons": "./src/lib/styles/_buttons.scss",
     "./package.json": {
       "default": "./package.json"
     },

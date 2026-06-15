@@ -10,7 +10,8 @@
   ],
   "exports": {
     "./styles": "./styles.scss",
-    "./styles.scss": "./styles.scss"
+    "./styles.scss": "./styles.scss",
+    "./styles/buttons": "./src/lib/styles/_buttons.scss"
   },
   "peerDependencies": {
     "@angular/common": "^22.0.0",
