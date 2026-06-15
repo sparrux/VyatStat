@@ -1,5 +1,95 @@
-<div>
-  <main>
-    <router-outlet></router-outlet>
+<div class="app-shell">
+  <main class="app-shell__main">
+    <div class="app-shell__outlet">
+      <router-outlet />
+    </div>
   </main>
+
+  <footer class="app-footer">
+    <div class="app-footer__inner">
+      <div class="app-footer__brand">
+        <img
+          class="app-footer__logo"
+          src="/logo.png"
+          alt="VyatkaLarp"
+          decoding="async"
+        />
+        <p class="app-footer__disclaimer">
+          VyatkaLarp is not a military, friendly, peace-loving, patriotic, public
+          project. All rights are protected. 2026.
+        </p>
+      </div>
+
+      <nav class="app-footer__nav" aria-label="Footer">
+        <div class="app-footer__nav-col">
+          <span class="app-footer__nav-heading">Product</span>
+          <a href="#" class="app-footer__nav-link" (click)="$event.preventDefault()"
+            >Pricing</a
+          >
+          <a href="#" class="app-footer__nav-link" (click)="$event.preventDefault()"
+            >Features</a
+          >
+        </div>
+        <div class="app-footer__nav-col">
+          <span class="app-footer__nav-heading">Company</span>
+          <a href="#" class="app-footer__nav-link" (click)="$event.preventDefault()"
+            >About</a
+          >
+          <a href="#" class="app-footer__nav-link" (click)="$event.preventDefault()"
+            >Contacts</a
+          >
+        </div>
+        <div class="app-footer__nav-col">
+          <span class="app-footer__nav-heading">Socials</span>
+          <div class="app-footer__socials">
+            <a
+              href="#"
+              class="app-footer__social"
+              aria-label="YouTube"
+              (click)="$event.preventDefault()"
+            >
+              <img
+                class="app-footer__social-icon"
+                src="/yt-logo.svg"
+                alt=""
+                width="32"
+                height="32"
+                decoding="async"
+              />
+            </a>
+            <a
+              href="#"
+              class="app-footer__social"
+              aria-label="VK"
+              (click)="$event.preventDefault()"
+            >
+              <img
+                class="app-footer__social-icon"
+                src="/vk-logo.svg"
+                alt=""
+                width="32"
+                height="32"
+                decoding="async"
+              />
+            </a>
+            <a
+              href="#"
+              class="app-footer__social"
+              aria-label="Telegram"
+              (click)="$event.preventDefault()"
+            >
+              <img
+                class="app-footer__social-icon"
+                src="/tg-logo.svg"
+                alt=""
+                width="32"
+                height="32"
+                decoding="async"
+              />
+            </a>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </footer>
 </div>

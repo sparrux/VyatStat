@@ -24,7 +24,7 @@ export class LoginPageComponent {
 
     const login = this.username.trim();
     if (!login || !this.password) {
-      this.submitError.set('Введите логин и пароль');
+      this.submitError.set('Enter your login and password');
       return;
     }
 
@@ -33,7 +33,7 @@ export class LoginPageComponent {
       await this.auth.login(login, this.password);
     } catch {
       this.isSubmitting.set(false);
-      this.submitError.set('Не удалось выполнить вход. Попробуйте снова.');
+      this.submitError.set('Failed to login. Please try again.');
     }
   }
 }

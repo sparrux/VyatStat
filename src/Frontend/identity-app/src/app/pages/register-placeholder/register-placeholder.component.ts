@@ -13,7 +13,7 @@ import { RouterLink } from '@angular/router';
   `,
   styles: `
     .register-placeholder {
-      min-height: 40vh;
+      flex: 1 1 auto;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -21,8 +21,6 @@ import { RouterLink } from '@angular/router';
       gap: 1rem;
       padding: 2rem;
       font-family: var(--vt-font-family-default);
-      color: var(--vt-font-color-primary);
-      background: var(--vt-color-primary);
     }
     .register-placeholder__link {
       color: var(--vt-action-primary);
