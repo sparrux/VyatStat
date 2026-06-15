@@ -1,0 +1,122 @@
+.register-page {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.register-page__main {
+  display: flex;
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.register-page__card {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.register-page__logo {
+  margin-bottom: 1rem;
+}
+
+.register-page__logo-img {
+  display: block;
+  width: 70px;
+  height: auto;
+  max-height: 120px;
+  object-fit: contain;
+}
+
+.register-page__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--vt-font-color-primary);
+}
+
+.register-page__subtitle {
+  margin: 0 0 1.75rem;
+  font-size: 0.95rem;
+  color: var(--vt-font-color-primary);
+}
+
+.register-page__form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+.register-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.register-page__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--vt-font-color-primary);
+}
+
+.register-page__input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--vt-font-color-primary);
+  border-radius: var(--vt-corner-default);
+  background: var(--vt-color-neutral);
+  color: var(--vt-font-color-primary);
+
+  &::placeholder {
+    color: var(--vt-color-muted-sage);
+    opacity: 0.85;
+  }
+
+  &:focus {
+    outline: 2px solid var(--vt-color-gray-green);
+    outline-offset: 1px;
+  }
+}
+
+.register-page__error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--vt-color-error);
+}
+
+.register-page__submit {
+  margin-top: 0.25rem;
+}
+
+.register-page__divider {
+  width: 100%;
+  margin: 1.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--vt-font-color-primary);
+  font-size: 0.85rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--vt-font-color-primary);
+  }
+}
+
+.register-page__divider-text {
+  text-transform: lowercase;
+}

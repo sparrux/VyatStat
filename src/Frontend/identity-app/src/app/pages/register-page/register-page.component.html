@@ -1,0 +1,78 @@
+<div class="register-page">
+  <main class="register-page__main">
+    <div class="register-page__card">
+      <div class="register-page__logo">
+        <img
+          class="register-page__logo-img"
+          src="/logo.png"
+          alt="VyatkaLarp"
+          decoding="async"
+        />
+      </div>
+
+      <h1 class="register-page__title">Registration</h1>
+      <p class="register-page__subtitle">Create an account to continue</p>
+
+      <form class="register-page__form" (submit)="onSubmit($event)" novalidate>
+        <label class="register-page__field">
+          <span class="register-page__label">Login</span>
+          <input
+            class="register-page__input"
+            type="text"
+            name="username"
+            autocomplete="username"
+            [(ngModel)]="username"
+            placeholder="Enter your login"
+          />
+        </label>
+
+        <label class="register-page__field">
+          <span class="register-page__label">Password</span>
+          <input
+            class="register-page__input"
+            type="password"
+            name="password"
+            autocomplete="new-password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+          />
+        </label>
+
+        <label class="register-page__field">
+          <span class="register-page__label">Repeat password</span>
+          <input
+            class="register-page__input"
+            type="password"
+            name="repeatPassword"
+            autocomplete="new-password"
+            [(ngModel)]="repeatPassword"
+            placeholder="Repeat your password"
+          />
+        </label>
+
+        @if (submitError(); as err) {
+          <p class="register-page__error" role="alert">{{ err }}</p>
+        }
+
+        <button
+          class="vt-btn vt-btn--primary vt-btn--block register-page__submit"
+          type="submit"
+          [disabled]="isSubmitting()"
+        >
+          Register
+        </button>
+      </form>
+
+      <div class="register-page__divider">
+        <span class="register-page__divider-text">or</span>
+      </div>
+
+      <a
+        class="vt-btn vt-btn--secondary vt-btn--block register-page__secondary"
+        routerLink="/login"
+      >
+        Login
+      </a>
+    </div>
+  </main>
+</div>
