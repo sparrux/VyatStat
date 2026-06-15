@@ -9,6 +9,7 @@
     "./styles": "./styles.scss",
     "./styles.scss": "./styles.scss",
     "./styles/buttons": "./src/lib/styles/_buttons.scss",
+    "./styles/text-fields": "./src/lib/styles/_text-fields.scss",
     "./package.json": {
       "default": "./package.json"
     },

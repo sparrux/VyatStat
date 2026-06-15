@@ -11,7 +11,8 @@
   "exports": {
     "./styles": "./styles.scss",
     "./styles.scss": "./styles.scss",
-    "./styles/buttons": "./src/lib/styles/_buttons.scss"
+    "./styles/buttons": "./src/lib/styles/_buttons.scss",
+    "./styles/text-fields": "./src/lib/styles/_text-fields.scss"
   },
   "peerDependencies": {
     "@angular/common": "^22.0.0",

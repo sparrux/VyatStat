@@ -58,37 +58,6 @@
   text-align: left;
 }
 
-.login-page__field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.login-page__label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--vt-font-color-primary);
-}
-
-.login-page__input {
-  width: 100%;
-  padding: 0.65rem 0.75rem;
-  border: 1px solid var(--vt-font-color-primary);
-  border-radius: var(--vt-corner-default);
-  background: var(--vt-color-neutral);
-  color: var(--vt-font-color-primary);
-
-  &::placeholder {
-    color: var(--vt-color-muted-sage);
-    opacity: 0.85;
-  }
-
-  &:focus {
-    outline: 2px solid var(--vt-color-gray-green);
-    outline-offset: 1px;
-  }
-}
-
 .login-page__error {
   margin: 0;
   font-size: 0.875rem;
