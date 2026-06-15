@@ -1,0 +1,151 @@
+<div class="login-page">
+  <main class="login-page__main">
+    <div class="login-page__card">
+      <div class="login-page__logo">
+        <img
+          class="login-page__logo-img"
+          src="/logo.png"
+          alt="VyatkaLarp"
+          decoding="async"
+        />
+      </div>
+
+      <h1 class="login-page__title">Login</h1>
+      <p class="login-page__subtitle">You are welcome, мбаец</p>
+
+      <form class="login-page__form" (submit)="onSubmit($event)" novalidate>
+        <label class="login-page__field">
+          <span class="login-page__label">Login</span>
+          <input
+            class="login-page__input"
+            type="text"
+            name="username"
+            autocomplete="username"
+            [(ngModel)]="username"
+            placeholder="Enter your login"
+          />
+        </label>
+
+        <label class="login-page__field">
+          <span class="login-page__label">Password</span>
+          <input
+            class="login-page__input"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+          />
+        </label>
+
+        @if (submitError(); as err) {
+          <p class="login-page__error" role="alert">{{ err }}</p>
+        }
+
+        <button
+          class="login-page__submit"
+          type="submit"
+          [disabled]="isSubmitting()"
+        >
+          Enter
+        </button>
+      </form>
+
+      <div class="login-page__divider">
+        <span class="login-page__divider-text">or</span>
+      </div>
+
+      <a class="login-page__secondary" routerLink="/register">
+        No account? Create
+      </a>
+    </div>
+  </main>
+
+  <footer class="login-page__footer">
+    <div class="login-page__footer-inner">
+      <div class="login-page__footer-brand">
+        <img
+          class="login-page__footer-logo"
+          src="/logo.png"
+          alt="VyatkaLarp"
+          decoding="async"
+        />
+        <p class="login-page__disclaimer">
+          VyatkaLarp is not a military, friendly, peace-loving, patriotic, public
+          project. All rights are protected. 2026.
+        </p>
+      </div>
+
+      <nav class="login-page__footer-nav" aria-label="Footer">
+        <div class="login-page__nav-col">
+          <span class="login-page__nav-heading">Product</span>
+          <a href="#" class="login-page__nav-link" (click)="$event.preventDefault()"
+            >Pricing</a
+          >
+          <a href="#" class="login-page__nav-link" (click)="$event.preventDefault()"
+            >Features</a
+          >
+        </div>
+        <div class="login-page__nav-col">
+          <span class="login-page__nav-heading">Company</span>
+          <a href="#" class="login-page__nav-link" (click)="$event.preventDefault()"
+            >About</a
+          >
+          <a href="#" class="login-page__nav-link" (click)="$event.preventDefault()"
+            >Contacts</a
+          >
+        </div>
+        <div class="login-page__nav-col">
+          <span class="login-page__nav-heading">Socials</span>
+          <div class="login-page__socials">
+            <a
+              href="#"
+              class="login-page__social"
+              aria-label="YouTube"
+              (click)="$event.preventDefault()"
+            >
+              <img
+                class="login-page__social-icon"
+                src="/yt-logo.svg"
+                alt=""
+                width="32"
+                height="32"
+                decoding="async"
+              />
+            </a>
+            <a
+              href="#"
+              class="login-page__social"
+              aria-label="VK"
+              (click)="$event.preventDefault()"
+            >
+              <img
+                class="login-page__social-icon"
+                src="/vk-logo.svg"
+                alt=""
+                width="32"
+                height="32"
+                decoding="async"
+              />
+            </a>
+            <a
+              href="#"
+              class="login-page__social"
+              aria-label="Telegram"
+              (click)="$event.preventDefault()"
+            >
+              <img
+                class="login-page__social-icon"
+                src="/tg-logo.svg"
+                alt=""
+                width="32"
+                height="32"
+                decoding="async"
+              />
+            </a>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </footer>
+</div>

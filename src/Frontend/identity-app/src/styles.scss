@@ -1,12 +1,1 @@
 @use '@vyatka-tracker/ui/styles';
-
-// Алиасы под существующие экраны identity-app (до полного перехода на --vt-*).
-:root {
-  --bg-main: var(--vt-surface-page);
-  --bg-card: var(--vt-surface-card);
-  --text-primary: var(--vt-font-color-primary);
-  --text-muted: var(--vt-color-gray-green);
-  --color-primary: var(--vt-action-primary);
-  --color-primary-hover: var(--vt-action-primary-hover);
-  --border-color: var(--vt-border-subtle);
-}
