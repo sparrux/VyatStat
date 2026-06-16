@@ -43,28 +43,23 @@ export class AccountPageComponent implements OnInit {
 
   protected readonly opportunities = computed(() => {
     const c = this.claims();
+
     if (!c) {
       return [];
     }
-    if (c.isAdmin) {
-      return [
-        'View users dashboard',
-        'Manage users',
-        'Configure user access rights',
-        'Configure system settings',
-      ];
-    }
-    const items: string[] = [];
+
+    const opportunities: string[] = [];
+
     if (c.readUsers) {
-      items.push('View users dashboard', 'Manage users');
+      opportunities.push('View users dashboard');
     }
     if (c.updateUserPermissions) {
-      items.push('Configure user access rights');
+      opportunities.push('Manage users permissions');
     }
-    if (items.length === 0) {
-      items.push('Use your personal account features');
+    if (opportunities.length === 0) {
+      opportunities.push('Use your personal account features');
     }
-    return items;
+    return opportunities;
   });
 
   async ngOnInit(): Promise<void> {
