@@ -16,6 +16,8 @@ import { getJwtExpirationUtcMs } from '../utils/jwt-exp';
 export interface UserProfile {
   id: string;
   userName: string | null;
+  email: string | null;
+  claims: UserClaims | null;
 }
 
 export interface UserClaims {
@@ -116,7 +118,7 @@ export class AuthService {
         const headers = new HttpHeaders({
           Authorization: `Bearer ${token}`,
         });
-        return this.http.get<UserProfile>(`${this.authServerUrl}/profile`, { headers });
+        return this.http.get<UserProfile>(`${this.authServerUrl}/me`, { headers });
       }),
     );
   }
@@ -131,7 +133,7 @@ export class AuthService {
         const headers = new HttpHeaders({
           Authorization: `Bearer ${token}`,
         });
-        return this.http.get<UserClaims>(`${this.authServerUrl}/${userId}/permissions`, {
+        return this.http.get<UserClaims>(`${this.authServerUrl}/users/${userId}/permissions`, {
           headers,
         });
       }),

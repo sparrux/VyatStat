@@ -1,6 +1,6 @@
 using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Persistence;
-using Identity.WebAPI.Services.Account;
+using Identity.WebAPI.Services.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
@@ -15,7 +15,7 @@ static class DependencyInjection
         builder.Services.AddOpenApi();
         builder.Services.AddControllers();
 
-        builder.Services.AddScoped<IAccountService, AccountService>();
+        builder.Services.AddScoped<IUsersService, UsersService>();
         
         builder.Services.AddAuthentication(options =>
         {

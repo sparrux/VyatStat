@@ -14,6 +14,6 @@ export const routes: Routes = [
     component: AccountPageComponent,
     canActivate: [authGuard],
   },
-  { path: '', pathMatch: 'full', redirectTo: 'callback' },
-  { path: '**', redirectTo: 'callback' },
+  { path: '', pathMatch: 'full', redirectTo: 'account' },
+  { path: '**', redirectTo: 'account' },
 ];

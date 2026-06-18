@@ -2,18 +2,45 @@ using System.Security.Claims;
 using FluentResults;
 using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Contracts;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
-namespace Identity.WebAPI.Services.Account;
+namespace Identity.WebAPI.Services.Users;
 
-sealed class AccountService(
-    ILogger<AccountService> logger,
-    IAuthorizationService authorizationService,
+sealed class UsersService(
+    ILogger<UsersService> logger,
     UserManager<IdentityUser<Guid>> userManager
-) : IAccountService
+) : IUsersService
 {
-    public async Task<Result<ProfileResponse>> CreateAsync(RegistrationRequest request)
+    public async Task<Result<UsersResponse>> GetUsersAsync(int take, int skip)
+    {
+        var claims = new Dictionary<Guid, UserClaimsResponse?>();
+        
+        var selection = await userManager.Users
+            .OrderBy(x => x.UserName)
+            .Select(user => new
+            {
+                user.Id,
+                user.UserName,
+                user.Email
+            }).Skip(skip).Take(take).ToListAsync();
+        
+        var totalUsers = await userManager.Users.CountAsync();
+
+        foreach (var user in selection)
+        {
+            var result = await GetUserClaimsAsync(user.Id);
+            claims[user.Id] = result.IsSuccess ? result.Value : null;
+        }
+        
+        return Result.Ok(new UsersResponse(
+            Users: selection.Select(user => 
+                new UserResponse(user.Id, user.UserName, user.Email, claims[user.Id])).ToList(), 
+            Total: totalUsers
+        ));
+    }
+
+    public async Task<Result<UserResponse>> CreateAsync(RegistrationRequest request)
     {
         List<IdentityError> errors = [];
         
@@ -21,36 +48,41 @@ sealed class AccountService(
         {
             UserName = request.Login,
         };
-
+        
         try
         {
             var result = await userManager.CreateAsync(user, request.Password);
-            
+
             if (result.Succeeded)
-                return Result.Ok(new ProfileResponse(user.Id, user.UserName));
+                return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, null));
             
             errors.AddRange(result.Errors);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, ex.Message);
-            return Result.Fail<ProfileResponse>(ex.Message);
+            return Result.Fail<UserResponse>(ex.Message);
         }
         
-        return Result.Fail<ProfileResponse>(
+        return Result.Fail<UserResponse>(
             errors.Select(err => $"{err.Code}: {err.Description}"));
     }
 
-    public async Task<Result<ProfileResponse>> GetProfileAsync(Guid userId)
+    public async Task<Result<UserResponse>> GetUserAsync(Guid userId)
     {
         try
         {
-            var profile = await userManager.FindByIdAsync(userId.ToString());
-
-            if (profile is null)
+            var user = await userManager.FindByIdAsync(userId.ToString());
+            
+            var claims = await GetUserClaimsAsync(userId);
+            
+            if (claims.IsFailed)
+                return claims.ToResult();
+            
+            if (user is null)
                 return Result.Fail("User not found");
 
-            return Result.Ok(new ProfileResponse(profile.Id, profile.UserName));
+            return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, claims.Value));
         }
         catch (Exception ex)
         {
@@ -79,6 +111,8 @@ sealed class AccountService(
         if (await userManager.FindByIdAsync(userId.ToString()) is var user && user is null)
             return Result.Fail<UserClaimsResponse>("User not found");
 
+        var errors = new List<Error>();
+        
         var claims = await userManager.GetClaimsAsync(user);
         var claimsMap = claims.ToDictionary(x => x.Value, x => x);
         
@@ -92,13 +126,20 @@ sealed class AccountService(
 
         foreach (var updatePair in updateValuesMap)
         {
-            if (updatePair.Value is true && !claimsMap.ContainsKey(updatePair.Key))
-                await AddClaim(user, CreateClaim(UserClaimTypes.Permission, updatePair.Key));
-            if (updatePair.Value is false && claimsMap.TryGetValue(updatePair.Key, out var userClaim))
-                await RemoveClaim(user, userClaim);
+            try
+            {
+                if (updatePair.Value is true && !claimsMap.ContainsKey(updatePair.Key))
+                    await AddClaim(user, CreateClaim(UserClaimTypes.Permission, updatePair.Key));
+                if (updatePair.Value is false && claimsMap.TryGetValue(updatePair.Key, out var userClaim))
+                    await RemoveClaim(user, userClaim);
+            }
+            catch (Exception ex)
+            {
+                errors.Add(new Error(ex.Message, new ExceptionalError(ex)));
+            }
         }
-        
-        return await GetUserClaimsAsync(user.Id);
+
+        return (await GetUserClaimsAsync(user.Id)).WithErrors(errors);
     }
 
     async Task AddClaim(IdentityUser<Guid> user, Claim claim)
