@@ -3,6 +3,6 @@ description:
 alwaysApply: true
 ---
 
-All project functionality requirements are described in the files in the "prds/*" folder.
+All project functionality requirements are described in the files in the "docs/prds/*" folder.
 
 All design sketches from Figma are in the "docs/design/*" folder (png or pdf files). Variables exported from Figma are in "docs/design/.variables/*" (.json format)
