@@ -1,0 +1,10 @@
+:host {
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .vt-table__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

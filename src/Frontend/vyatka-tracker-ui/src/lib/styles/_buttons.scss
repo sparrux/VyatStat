@@ -99,3 +99,32 @@
     box-shadow: none;
   }
 }
+
+.vt-btn--table-action {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--vt-corner-default);
+  background: var(--vt-color-gray-green);
+  color: var(--vt-action-primary-contrast);
+
+  &:hover:not(:disabled) {
+    background: var(--vt-color-muted-sage);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.vt-btn--table-danger {
+  background: var(--vt-color-error);
+
+  &:hover:not(:disabled) {
+    background: #c45a5a;
+  }
+}

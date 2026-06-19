@@ -1,0 +1,82 @@
+<div class="vt-table-wrap">
+  <table class="vt-table" aria-label="System users">
+    <thead>
+      <tr>
+        <th scope="col">Login</th>
+        <th scope="col" class="vt-table__cell--center">Email</th>
+        <th scope="col" class="vt-table__cell--center">Verified</th>
+        <th scope="col" class="vt-table__cell--center">Role</th>
+        <th scope="col" class="vt-table__cell--actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @if (users().length === 0) {
+        <tr>
+          <td colspan="5">
+            <p class="vt-table__empty">No users found.</p>
+          </td>
+        </tr>
+      } @else {
+        @for (user of users(); track user.id) {
+          <tr>
+            <td>{{ displayValue(user.userName) }}</td>
+            <td class="vt-table__cell--center">{{ displayValue(user.email) }}</td>
+            <td class="vt-table__cell--center">{{ verifiedLabel(user) }}</td>
+            <td class="vt-table__cell--center">{{ roleLabel(user) }}</td>
+            <td class="vt-table__cell--actions">
+              <div class="vt-table__actions">
+                <button
+                  type="button"
+                  class="vt-btn vt-btn--table-action"
+                  (click)="onMoreInfoClick(user)"
+                >
+                  More Info
+                </button>
+                @if (canUpdatePermissions()) {
+                  <button
+                    type="button"
+                    class="vt-btn vt-btn--table-action"
+                    (click)="onChangeAccessClick(user)"
+                  >
+                    Change Access
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="vt-btn vt-btn--table-action vt-btn--table-danger"
+                  (click)="onBlockClick(user)"
+                >
+                  Block
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+
+  @if (total() > 0) {
+    <div class="vt-table__pagination">
+      <span>{{ rangeLabel() }}</span>
+      <div class="vt-table__pagination-controls">
+        <button
+          type="button"
+          class="vt-btn vt-btn--secondary"
+          [disabled]="!hasPreviousPage()"
+          (click)="onPreviousPage()"
+        >
+          Previous
+        </button>
+        <button
+          type="button"
+          class="vt-btn vt-btn--secondary"
+          [disabled]="!hasNextPage()"
+          (click)="onNextPage()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>

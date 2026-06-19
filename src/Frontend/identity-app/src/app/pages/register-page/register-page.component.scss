@@ -1,15 +1,14 @@
 .register-page {
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: 100dvh;
 }
 
 .register-page__main {
   display: flex;
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   box-sizing: border-box;
-  min-height: 100vh;
   min-height: 100dvh;
   align-items: center;
   justify-content: center;

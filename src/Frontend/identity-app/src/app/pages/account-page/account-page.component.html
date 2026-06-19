@@ -1,42 +1,4 @@
 <div class="account-page">
-  <header class="account-page__header">
-    <div class="account-page__header-inner">
-      <a routerLink="/" class="account-page__brand" aria-label="Home">
-        <img
-          class="account-page__brand-logo"
-          src="/logo.png"
-          alt=""
-          width="40"
-          height="40"
-          decoding="async"
-        />
-      </a>
-
-      <details class="account-page__user-menu">
-        <summary class="account-page__user-summary">
-          <span
-            class="account-page__avatar"
-            [attr.aria-label]="profile()?.userName ?? 'User'"
-          >
-            {{ displayInitials(profile()?.userName) }}
-          </span>
-          <span class="account-page__chevron-wrap" aria-hidden="true">
-            <span class="account-page__chevron"></span>
-          </span>
-        </summary>
-        <div class="account-page__user-panel">
-          <button
-            type="button"
-            class="account-page__menu-item"
-            (click)="onLogout()"
-          >
-            Log out
-          </button>
-        </div>
-      </details>
-    </div>
-  </header>
-
   <main class="account-page__main">
     <div class="account-page__content">
       <h1 class="account-page__title">Profile</h1>
@@ -136,12 +98,14 @@
             </ul>
           </div>
           <div class="account-page__card-foot">
-            <a
-              class="vt-btn vt-btn--primary account-page__foot-btn"
-              routerLink="/"
-            >
-              Go to Dashboard
-            </a>
+            @if (claims()?.readUsers) {
+              <a
+                class="vt-btn vt-btn--primary account-page__foot-btn"
+                routerLink="/dashboard"
+              >
+                Go to Dashboard
+              </a>
+            }
           </div>
         </section>
       }

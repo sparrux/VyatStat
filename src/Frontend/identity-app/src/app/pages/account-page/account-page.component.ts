@@ -5,7 +5,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService, UserClaims, UserProfile } from '../../services/auth';
 
@@ -18,7 +18,6 @@ import { AuthService, UserClaims, UserProfile } from '../../services/auth';
 })
 export class AccountPageComponent implements OnInit {
   private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
 
   protected readonly profile = signal<UserProfile | null>(null);
 
@@ -100,11 +99,6 @@ export class AccountPageComponent implements OnInit {
       return `${parts[0]![0]!}${parts[1]![0]!}`.toUpperCase();
     }
     return name.slice(0, 2).toUpperCase();
-  }
-
-  protected onLogout(): void {
-    this.auth.logout();
-    void this.router.navigate(['/login']);
   }
 
   protected onChangeEmailClick(): void {

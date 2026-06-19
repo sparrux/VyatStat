@@ -1,0 +1,43 @@
+@if (isVisible()) {
+  <header class="app-shell-header">
+    <div class="app-shell-header__inner">
+      <a routerLink="/account" class="app-shell-header__brand" aria-label="Account">
+        <img
+          class="app-shell-header__brand-logo"
+          src="/logo.png"
+          alt=""
+          width="40"
+          height="40"
+          decoding="async"
+        />
+      </a>
+
+      <details class="app-shell-header__user-menu">
+        <summary class="app-shell-header__user-summary">
+          <span
+            class="app-shell-header__avatar"
+            [attr.aria-label]="profile()?.userName ?? 'User'"
+          >
+            {{ displayInitials(profile()?.userName) }}
+          </span>
+          <span class="app-shell-header__chevron-wrap" aria-hidden="true">
+            <span class="app-shell-header__chevron"></span>
+          </span>
+        </summary>
+        <div class="app-shell-header__user-panel">
+          <a routerLink="/account" class="app-shell-header__menu-item">Profile</a>
+          @if (profile()?.claims?.readUsers) {
+            <a routerLink="/dashboard" class="app-shell-header__menu-item">Dashboard</a>
+          }
+          <button
+            type="button"
+            class="app-shell-header__menu-item"
+            (click)="onLogout()"
+          >
+            Log out
+          </button>
+        </div>
+      </details>
+    </div>
+  </header>
+}
