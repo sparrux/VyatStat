@@ -15,6 +15,7 @@ export class UsersTableComponent {
   readonly canUpdatePermissions = input(false);
 
   readonly pageChange = output<number>();
+  readonly changeAccess = output<DashboardUser>();
 
   protected readonly hasPreviousPage = computed(() => this.skip() > 0);
 
@@ -64,8 +65,8 @@ export class UsersTableComponent {
     // Placeholder until user details page exists
   }
 
-  protected onChangeAccessClick(_user: DashboardUser): void {
-    // Placeholder until permissions editor exists
+  protected onChangeAccessClick(user: DashboardUser): void {
+    this.changeAccess.emit(user);
   }
 
   protected onBlockClick(_user: DashboardUser): void {

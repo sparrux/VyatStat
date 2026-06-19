@@ -35,6 +35,7 @@
             [pageSize]="pageSize"
             [canUpdatePermissions]="claims()?.updateUserPermissions ?? false"
             (pageChange)="onPageChange($event)"
+            (changeAccess)="onChangeAccess($event)"
           />
         }
       }

@@ -1,0 +1,60 @@
+<app-dialog-shell [title]="dialogTitle()" (closed)="onCancel()">
+  @if (isLoading()) {
+    <p class="user-permissions-dialog__status" role="status">Loading permissions…</p>
+  } @else if (loadError(); as err) {
+    <p class="user-permissions-dialog__error" role="alert">{{ err }}</p>
+  } @else {
+    @if (isAdmin()) {
+      <p class="user-permissions-dialog__note">
+        This user has the administrator role. Permission switches apply to
+        additional access rights.
+      </p>
+    }
+
+    <ul class="vt-switch-list user-permissions-dialog__switches">
+      @for (permission of permissionSwitches; track permission.key) {
+        <li class="vt-switch-list__item">
+          <label class="vt-switch">
+            <input
+              type="checkbox"
+              class="vt-switch__input"
+              [checked]="isPermissionEnabled(permission.key)"
+              [disabled]="isSaving()"
+              (change)="onPermissionChange(permission.key, $event)"
+            />
+            <span class="vt-switch__track" aria-hidden="true">
+              <span class="vt-switch__thumb"></span>
+            </span>
+            <span class="vt-switch__text">
+              <span class="vt-switch__label">{{ permission.label }}</span>
+              <span class="vt-switch__description">{{ permission.description }}</span>
+            </span>
+          </label>
+        </li>
+      }
+    </ul>
+
+    @if (saveError(); as saveErr) {
+      <p class="user-permissions-dialog__error" role="alert">{{ saveErr }}</p>
+    }
+  }
+
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn vt-btn--secondary"
+    [disabled]="isLoading() || isSaving() || !!loadError()"
+    (click)="onCancel()"
+  >
+    Cancel
+  </button>
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn vt-btn--primary"
+    [disabled]="isLoading() || isSaving() || !!loadError()"
+    (click)="onSave()"
+  >
+    {{ isSaving() ? 'Saving…' : 'Save' }}
+  </button>
+</app-dialog-shell>

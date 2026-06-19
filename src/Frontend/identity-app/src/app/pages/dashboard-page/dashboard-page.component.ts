@@ -7,6 +7,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { UsersTableComponent } from '../../components/users-table/users-table.component';
 import { AuthService, UserClaims } from '../../services/auth';
+import { DialogService } from '../../services/dialog';
 import { DashboardUser, UsersService } from '../../services/users';
 
 @Component({
@@ -19,6 +20,7 @@ import { DashboardUser, UsersService } from '../../services/users';
 export class DashboardPageComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly usersService = inject(UsersService);
+  private readonly dialog = inject(DialogService);
 
   protected readonly claims = signal<UserClaims | null>(null);
   protected readonly users = signal<DashboardUser[]>([]);
@@ -42,6 +44,24 @@ export class DashboardPageComponent implements OnInit {
   protected onPageChange(nextSkip: number): void {
     this.skip.set(nextSkip);
     void this.loadUsers(true);
+  }
+
+  protected onChangeAccess(user: DashboardUser): void {
+    const dialogRef = this.dialog.openUserPermissions(user);
+
+    dialogRef.closed.subscribe((result) => {
+      if (!result) {
+        return;
+      }
+
+      this.users.update((users) =>
+        users.map((item) =>
+          item.id === result.userId
+            ? { ...item, claims: result.claims }
+            : item,
+        ),
+      );
+    });
   }
 
   private async loadPageData(): Promise<void> {

@@ -15,6 +15,11 @@ export interface UsersListResponse {
   total: number;
 }
 
+export interface UpdateUserPermissionsRequest {
+  readUsers: boolean;
+  updateUserPermissions: boolean;
+}
+
 const PAGE_SIZE = 30;
 
 @Injectable({
@@ -45,6 +50,30 @@ export class UsersService {
           headers,
           params,
         });
+      }),
+    );
+  }
+
+  updateUserPermissions(
+    userId: string,
+    request: UpdateUserPermissionsRequest,
+  ): Observable<UserClaims> {
+    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
+      switchMap(() => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          return throwError(() => new Error('Missing access token after refresh'));
+        }
+
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+
+        return this.http.post<UserClaims>(
+          `${this.auth.getAuthServerUrl()}/users/${userId}/permissions`,
+          request,
+          { headers },
+        );
       }),
     );
   }

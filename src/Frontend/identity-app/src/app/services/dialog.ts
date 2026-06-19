@@ -4,6 +4,12 @@ import {
   MessageDialogComponent,
   MessageDialogData,
 } from '../components/message-dialog/message-dialog.component';
+import {
+  UserPermissionsDialogComponent,
+  UserPermissionsDialogData,
+  UserPermissionsDialogResult,
+} from '../components/user-permissions-dialog/user-permissions-dialog.component';
+import { DashboardUser } from './users';
 
 const DEFAULT_DIALOG_CONFIG = {
   panelClass: 'vt-dialog-panel',
@@ -31,6 +37,15 @@ export class DialogService {
   ): DialogRef<void, MessageDialogComponent> {
     return this.open(MessageDialogComponent, {
       data: { message, title } satisfies MessageDialogData,
+    });
+  }
+
+  openUserPermissions(
+    user: DashboardUser,
+  ): DialogRef<UserPermissionsDialogResult | undefined, UserPermissionsDialogComponent> {
+    return this.open(UserPermissionsDialogComponent, {
+      data: { user } satisfies UserPermissionsDialogData,
+      maxWidth: '32rem',
     });
   }
 }
