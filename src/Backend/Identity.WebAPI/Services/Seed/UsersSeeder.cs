@@ -16,7 +16,10 @@ static class UsersSeeder
         var exists = await userManager.FindByIdAsync(PrimaryUserId.ToString());
         
         if (exists is not null)
+        {
+            await EnsureLockOutPermissionAsync(userManager, exists);
             return;
+        }
 
         var user = new IdentityUser<Guid>
         {
@@ -31,8 +34,20 @@ static class UsersSeeder
             new(UserClaimTypes.Role, UserClaims.Admin),
             new(UserClaimTypes.Permission, UserClaims.CanReadUsers),
             new(UserClaimTypes.Permission, UserClaims.CanUpdateUserPermissions),
+            new(UserClaimTypes.Permission, UserClaims.CanLockOutUsers),
         ]);
         
         Debug.Print("Primary user initialized");
+    }
+
+    static async Task EnsureLockOutPermissionAsync(
+        UserManager<IdentityUser<Guid>> userManager,
+        IdentityUser<Guid> user)
+    {
+        var claims = await userManager.GetClaimsAsync(user);
+        if (claims.Any(c => c.Value == UserClaims.CanLockOutUsers))
+            return;
+
+        await userManager.AddClaimAsync(user, new(UserClaimTypes.Permission, UserClaims.CanLockOutUsers));
     }
 }

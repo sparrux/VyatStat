@@ -34,8 +34,10 @@
             [skip]="skip()"
             [pageSize]="pageSize"
             [canUpdatePermissions]="claims()?.updateUserPermissions ?? false"
+            [canLockOutUsers]="claims()?.lockOutUsers ?? false"
             (pageChange)="onPageChange($event)"
             (changeAccess)="onChangeAccess($event)"
+            (blockUser)="onBlockUser($event)"
           />
         }
       }

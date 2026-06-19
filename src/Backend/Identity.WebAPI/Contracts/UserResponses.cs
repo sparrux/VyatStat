@@ -4,7 +4,8 @@ public sealed record UserResponse(
     Guid Id,
     string? UserName,
     string? Email,
-    UserClaimsResponse? Claims
+    UserClaimsResponse? Claims,
+    bool IsLockedOut
 );
 
 public sealed record UsersResponse(

@@ -14,8 +14,13 @@ export interface UserPermissionsDialogResult {
   claims: UserClaims;
 }
 
+type PermissionKey = keyof Pick<
+  UserClaims,
+  'readUsers' | 'updateUserPermissions' | 'lockOutUsers'
+>;
+
 interface PermissionSwitch {
-  key: keyof Pick<UserClaims, 'readUsers' | 'updateUserPermissions'>;
+  key: PermissionKey;
   label: string;
   description: string;
 }
@@ -30,6 +35,11 @@ const PERMISSION_SWITCHES: PermissionSwitch[] = [
     key: 'updateUserPermissions',
     label: 'Manage users permissions',
     description: 'Allows changing access rights of other users.',
+  },
+  {
+    key: 'lockOutUsers',
+    label: 'Block users',
+    description: 'Allows blocking and unblocking other users.',
   },
 ];
 
@@ -52,6 +62,7 @@ export class UserPermissionsDialogComponent implements OnInit {
   protected readonly permissionSwitches = PERMISSION_SWITCHES;
   protected readonly readUsers = signal(false);
   protected readonly updateUserPermissions = signal(false);
+  protected readonly lockOutUsers = signal(false);
   protected readonly isAdmin = signal(false);
   protected readonly isLoading = signal(true);
   protected readonly isSaving = signal(false);
@@ -69,32 +80,40 @@ export class UserPermissionsDialogComponent implements OnInit {
     await this.loadPermissions();
   }
 
-  protected isPermissionEnabled(
-    key: PermissionSwitch['key'],
-  ): boolean {
-    if (key === 'readUsers') {
-      return this.readUsers();
+  protected isPermissionEnabled(key: PermissionKey): boolean {
+    switch (key) {
+      case 'readUsers':
+        return this.readUsers();
+      case 'updateUserPermissions':
+        return this.updateUserPermissions();
+      case 'lockOutUsers':
+        return this.lockOutUsers();
     }
-    return this.updateUserPermissions();
   }
 
-  protected onPermissionChange(
-    key: PermissionSwitch['key'],
-    event: Event,
-  ): void {
+  protected onPermissionChange(key: PermissionKey, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
 
-    if (key === 'readUsers') {
-      this.readUsers.set(checked);
-      if (!checked) {
-        this.updateUserPermissions.set(false);
-      }
-      return;
-    }
-
-    this.updateUserPermissions.set(checked);
-    if (checked) {
-      this.readUsers.set(true);
+    switch (key) {
+      case 'readUsers':
+        this.readUsers.set(checked);
+        if (!checked) {
+          this.updateUserPermissions.set(false);
+          this.lockOutUsers.set(false);
+        }
+        break;
+      case 'updateUserPermissions':
+        this.updateUserPermissions.set(checked);
+        if (checked) {
+          this.readUsers.set(true);
+        }
+        break;
+      case 'lockOutUsers':
+        this.lockOutUsers.set(checked);
+        if (checked) {
+          this.readUsers.set(true);
+        }
+        break;
     }
   }
 
@@ -111,6 +130,7 @@ export class UserPermissionsDialogComponent implements OnInit {
         this.usersService.updateUserPermissions(this.data.user.id, {
           readUsers: this.readUsers(),
           updateUserPermissions: this.updateUserPermissions(),
+          lockOutUsers: this.lockOutUsers(),
         }),
       );
 
@@ -136,6 +156,7 @@ export class UserPermissionsDialogComponent implements OnInit {
 
       this.readUsers.set(claims.readUsers);
       this.updateUserPermissions.set(claims.updateUserPermissions);
+      this.lockOutUsers.set(claims.lockOutUsers);
       this.isAdmin.set(claims.isAdmin);
     } catch {
       this.loadError.set('Failed to load user permissions. Please try again.');

@@ -84,7 +84,7 @@ public class AuthorizationController(
             var principal = (await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)).Principal;
             
             var user = await userManager.FindByIdAsync(principal!.GetClaim(OpenIddictConstants.Claims.Subject)!);
-            if (user is null)
+            if (user is null || await userManager.IsLockedOutAsync(user))
                 return Forbid(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
             var freshPrincipal = await tokenClaimsBuilder.BuildAsync(user, principal.GetScopes());

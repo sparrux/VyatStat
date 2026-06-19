@@ -24,6 +24,7 @@ export interface UserClaims {
   isAdmin: boolean;
   readUsers: boolean;
   updateUserPermissions: boolean;
+  lockOutUsers: boolean;
 }
 
 export interface OAuthTokenResponse {

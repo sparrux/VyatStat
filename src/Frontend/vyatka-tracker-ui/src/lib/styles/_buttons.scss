@@ -141,3 +141,12 @@
     background: #c45a5a;
   }
 }
+
+.vt-btn--table-unblock {
+  background: var(--vt-color-green);
+  color: var(--vt-color-muted-olive);
+
+  &:hover:not(:disabled) {
+    background: #a3c978;
+  }
+}

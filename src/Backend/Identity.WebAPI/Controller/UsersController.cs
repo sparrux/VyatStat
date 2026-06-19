@@ -80,6 +80,18 @@ public sealed class UsersController(
         var result = await usersService.UpdateUserPermissionsAsync(userId, request);
         return result.ToActionResult();
     }
+    
+    [Authorize(Policy = Policies.LockOutUsers, AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+    [HttpPut("/users/{userId:guid}/lock")]
+    public async Task<ActionResult> SetLockOutUser(
+        Guid userId, bool lockout)
+    {
+        if (userId == UserId)
+            return BadRequest("Cannot change lockout status for your own account.");
+
+        var result = await usersService.SetLockOutAsync(userId, lockout);
+        return result.ToActionResult();
+    }
 
     Task<AuthorizationResult> CanReadUsersAsync() =>
         authorizationService

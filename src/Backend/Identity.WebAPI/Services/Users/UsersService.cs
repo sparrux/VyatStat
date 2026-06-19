@@ -24,7 +24,9 @@ sealed class UsersService(
             {
                 user.Id,
                 user.UserName,
-                user.Email
+                user.Email,
+                user.LockoutEnabled,
+                user.LockoutEnd
             }).Skip(skip).Take(take).ToListAsync();
         
         var totalUsers = await userManager.Users.CountAsync();
@@ -36,8 +38,13 @@ sealed class UsersService(
         }
         
         return Result.Ok(new UsersResponse(
-            Users: selection.Select(user => 
-                new UserResponse(user.Id, user.UserName, user.Email, claims[user.Id])).ToList(), 
+            Users: selection.Select(user =>
+                new UserResponse(
+                    user.Id,
+                    user.UserName,
+                    user.Email,
+                    claims[user.Id],
+                    IsUserLockedOut(user.LockoutEnabled, user.LockoutEnd))).ToList(),
             Total: totalUsers
         ));
     }
@@ -56,7 +63,7 @@ sealed class UsersService(
             var result = await userManager.CreateAsync(user, request.Password);
 
             if (result.Succeeded)
-                return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, null));
+                return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, null, false));
             
             errors.AddRange(result.Errors);
         }
@@ -84,7 +91,8 @@ sealed class UsersService(
             if (user is null)
                 return Result.Fail("User not found");
 
-            return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, claims.Value));
+            var isLockedOut = await userManager.IsLockedOutAsync(user);
+            return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, claims.Value, isLockedOut));
         }
         catch (Exception ex)
         {
@@ -104,7 +112,8 @@ sealed class UsersService(
         return Result.Ok(new UserClaimsResponse(
             IsAdmin: principal.HasClaim(UserClaimTypes.Role, UserClaims.Admin),
             ReadUsers: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanReadUsers),
-            UpdateUserPermissions: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanUpdateUserPermissions)
+            UpdateUserPermissions: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanUpdateUserPermissions),
+            LockOutUsers: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanLockOutUsers)
         ));
     }
 
@@ -122,6 +131,7 @@ sealed class UsersService(
             {
                 { UserClaims.CanReadUsers, request.ReadUsers },
                 { UserClaims.CanUpdateUserPermissions, request.UpdateUserPermissions },
+                { UserClaims.CanLockOutUsers, request.LockOutUsers },
             }
             .Where(x => x.Value is not null)
             .ToDictionary(x => x.Key, x => x.Value);
@@ -156,6 +166,35 @@ sealed class UsersService(
         return (await GetUserClaimsAsync(user.Id)).WithErrors(errors);
     }
 
+    public async Task<Result> SetLockOutAsync(Guid userId, bool isLocked)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+
+        if (user is null)
+            return Result.Fail("User not found");
+
+        IdentityResult result;
+
+        if (isLocked)
+        {
+            result = await userManager.SetLockoutEnabledAsync(user, true);
+            if (!result.Succeeded)
+                return Result.Fail(result.Errors.Select(err => $"{err.Code}: {err.Description}"));
+
+            result = await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
+        }
+        else
+        {
+            result = await userManager.SetLockoutEndDateAsync(user, null);
+        }
+
+        if (!result.Succeeded)
+            return Result.Fail(result.Errors.Select(err => $"{err.Code}: {err.Description}"));
+
+        await InvalidateUserSecurityStampAsync(user);
+        return Result.Ok();
+    }
+
     async Task AddClaim(IdentityUser<Guid> user, Claim claim)
     {
         var result = await userManager.AddClaimAsync(user, claim);
@@ -172,10 +211,10 @@ sealed class UsersService(
             throw new InvalidOperationException("Failed to remove a claim from the user");
     }
 
-    static Claim CreateClaim(string type, string value)
-    {
-        return new(type, value);
-    }
+    static Claim CreateClaim(string type, string value) => new(type, value);
+
+    static bool IsUserLockedOut(bool lockoutEnabled, DateTimeOffset? lockoutEnd) =>
+        lockoutEnabled && lockoutEnd is { } end && end > DateTimeOffset.UtcNow;
 
     async Task InvalidateUserSecurityStampAsync(IdentityUser<Guid> user)
     {

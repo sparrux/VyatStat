@@ -64,6 +64,30 @@ export class DashboardPageComponent implements OnInit {
     });
   }
 
+  protected async onBlockUser(user: DashboardUser): Promise<void> {
+    const nextLocked = !user.isLockedOut;
+    const action = nextLocked ? 'block' : 'unblock';
+    const displayName = user.userName?.trim() || 'this user';
+
+    if (!confirm(`Are you sure you want to ${action} ${displayName}?`)) {
+      return;
+    }
+
+    try {
+      await firstValueFrom(this.usersService.setUserLockOut(user.id, nextLocked));
+      this.users.update((users) =>
+        users.map((item) =>
+          item.id === user.id ? { ...item, isLockedOut: nextLocked } : item,
+        ),
+      );
+    } catch {
+      this.dialog.openMessage(
+        `Failed to ${action} user. Please try again.`,
+        'Error',
+      );
+    }
+  }
+
   private async loadPageData(): Promise<void> {
     this.loadError.set(null);
     this.isLoading.set(true);

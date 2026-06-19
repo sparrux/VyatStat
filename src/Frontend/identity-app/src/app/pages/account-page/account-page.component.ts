@@ -55,6 +55,9 @@ export class AccountPageComponent implements OnInit {
     if (c.updateUserPermissions) {
       opportunities.push('Manage users permissions');
     }
+    if (c.lockOutUsers) {
+      opportunities.push('Block and unblock users');
+    }
     if (opportunities.length === 0) {
       opportunities.push('Use your personal account features');
     }

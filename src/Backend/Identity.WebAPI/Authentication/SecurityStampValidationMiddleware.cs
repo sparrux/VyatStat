@@ -32,14 +32,22 @@ sealed class SecurityStampValidationMiddleware(
             return;
         }
 
-        var currentStamp = await cache.GetOrCreateAsync(SecurityStampCache.Key(userId), async entry =>
+        var authState = await cache.GetOrCreateAsync(SecurityStampCache.Key(userId), async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
             var user = await userManager.FindByIdAsync(userId);
-            return user is null ? null : await userManager.GetSecurityStampAsync(user);
+            if (user is null)
+                return new UserAuthState(null, true);
+
+            return new UserAuthState(
+                await userManager.GetSecurityStampAsync(user),
+                await userManager.IsLockedOutAsync(user));
         });
 
-        if (currentStamp is null || !string.Equals(currentStamp, tokenStamp, StringComparison.Ordinal))
+        if (authState is null
+            || authState.Stamp is null
+            || !string.Equals(authState.Stamp, tokenStamp, StringComparison.Ordinal)
+            || authState.IsLockedOut)
         {
             await RejectStaleTokenAsync(context);
             return;
@@ -47,6 +55,8 @@ sealed class SecurityStampValidationMiddleware(
 
         await next(context);
     }
+
+    sealed record UserAuthState(string? Stamp, bool IsLockedOut);
 
     static Task RejectStaleTokenAsync(HttpContext context)
     {

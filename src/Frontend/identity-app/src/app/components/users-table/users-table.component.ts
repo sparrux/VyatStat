@@ -13,9 +13,11 @@ export class UsersTableComponent {
   readonly skip = input.required<number>();
   readonly pageSize = input.required<number>();
   readonly canUpdatePermissions = input(false);
+  readonly canLockOutUsers = input(false);
 
   readonly pageChange = output<number>();
   readonly changeAccess = output<DashboardUser>();
+  readonly blockUser = output<DashboardUser>();
 
   protected readonly hasPreviousPage = computed(() => this.skip() > 0);
 
@@ -43,8 +45,20 @@ export class UsersTableComponent {
     return user.claims?.isAdmin ? 'Administrator' : 'User';
   }
 
-  protected verifiedLabel(_user: DashboardUser): string {
-    return '—';
+  protected statusLabel(user: DashboardUser): string {
+    return user.isLockedOut ? 'Blocked' : 'Active';
+  }
+
+  protected blockActionLabel(user: DashboardUser): string {
+    return user.isLockedOut ? 'Unblock user' : 'Block user';
+  }
+
+  protected blockActionIcon(user: DashboardUser): string {
+    return user.isLockedOut ? '/icons/unlock.png' : '/icons/lock.png';
+  }
+
+  protected blockActionButtonClass(user: DashboardUser): string {
+    return user.isLockedOut ? 'vt-btn--table-unblock' : 'vt-btn--table-danger';
   }
 
   protected onPreviousPage(): void {
@@ -69,7 +83,7 @@ export class UsersTableComponent {
     this.changeAccess.emit(user);
   }
 
-  protected onBlockClick(_user: DashboardUser): void {
-    // Placeholder until block user flow exists
+  protected onBlockClick(user: DashboardUser): void {
+    this.blockUser.emit(user);
   }
 }

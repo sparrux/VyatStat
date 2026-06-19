@@ -34,6 +34,9 @@ static class DependencyInjection
             
             options.AddPolicy(Policies.UpdateUserPermissions, policy => 
                 policy.RequireClaim(UserClaimTypes.Permission, UserClaims.CanUpdateUserPermissions));
+            
+            options.AddPolicy(Policies.LockOutUsers, policy => 
+                policy.RequireClaim(UserClaimTypes.Permission, UserClaims.CanLockOutUsers));
         });
         
         builder.AddCors();

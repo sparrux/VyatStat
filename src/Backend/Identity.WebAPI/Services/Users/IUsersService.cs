@@ -10,4 +10,5 @@ public interface IUsersService
     Task<Result<UserResponse>> CreateAsync(RegistrationRequest request);
     Task<Result<UserClaimsResponse>> GetUserClaimsAsync(Guid userId);
     Task<Result<UserClaimsResponse>> UpdateUserPermissionsAsync(Guid userId, UpdateUserPermissionsRequest request);
+    Task<Result> SetLockOutAsync(Guid userId, bool isLocked);
 }

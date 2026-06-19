@@ -15,4 +15,5 @@ static class UserClaims
     // Permissions
     public const string CanReadUsers = "id.user.permission.read_users";
     public const string CanUpdateUserPermissions = "id.user.permission.update_user_permissions";
+    public const string CanLockOutUsers = "id.user.permission.lock_out_users";
 }
