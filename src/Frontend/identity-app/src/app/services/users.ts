@@ -20,7 +20,7 @@ export interface UpdateUserPermissionsRequest {
   updateUserPermissions: boolean;
 }
 
-const PAGE_SIZE = 30;
+const PAGE_SIZE = 10;
 
 @Injectable({
   providedIn: 'root',

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Identity.WebAPI.Authentication;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +13,8 @@ namespace Identity.WebAPI.Controller;
 public class AuthorizationController(
     UserManager<IdentityUser<Guid>> userManager,
     SignInManager<IdentityUser<Guid>> signInManager,
-    IOpenIddictApplicationManager applicationManager
+    IOpenIddictApplicationManager applicationManager,
+    ITokenClaimsBuilder tokenClaimsBuilder
 ) : IdentityControllerBase
 {
     [HttpGet("/connect/authorize")]
@@ -54,28 +56,7 @@ public class AuthorizationController(
             });
         }
         
-        var claims = await userManager.GetClaimsAsync(user);
-
-        // 3. Создание ClaimsPrincipal для генерации OAuth токена
-        var identity = new ClaimsIdentity(
-            authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-            nameType: OpenIddictConstants.Claims.Name,
-            roleType: OpenIddictConstants.Claims.Role);
-
-        // Добавляем обязательные OAuth claims
-        identity.AddClaim(OpenIddictConstants.Claims.Subject, user.Id.ToString());
-        identity.AddClaim(OpenIddictConstants.Claims.Username, user.UserName!);
-
-        identity.AddClaims(claims);
-
-        // Настраиваем, какие клеймы попадут и в Access Token, и в Refresh Token
-        identity.SetDestinations(claim => [
-            OpenIddictConstants.Destinations.AccessToken,
-            OpenIddictConstants.Destinations.IdentityToken
-        ]);
-
-        var principal = new ClaimsPrincipal(identity);
-        principal.SetScopes(request.GetScopes());
+        var principal = await tokenClaimsBuilder.BuildAsync(user, request.GetScopes());
 
         // OpenIddict перехватит этот SignIn и сделает редирект обратно в Angular (на /callback) с параметром ?code=...
         return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -102,15 +83,12 @@ public class AuthorizationController(
         {
             var principal = (await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)).Principal;
             
-            // Получаем пользователя, чтобы убедиться, что его аккаунт все еще активен
             var user = await userManager.FindByIdAsync(principal!.GetClaim(OpenIddictConstants.Claims.Subject)!);
-            if (user == null)
-            {
+            if (user is null)
                 return Forbid(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-            }
 
-            // Генерируем новую пару Access + Refresh токенов
-            return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            var freshPrincipal = await tokenClaimsBuilder.BuildAsync(user, principal.GetScopes());
+            return SignIn(freshPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
         
         if (request.IsClientCredentialsGrantType())

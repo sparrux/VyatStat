@@ -1,4 +1,5 @@
 using Identity.WebAPI;
+using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Services.Seed;
 using Scalar.AspNetCore;
 using ServiceDefaults;
@@ -13,6 +14,7 @@ var app = builder.Build();
 app.UseCors();
 
 app.UseAuthentication();
+app.UseSecurityStampValidation();
 app.UseAuthorization();
 
 app.MapDefaultEndpoints();

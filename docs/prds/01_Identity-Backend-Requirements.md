@@ -41,12 +41,12 @@ Content-Type: application/json
 }
 ```
 
-#### Get user profile
+#### Get your own account info
 
 Authorization Required
 
 ```http request
-GET /profile HTTP/2
+GET /me HTTP/2
 ```
 
 #### Get user permissions
@@ -56,7 +56,7 @@ Authorization Required.
 You need advanced access to know about other users' access rights (except yourself).
 
 ```http request
-GET /:guid/permissions HTTP/2
+GET /users/:guid/permissions HTTP/2
 ```
 
 #### Change user permissions
@@ -68,7 +68,7 @@ You need advanced access to change users permissions.
 If you do not want to change the current access rights settings, leave field with the corresponding access right and null value.
 
 ```http request
-POST /:guid/permissions HTTP/2
+POST /users/:guid/permissions HTTP/2
 Content-Type: application/json
 
 {

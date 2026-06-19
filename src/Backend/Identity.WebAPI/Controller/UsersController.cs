@@ -10,7 +10,7 @@ using OpenIddict.Validation.AspNetCore;
 namespace Identity.WebAPI.Controller;
 
 [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
-public class UsersController(
+public sealed class UsersController(
     IUsersService usersService,
     IAuthorizationService authorizationService
 ) : IdentityControllerBase

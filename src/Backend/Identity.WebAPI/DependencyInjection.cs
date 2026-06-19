@@ -14,8 +14,10 @@ static class DependencyInjection
     {
         builder.Services.AddOpenApi();
         builder.Services.AddControllers();
+        builder.Services.AddMemoryCache();
 
         builder.Services.AddScoped<IUsersService, UsersService>();
+        builder.Services.AddScoped<ITokenClaimsBuilder, TokenClaimsBuilder>();
         
         builder.Services.AddAuthentication(options =>
         {

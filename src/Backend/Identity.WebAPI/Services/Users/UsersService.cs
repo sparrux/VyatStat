@@ -4,12 +4,14 @@ using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Contracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Identity.WebAPI.Services.Users;
 
 sealed class UsersService(
     ILogger<UsersService> logger,
-    UserManager<IdentityUser<Guid>> userManager
+    UserManager<IdentityUser<Guid>> userManager,
+    IMemoryCache memoryCache
 ) : IUsersService
 {
     public async Task<Result<UsersResponse>> GetUsersAsync(int take, int skip)
@@ -124,20 +126,32 @@ sealed class UsersService(
             .Where(x => x.Value is not null)
             .ToDictionary(x => x.Key, x => x.Value);
 
+        var permissionsChanged = false;
+
         foreach (var updatePair in updateValuesMap)
         {
             try
             {
                 if (updatePair.Value is true && !claimsMap.ContainsKey(updatePair.Key))
+                {
                     await AddClaim(user, CreateClaim(UserClaimTypes.Permission, updatePair.Key));
+                    permissionsChanged = true;
+                }
+
                 if (updatePair.Value is false && claimsMap.TryGetValue(updatePair.Key, out var userClaim))
+                {
                     await RemoveClaim(user, userClaim);
+                    permissionsChanged = true;
+                }
             }
             catch (Exception ex)
             {
                 errors.Add(new Error(ex.Message, new ExceptionalError(ex)));
             }
         }
+
+        if (permissionsChanged)
+            await InvalidateUserSecurityStampAsync(user);
 
         return (await GetUserClaimsAsync(user.Id)).WithErrors(errors);
     }
@@ -161,5 +175,14 @@ sealed class UsersService(
     static Claim CreateClaim(string type, string value)
     {
         return new(type, value);
+    }
+
+    async Task InvalidateUserSecurityStampAsync(IdentityUser<Guid> user)
+    {
+        var result = await userManager.UpdateSecurityStampAsync(user);
+        if (!result.Succeeded)
+            throw new InvalidOperationException("Failed to update user security stamp");
+
+        SecurityStampCache.Invalidate(memoryCache, user.Id);
     }
 }

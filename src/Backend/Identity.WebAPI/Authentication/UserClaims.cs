@@ -4,6 +4,7 @@ static class UserClaimTypes
 {
     public const string Role = "id.user.role";
     public const string Permission = "id.user.permission";
+    public const string SecurityStamp = "id.user.security_stamp";
 }
 
 static class UserClaims

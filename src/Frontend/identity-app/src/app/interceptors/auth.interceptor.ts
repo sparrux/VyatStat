@@ -33,6 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => err);
       }
       if (req.headers.has(AUTH_RETRY_HEADER)) {
+        auth.invalidateSessionAndRedirectToLogin();
         return throwError(() => err);
       }
       return auth.refreshAccessTokenSilently().pipe(
