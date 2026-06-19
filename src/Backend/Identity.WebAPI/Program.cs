@@ -24,10 +24,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
-
-    await DatabaseSeeder.SeedDatabaseAsync(app);
 }
 
+await DatabaseSeeder.SeedDatabaseAsync(app);
 await UsersSeeder.SeedAsync(app);
 await OAuthApplicationSeeder.SeedClientsAsync(app);
 

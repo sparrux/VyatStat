@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Configuration;
 using Identity.WebAPI.Persistence;
@@ -121,11 +122,26 @@ static class DependencyInjection
                 );
 
                 options.RegisterAudiences(audiences);
-        
-                // Register the signing and encryption credentials.
-                options.AddDevelopmentEncryptionCertificate()
-                    .AddDevelopmentSigningCertificate();
 
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.AddDevelopmentEncryptionCertificate()
+                        .AddDevelopmentSigningCertificate();
+                }
+                else
+                {
+                    var encryptionCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+                        "/app/certs/encryption.pfx", 
+                        Environment.GetEnvironmentVariable("ENCRYPTION_CERT_PASSWORD"));
+
+                    var signingCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+                        "/app/certs/signing.pfx", 
+                        Environment.GetEnvironmentVariable("SIGNING_CERT_PASSWORD"));
+                    
+                    options.AddEncryptionCertificate(encryptionCertificate)
+                        .AddSigningCertificate(signingCertificate);
+                }
+                
                 options.UseAspNetCore()
                     .EnableTokenEndpointPassthrough()
                     .EnableAuthorizationEndpointPassthrough();
