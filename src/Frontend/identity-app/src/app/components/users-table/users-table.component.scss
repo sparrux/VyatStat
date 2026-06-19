@@ -2,9 +2,10 @@
   display: block;
 }
 
-@media (max-width: 720px) {
-  .vt-table__actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.vt-table__actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.5rem;
 }

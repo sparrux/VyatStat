@@ -29,6 +29,7 @@
   padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--vt-border-subtle);
   vertical-align: middle;
+  text-align: left;
 }
 
 .vt-table tbody tr:last-child td {
@@ -47,7 +48,8 @@
 
 .vt-table__actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 0.5rem;
   align-items: center;
 }
