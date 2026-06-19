@@ -13,7 +13,7 @@ sealed class SecurityStampValidationMiddleware(
     {
         if (context.User.Identity?.IsAuthenticated != true)
         {
-            await next(context);
+            await next(context);    
             return;
         }
 

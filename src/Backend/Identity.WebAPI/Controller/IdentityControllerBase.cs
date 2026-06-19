@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using OpenIddict.Abstractions;
 
 namespace Identity.WebAPI.Controller;
 
@@ -9,7 +10,7 @@ public abstract class IdentityControllerBase : ControllerBase
     {
         get
         {
-            if (User.FindFirst("sub")?.Value is var userId && string.IsNullOrWhiteSpace(userId))
+            if (User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value is var userId && string.IsNullOrWhiteSpace(userId))
                 throw new InvalidOperationException("User identifier is required");
         
             return Guid.Parse(userId);

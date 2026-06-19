@@ -1,4 +1,5 @@
 using Identity.WebAPI.Authentication;
+using Identity.WebAPI.Configuration;
 using Identity.WebAPI.Persistence;
 using Identity.WebAPI.Services.Users;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +13,14 @@ static class DependencyInjection
 {
     public static void AddWebServices(this WebApplicationBuilder builder)
     {
+        builder.Services.Configure<OpenIddictOptions>(
+            builder.Configuration.GetSection(OpenIddictOptions.SectionName));
+
+        builder.Services.AddSingleton<IOAuthClientRegistry, OAuthClientRegistry>();
+        builder.Services.AddSingleton<IAudienceResolver, AudienceResolver>();
+
+        ValidateAudienceConfiguration(builder.Configuration);
+
         builder.Services.AddOpenApi();
         builder.Services.AddControllers();
         builder.Services.AddMemoryCache();
@@ -54,10 +63,10 @@ static class DependencyInjection
         
         builder.Services.AddCors(options => {
             options.AddDefaultPolicy(policy => {
-                policy.WithOrigins(clientUrl) // Адрес Angular приложения
+                policy.WithOrigins(clientUrl)
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .AllowCredentials(); // Нужно для обработки некоторых типов OAuth-запросов
+                    .AllowCredentials();
             });
         });
     }
@@ -85,6 +94,11 @@ static class DependencyInjection
 
     static void AddOpenIddict(this WebApplicationBuilder builder)
     {
+        var audiences = builder.Configuration
+            .GetSection(OpenIddictOptions.SectionName)
+            .Get<OpenIddictOptions>()!
+            .Audiences;
+
         builder.Services.AddOpenIddict()
             .AddCore(options =>
             {
@@ -93,22 +107,25 @@ static class DependencyInjection
             })
             .AddServer(options =>
             {
-                // Enable the token endpoint.
                 options.SetAuthorizationEndpointUris("connect/authorize")
                     .SetTokenEndpointUris("connect/token");
                 
-                // Enable the client credentials flow.
                 options.AllowClientCredentialsFlow()
                     .AllowAuthorizationCodeFlow()
                     .AllowRefreshTokenFlow();
         
-                options.RegisterScopes(OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.Profile);
+                options.RegisterScopes(
+                    OpenIddictConstants.Scopes.OfflineAccess, 
+                    OpenIddictConstants.Scopes.OpenId, 
+                    OpenIddictConstants.Scopes.Profile
+                );
+
+                options.RegisterAudiences(audiences);
         
                 // Register the signing and encryption credentials.
                 options.AddDevelopmentEncryptionCertificate()
                     .AddDevelopmentSigningCertificate();
 
-                // Register the ASP.NET Core host and configure the ASP.NET Core options.
                 options.UseAspNetCore()
                     .EnableTokenEndpointPassthrough()
                     .EnableAuthorizationEndpointPassthrough();
@@ -118,8 +135,34 @@ static class DependencyInjection
             })
             .AddValidation(options => 
             {
+                options.AddAudiences(audiences);
                 options.UseLocalServer();
                 options.UseAspNetCore();
             });
+    }
+
+    static void ValidateAudienceConfiguration(IConfiguration configuration)
+    {
+        var openIddictOptions = configuration
+            .GetSection(OpenIddictOptions.SectionName)
+            .Get<OpenIddictOptions>();
+
+        if (openIddictOptions?.Audiences is not { Length: > 0 } audiences)
+            throw new InvalidOperationException(
+                "OpenIddict audiences are not configured. Add at least one audience to OpenIddict:Audiences");
+
+        var allowedAudiences = audiences.ToHashSet(StringComparer.Ordinal);
+        var registry = new OAuthClientRegistry(configuration);
+
+        foreach (var client in registry.Clients)
+        {
+            if (string.IsNullOrWhiteSpace(client.Audience))
+                throw new InvalidOperationException(
+                    $"Client '{client.ClientId}' is missing Clients:*:Audience configuration");
+
+            if (!allowedAudiences.Contains(client.Audience))
+                throw new InvalidOperationException(
+                    $"Client '{client.ClientId}' uses audience '{client.Audience}' that is not listed in OpenIddict:Audiences");
+        }
     }
 }

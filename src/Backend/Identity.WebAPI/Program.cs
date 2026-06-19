@@ -14,8 +14,8 @@ var app = builder.Build();
 app.UseCors();
 
 app.UseAuthentication();
-app.UseSecurityStampValidation();
 app.UseAuthorization();
+app.UseSecurityStampValidation();
 
 app.MapDefaultEndpoints();
 app.MapControllers();
