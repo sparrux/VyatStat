@@ -8,6 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService, UserClaims, UserProfile } from '../../services/auth';
+import { DialogService } from '../../services/dialog';
 
 @Component({
   selector: 'app-account-page',
@@ -18,6 +19,7 @@ import { AuthService, UserClaims, UserProfile } from '../../services/auth';
 })
 export class AccountPageComponent implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly dialog = inject(DialogService);
 
   protected readonly profile = signal<UserProfile | null>(null);
 
@@ -110,5 +112,17 @@ export class AccountPageComponent implements OnInit {
 
   protected onUpdatePhotoClick(): void {
     // Placeholder until photo upload exists
+  }
+
+  protected onChangePasswordClick(): void {
+    const dialogRef = this.dialog.openChangePassword();
+
+    dialogRef.closed.subscribe((changed) => {
+      if (!changed) {
+        return;
+      }
+
+      this.dialog.openMessage('Your password has been updated.', 'Password changed');
+    });
   }
 }

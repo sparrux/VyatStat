@@ -195,6 +195,23 @@ sealed class UsersService(
         return Result.Ok();
     }
 
+    public async Task<Result> UpdatePasswordAsync(Guid userId, UpdatePasswordRequest request)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+
+        if (user is null)
+            return Result.Fail("User not found");
+
+        var result = await userManager.ChangePasswordAsync(
+            user, request.CurrentPassword, request.NewPassword);
+
+        if (!result.Succeeded)
+            return Result.Fail(result.Errors.Select(err => $"{err.Code}: {err.Description}"));
+
+        await InvalidateUserSecurityStampAsync(user);
+        return Result.Ok();
+    }
+
     async Task AddClaim(IdentityUser<Guid> user, Claim claim)
     {
         var result = await userManager.AddClaimAsync(user, claim);

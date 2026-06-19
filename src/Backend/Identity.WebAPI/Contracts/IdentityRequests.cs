@@ -1,6 +1,11 @@
 namespace Identity.WebAPI.Contracts;
 
-public record RegistrationRequest(
+public sealed record RegistrationRequest(
     string Login, 
     string Password
+);
+
+public sealed record UpdatePasswordRequest(
+    string CurrentPassword,
+    string NewPassword
 );

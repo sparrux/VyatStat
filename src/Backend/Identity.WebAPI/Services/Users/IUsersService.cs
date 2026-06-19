@@ -11,4 +11,5 @@ public interface IUsersService
     Task<Result<UserClaimsResponse>> GetUserClaimsAsync(Guid userId);
     Task<Result<UserClaimsResponse>> UpdateUserPermissionsAsync(Guid userId, UpdateUserPermissionsRequest request);
     Task<Result> SetLockOutAsync(Guid userId, bool isLocked);
+    Task<Result> UpdatePasswordAsync(Guid userId, UpdatePasswordRequest request);
 }

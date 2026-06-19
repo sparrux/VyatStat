@@ -65,13 +65,22 @@
             </div>
           </div>
           <div class="account-page__card-foot">
-            <button
-              type="button"
-              class="vt-btn vt-btn--primary account-page__foot-btn"
-              (click)="onUpdatePhotoClick()"
-            >
-              Update Photo
-            </button>
+            <div class="account-page__foot-actions">
+              <button
+                type="button"
+                class="vt-btn vt-btn--primary account-page__foot-btn"
+                (click)="onUpdatePhotoClick()"
+              >
+                Update Photo
+              </button>
+              <button
+                type="button"
+                class="vt-btn vt-btn--secondary account-page__foot-btn"
+                (click)="onChangePasswordClick()"
+              >
+                Change Password
+              </button>
+            </div>
           </div>
         </section>
 

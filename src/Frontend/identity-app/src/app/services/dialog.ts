@@ -4,6 +4,7 @@ import {
   MessageDialogComponent,
   MessageDialogData,
 } from '../components/message-dialog/message-dialog.component';
+import { ChangePasswordDialogComponent } from '../components/change-password-dialog/change-password-dialog.component';
 import {
   UserPermissionsDialogComponent,
   UserPermissionsDialogData,
@@ -46,6 +47,12 @@ export class DialogService {
     return this.open(UserPermissionsDialogComponent, {
       data: { user } satisfies UserPermissionsDialogData,
       maxWidth: '32rem',
+    });
+  }
+
+  openChangePassword(): DialogRef<boolean | undefined, ChangePasswordDialogComponent> {
+    return this.open(ChangePasswordDialogComponent, {
+      maxWidth: '28rem',
     });
   }
 }

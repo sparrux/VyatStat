@@ -32,6 +32,13 @@ public sealed class UsersController(
         return user.ToActionResult();
     }
     
+    [HttpPut("/me/password")]
+    public async Task<ActionResult> UpdatePassword(UpdatePasswordRequest request)
+    {
+        var result = await usersService.UpdatePasswordAsync(UserId, request);
+        return result.ToActionResult();
+    }
+    
     [Authorize(Policy = Policies.ReadUsers, AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
     [HttpGet("/users/{userId:guid}")]
     public async Task<ActionResult<UserResponse>> GetUser(Guid userId)

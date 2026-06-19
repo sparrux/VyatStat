@@ -106,6 +106,12 @@
   background: var(--vt-surface-card);
 }
 
+.account-page__foot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
 .account-page__foot-btn {
   text-decoration: none;
 }

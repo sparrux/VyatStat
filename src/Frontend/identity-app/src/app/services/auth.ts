@@ -33,6 +33,11 @@ export interface OAuthTokenResponse {
   expires_in?: number;
 }
 
+export interface UpdatePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 /** Refresh this many ms before JWT exp (target ~30–60 s window with skew). */
 const PROACTIVE_LEAD_MS = 50_000;
 /** Extra safety for client clock drift and slow networks. */
@@ -120,6 +125,21 @@ export class AuthService {
           Authorization: `Bearer ${token}`,
         });
         return this.http.get<UserProfile>(`${this.authServerUrl}/me`, { headers });
+      }),
+    );
+  }
+
+  updatePassword(request: UpdatePasswordRequest): Observable<void> {
+    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
+      switchMap(() => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          return throwError(() => new Error('Missing access token after refresh'));
+        }
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        });
+        return this.http.put<void>(`${this.authServerUrl}/me/password`, request, { headers });
       }),
     );
   }
