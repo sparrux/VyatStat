@@ -1,3 +1,4 @@
+using Identity.WebAPI.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
 
@@ -10,10 +11,15 @@ public abstract class IdentityControllerBase : ControllerBase
     {
         get
         {
-            if (User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value is var userId && string.IsNullOrWhiteSpace(userId))
-                throw new InvalidOperationException("User identifier is required");
-        
-            return Guid.Parse(userId);
+            var userId = User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value;
+
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new UnauthorizedAccessException();
+
+            if (!Guid.TryParse(userId, out var parsedUserId))
+                throw new FormatException(ApiErrors.InvalidUserIdentifier);
+
+            return parsedUserId;
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using System.Security.Claims;
 using Identity.WebAPI.Authentication;
+using Identity.WebAPI.Exceptions;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -29,7 +30,7 @@ public sealed class AuthorizationController(
             return BadRequest(new OpenIddictResponse
             {
                 Error = OpenIddictConstants.Errors.InvalidRequest,
-                ErrorDescription = "Invalid OAuth 2.0 request"
+                ErrorDescription = ApiErrors.OAuth.InvalidRequest
             });
         
         if (!request.IsAuthorizationCodeGrantType() && request.ResponseType != OpenIddictConstants.ResponseTypes.Code)
@@ -44,7 +45,7 @@ public sealed class AuthorizationController(
             return BadRequest(new OpenIddictResponse
             {
                 Error = OpenIddictConstants.Errors.InvalidGrant,
-                ErrorDescription = "Invalid login or password"
+                ErrorDescription = ApiErrors.OAuth.InvalidUserCredentials
             });
 
         var result = await signInManager.CheckPasswordSignInAsync(user, request.Password!, lockoutOnFailure: false);
@@ -52,14 +53,14 @@ public sealed class AuthorizationController(
             return BadRequest(new OpenIddictResponse
             {
                 Error = OpenIddictConstants.Errors.InvalidGrant,
-                ErrorDescription = "Invalid login or password"
+                ErrorDescription = ApiErrors.OAuth.InvalidUserCredentials
             });
 
         if (await userManager.IsLockedOutAsync(user))
             return BadRequest(new OpenIddictResponse
             {
                 Error = OpenIddictConstants.Errors.AccessDenied,
-                ErrorDescription = "Your account is locked out"
+                ErrorDescription = ApiErrors.OAuth.AccountLockedOut
             });
         
         var principal = await tokenClaimsBuilder.BuildAsync(user, request.GetScopes());
@@ -77,7 +78,7 @@ public sealed class AuthorizationController(
             return BadRequest(new OpenIddictResponse
             {
                 Error = OpenIddictConstants.Errors.InvalidRequest,
-                ErrorDescription = "Invalid OAuth 2.0 request"
+                ErrorDescription = ApiErrors.OAuth.InvalidRequest
             });
 
         if (request.IsAuthorizationCodeGrantType())
@@ -118,7 +119,7 @@ public sealed class AuthorizationController(
                 return BadRequest(new OpenIddictResponse
                 {
                     Error = OpenIddictConstants.Errors.InvalidClient,
-                    ErrorDescription = "The client application not found by client id"
+                    ErrorDescription = ApiErrors.OAuth.InvalidClient
                 });
 
             if (ResolveAudience(request, request.ClientId) is not { } audience)
@@ -146,7 +147,7 @@ public sealed class AuthorizationController(
         return BadRequest(new OpenIddictResponse
         {
             Error = OpenIddictConstants.Errors.UnsupportedGrantType,
-            ErrorDescription = "Current grand type is unsupported"
+            ErrorDescription = ApiErrors.OAuth.UnsupportedGrantType
         });
     }
 
@@ -157,6 +158,6 @@ public sealed class AuthorizationController(
         new(new OpenIddictResponse
         {
             Error = OpenIddictConstants.Errors.InvalidRequest,
-            ErrorDescription = "Invalid audience"
+            ErrorDescription = ApiErrors.OAuth.InvalidAudience
         });
 }

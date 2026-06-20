@@ -94,7 +94,7 @@ public sealed class UsersController(
         Guid userId, bool lockout)
     {
         if (userId == UserId)
-            return BadRequest("Cannot change lockout status for your own account.");
+            return BadRequest("Cannot change lockout status for your own account");
 
         var result = await usersService.SetLockOutAsync(userId, lockout);
         return result.ToActionResult();

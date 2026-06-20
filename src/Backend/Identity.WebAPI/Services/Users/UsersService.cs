@@ -2,6 +2,8 @@ using System.Security.Claims;
 using FluentResults;
 using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Contracts;
+using Identity.WebAPI.Exceptions;
+using Identity.WebAPI.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -51,60 +53,40 @@ sealed class UsersService(
 
     public async Task<Result<UserResponse>> CreateAsync(RegistrationRequest request)
     {
-        List<IdentityError> errors = [];
-        
         var user = new IdentityUser<Guid>
         {
             UserName = request.Login,
         };
-        
-        try
-        {
-            var result = await userManager.CreateAsync(user, request.Password);
 
-            if (result.Succeeded)
-                return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, null, false));
-            
-            errors.AddRange(result.Errors);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, ex.Message);
-            return Result.Fail<UserResponse>(ex.Message);
-        }
-        
+        var result = await userManager.CreateAsync(user, request.Password);
+
+        if (result.Succeeded)
+            return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, null, false));
+
         return Result.Fail<UserResponse>(
-            errors.Select(err => $"{err.Code}: {err.Description}"));
+            result.Errors.Select(err => $"{err.Code}: {err.Description}"));
     }
 
     public async Task<Result<UserResponse>> GetUserAsync(Guid userId)
     {
-        try
-        {
-            var user = await userManager.FindByIdAsync(userId.ToString());
-            
-            var claims = await GetUserClaimsAsync(userId);
-            
-            if (claims.IsFailed)
-                return claims.ToResult();
-            
-            if (user is null)
-                return Result.Fail("User not found");
+        var user = await userManager.FindByIdAsync(userId.ToString());
 
-            var isLockedOut = await userManager.IsLockedOutAsync(user);
-            return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, claims.Value, isLockedOut));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, ex.Message);
-            return Result.Fail(ex.Message);
-        }
+        var claims = await GetUserClaimsAsync(userId);
+
+        if (claims.IsFailed)
+            return claims.ToResult();
+
+        if (user is null)
+            return Result.Fail(ApiErrors.UserNotFound);
+
+        var isLockedOut = await userManager.IsLockedOutAsync(user);
+        return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, claims.Value, isLockedOut));
     }
 
     public async Task<Result<UserClaimsResponse>> GetUserClaimsAsync(Guid userId)
     {
         if (await userManager.FindByIdAsync(userId.ToString()) is var user && user is null)
-            return Result.Fail<UserClaimsResponse>("User not found");
+            return Result.Fail<UserClaimsResponse>(ApiErrors.UserNotFound);
 
         var claims = await userManager.GetClaimsAsync(user);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
@@ -120,7 +102,7 @@ sealed class UsersService(
     public async Task<Result<UserClaimsResponse>> UpdateUserPermissionsAsync(Guid userId, UpdateUserPermissionsRequest request)
     {
         if (await userManager.FindByIdAsync(userId.ToString()) is var user && user is null)
-            return Result.Fail<UserClaimsResponse>("User not found");
+            return Result.Fail<UserClaimsResponse>(ApiErrors.UserNotFound);
 
         var errors = new List<Error>();
         
@@ -156,7 +138,8 @@ sealed class UsersService(
             }
             catch (Exception ex)
             {
-                errors.Add(new Error(ex.Message, new ExceptionalError(ex)));
+                logger.LogError(ex, "Failed to update permission {Permission} for user {UserId}", updatePair.Key, userId);
+                errors.Add(new Error(ApiErrors.FailedToUpdatePermissions, new ExceptionalError(ex)));
             }
         }
 
@@ -171,7 +154,7 @@ sealed class UsersService(
         var user = await userManager.FindByIdAsync(userId.ToString());
 
         if (user is null)
-            return Result.Fail("User not found");
+            return Result.Fail(ApiErrors.UserNotFound);
 
         IdentityResult result;
 
@@ -179,7 +162,7 @@ sealed class UsersService(
         {
             result = await userManager.SetLockoutEnabledAsync(user, true);
             if (!result.Succeeded)
-                return Result.Fail(result.Errors.Select(err => $"{err.Code}: {err.Description}"));
+                return Result.Fail(result.Errors.Stringify());
 
             result = await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
         }
@@ -189,7 +172,7 @@ sealed class UsersService(
         }
 
         if (!result.Succeeded)
-            return Result.Fail(result.Errors.Select(err => $"{err.Code}: {err.Description}"));
+            return Result.Fail(result.Errors.Stringify());
 
         await InvalidateUserSecurityStampAsync(user);
         return Result.Ok();
@@ -200,13 +183,13 @@ sealed class UsersService(
         var user = await userManager.FindByIdAsync(userId.ToString());
 
         if (user is null)
-            return Result.Fail("User not found");
+            return Result.Fail(ApiErrors.UserNotFound);
 
         var result = await userManager.ChangePasswordAsync(
             user, request.CurrentPassword, request.NewPassword);
 
         if (!result.Succeeded)
-            return Result.Fail(result.Errors.Select(err => $"{err.Code}: {err.Description}"));
+            return Result.Fail(result.Errors.Stringify());
 
         await InvalidateUserSecurityStampAsync(user);
         return Result.Ok();

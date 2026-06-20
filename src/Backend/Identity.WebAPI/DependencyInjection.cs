@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Configuration;
+using Identity.WebAPI.Exceptions;
 using Identity.WebAPI.Persistence;
 using Identity.WebAPI.Services.Users;
 using Microsoft.AspNetCore.Identity;
@@ -23,6 +24,8 @@ static class DependencyInjection
         ValidateAudienceConfiguration(builder.Configuration);
 
         builder.Services.AddOpenApi();
+        builder.Services.AddProblemDetails();
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         builder.Services.AddControllers();
         builder.Services.AddMemoryCache();
 
