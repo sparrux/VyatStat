@@ -21,6 +21,9 @@ sealed class UsersService(
 {
     public async Task<Result<UsersResponse>> GetUsersAsync(int take, int skip)
     {
+        take = Math.Clamp(take, 1, 100);
+        skip = Math.Max(skip, 0);
+        
         var usersQuery = userManager.Users
             .OrderBy(x => x.UserName)
             .Select(user => new
@@ -35,7 +38,7 @@ sealed class UsersService(
             .Take(take);
 
         var selection = await usersQuery.ToListAsync();
-        var totalTask = await userManager.Users.CountAsync();
+        var totalCount = await userManager.Users.CountAsync();
 
         var claimsByUserId = await LoadRoleAndPermissionClaimsAsync(selection.Select(u => u.Id).ToList());
 
@@ -47,7 +50,7 @@ sealed class UsersService(
                     user.Email,
                     claimsByUserId.GetValueOrDefault(user.Id) ?? MapClaimsToResponse([]),
                     IsUserLockedOut(user.LockoutEnabled, user.LockoutEnd))).ToList(),
-            Total: totalTask));
+            Total: totalCount));
     }
 
     public async Task<Result<UserResponse>> CreateAsync(RegistrationRequest request)
@@ -60,7 +63,8 @@ sealed class UsersService(
         var result = await userManager.CreateAsync(user, request.Password);
 
         if (result.Succeeded)
-            return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, null, false));
+            return Result.Ok(new UserResponse(
+                user.Id, user.UserName, user.Email, MapClaimsToResponse([]), false));
 
         return Result.Fail<UserResponse>(
             result.Errors.Stringify());
@@ -92,7 +96,9 @@ sealed class UsersService(
             return Result.Fail<UserClaimsResponse>(ApiErrors.UserNotFound);
 
         var claims = await userManager.GetClaimsAsync(user);
-        var claimsMap = claims.ToDictionary(x => x.Value, x => x);
+        var claimsMap = claims
+            .GroupBy(x => x.Value)
+            .ToDictionary(x => x.Key, x => x.ToArray());
 
         var updateValuesMap = new Dictionary<string, bool?>
             {
@@ -122,7 +128,7 @@ sealed class UsersService(
 
                 if (updatePair.Value is false && claimsMap.TryGetValue(updatePair.Key, out var userClaim))
                 {
-                    await RemoveClaim(user, userClaim);
+                    await RemoveClaims(user, userClaim);
                     permissionsChanged = true;
                 }
             }
@@ -199,9 +205,9 @@ sealed class UsersService(
             throw new InvalidOperationException("Failed to set a claim to the user");
     }
     
-    async Task RemoveClaim(IdentityUser<Guid> user, Claim claim)
+    async Task RemoveClaims(IdentityUser<Guid> user, params Claim[] claims)
     {
-        var result = await userManager.RemoveClaimAsync(user, claim);
+        var result = await userManager.RemoveClaimsAsync(user, claims);
         
         if (!result.Succeeded)
             throw new InvalidOperationException("Failed to remove a claim from the user");
