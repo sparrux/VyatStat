@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 
-namespace Identity.WebAPI.Authentication;
+namespace Identity.WebAPI.Authentication.Tokens;
 
 public interface ITokenClaimsBuilder
 {

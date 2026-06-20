@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Identity.WebAPI.Authentication;
+namespace Identity.WebAPI.Authentication.Cache;
 
 static class SecurityStampCache
 {

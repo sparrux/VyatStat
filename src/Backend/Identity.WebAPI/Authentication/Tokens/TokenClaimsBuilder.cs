@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 
-namespace Identity.WebAPI.Authentication;
+namespace Identity.WebAPI.Authentication.Tokens;
 
 sealed class TokenClaimsBuilder(UserManager<IdentityUser<Guid>> userManager) : ITokenClaimsBuilder
 {

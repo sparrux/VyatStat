@@ -1,5 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using Identity.WebAPI.Authentication;
+using Identity.WebAPI.Authentication.Audience;
+using Identity.WebAPI.Authentication.Tokens;
 using Identity.WebAPI.Configuration;
 using Identity.WebAPI.Exceptions;
 using Identity.WebAPI.Persistence;
@@ -79,7 +81,7 @@ static class DependencyInjection
     {
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseNpgsql(builder.Configuration.GetConnectionString("vyatka-identity"));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityDb"));
             options.UseOpenIddict();
         });
     }

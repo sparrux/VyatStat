@@ -3,7 +3,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var postgresDb = builder.AddPostgres(
         "vyatka-db")
     .WithDataVolume("vyatka_postgres-db")
-    .AddDatabase("vyatka-identity");
+    .AddDatabase("IdentityDb");
 
 var identityApi = builder.AddProject<Projects.Identity_WebAPI>(
         "identity-api")

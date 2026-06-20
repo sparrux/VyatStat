@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using System.Security.Claims;
-using Identity.WebAPI.Authentication;
+using Identity.WebAPI.Authentication.Audience;
+using Identity.WebAPI.Authentication.Tokens;
 using Identity.WebAPI.Exceptions;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;

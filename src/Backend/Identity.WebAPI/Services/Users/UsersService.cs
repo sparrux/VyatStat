@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using FluentResults;
 using Identity.WebAPI.Authentication;
+using Identity.WebAPI.Authentication.Cache;
 using Identity.WebAPI.Contracts;
 using Identity.WebAPI.Exceptions;
 using Identity.WebAPI.Extensions;

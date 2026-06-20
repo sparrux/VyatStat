@@ -1,8 +1,10 @@
+using Identity.WebAPI.Authentication;
+using Identity.WebAPI.Authentication.Cache;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using OpenIddict.Abstractions;
 
-namespace Identity.WebAPI.Authentication;
+namespace Identity.WebAPI.Middlewares;
 
 sealed class SecurityStampValidationMiddleware(
     RequestDelegate next,

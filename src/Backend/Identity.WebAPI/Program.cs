@@ -1,5 +1,5 @@
 using Identity.WebAPI;
-using Identity.WebAPI.Authentication;
+using Identity.WebAPI.Middlewares;
 using Identity.WebAPI.Services.Seed;
 using Scalar.AspNetCore;
 using ServiceDefaults;

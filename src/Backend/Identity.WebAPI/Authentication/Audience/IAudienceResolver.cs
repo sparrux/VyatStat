@@ -1,6 +1,6 @@
 using OpenIddict.Abstractions;
 
-namespace Identity.WebAPI.Authentication;
+namespace Identity.WebAPI.Authentication.Audience;
 
 public interface IAudienceResolver
 {

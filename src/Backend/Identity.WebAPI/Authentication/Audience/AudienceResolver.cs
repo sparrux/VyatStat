@@ -2,7 +2,7 @@ using Identity.WebAPI.Configuration;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 
-namespace Identity.WebAPI.Authentication;
+namespace Identity.WebAPI.Authentication.Audience;
 
 sealed class AudienceResolver(
     IOptions<OpenIddictOptions> openIddictOptions,
