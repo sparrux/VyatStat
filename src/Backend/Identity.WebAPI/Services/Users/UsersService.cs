@@ -21,9 +21,7 @@ sealed class UsersService(
 {
     public async Task<Result<UsersResponse>> GetUsersAsync(int take, int skip)
     {
-        var claims = new Dictionary<Guid, UserClaimsResponse?>();
-        
-        var selection = await userManager.Users
+        var usersQuery = userManager.Users
             .OrderBy(x => x.UserName)
             .Select(user => new
             {
@@ -32,26 +30,24 @@ sealed class UsersService(
                 user.Email,
                 user.LockoutEnabled,
                 user.LockoutEnd
-            }).Skip(skip).Take(take).ToListAsync();
-        
-        var totalUsers = await userManager.Users.CountAsync();
+            })
+            .Skip(skip)
+            .Take(take);
 
-        foreach (var user in selection)
-        {
-            var result = await GetUserClaimsAsync(user.Id);
-            claims[user.Id] = result.IsSuccess ? result.Value : null;
-        }
-        
+        var selection = await usersQuery.ToListAsync();
+        var totalTask = await userManager.Users.CountAsync();
+
+        var claimsByUserId = await LoadRoleAndPermissionClaimsAsync(selection.Select(u => u.Id).ToList());
+
         return Result.Ok(new UsersResponse(
             Users: selection.Select(user =>
                 new UserResponse(
                     user.Id,
                     user.UserName,
                     user.Email,
-                    claims[user.Id],
+                    claimsByUserId.GetValueOrDefault(user.Id) ?? MapClaimsToResponse([]),
                     IsUserLockedOut(user.LockoutEnabled, user.LockoutEnd))).ToList(),
-            Total: totalUsers
-        ));
+            Total: totalTask));
     }
 
     public async Task<Result<UserResponse>> CreateAsync(RegistrationRequest request)
@@ -67,39 +63,27 @@ sealed class UsersService(
             return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, null, false));
 
         return Result.Fail<UserResponse>(
-            result.Errors.Select(err => $"{err.Code}: {err.Description}"));
+            result.Errors.Stringify());
     }
 
     public async Task<Result<UserResponse>> GetUserAsync(Guid userId)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
 
-        var claims = await GetUserClaimsAsync(userId);
-
-        if (claims.IsFailed)
-            return claims.ToResult();
-
         if (user is null)
             return Result.Fail(ApiErrors.UserNotFound);
 
+        var claims = await GetUserClaimsInternalAsync(userId);
         var isLockedOut = await userManager.IsLockedOutAsync(user);
-        return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, claims.Value, isLockedOut));
+        return Result.Ok(new UserResponse(user.Id, user.UserName, user.Email, claims, isLockedOut));
     }
 
     public async Task<Result<UserClaimsResponse>> GetUserClaimsAsync(Guid userId)
     {
-        if (await userManager.FindByIdAsync(userId.ToString()) is var user && user is null)
+        if (!await userManager.Users.AnyAsync(u => u.Id == userId))
             return Result.Fail<UserClaimsResponse>(ApiErrors.UserNotFound);
 
-        var claims = await userManager.GetClaimsAsync(user);
-        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims));
-
-        return Result.Ok(new UserClaimsResponse(
-            IsAdmin: principal.HasClaim(UserClaimTypes.Role, UserClaims.Admin),
-            ReadUsers: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanReadUsers),
-            UpdateUserPermissions: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanUpdateUserPermissions),
-            LockOutUsers: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanLockOutUsers)
-        ));
+        return Result.Ok(await GetUserClaimsInternalAsync(userId));
     }
 
     public async Task<Result<UserClaimsResponse>> UpdateUserPermissionsAsync(Guid userId, UpdateUserPermissionsRequest request)
@@ -221,6 +205,43 @@ sealed class UsersService(
         
         if (!result.Succeeded)
             throw new InvalidOperationException("Failed to remove a claim from the user");
+    }
+
+    async Task<UserClaimsResponse> GetUserClaimsInternalAsync(Guid userId)
+    {
+        var claimsByUserId = await LoadRoleAndPermissionClaimsAsync([userId]);
+        return claimsByUserId.GetValueOrDefault(userId) ?? MapClaimsToResponse([]);
+    }
+
+    async Task<Dictionary<Guid, UserClaimsResponse>> LoadRoleAndPermissionClaimsAsync(IReadOnlyList<Guid> userIds)
+    {
+        if (userIds.Count == 0)
+            return [];
+
+        var claimRows = await dbContext.Set<IdentityUserClaim<Guid>>()
+            .AsNoTracking()
+            .Where(c => userIds.Contains(c.UserId)
+                && (c.ClaimType == UserClaimTypes.Role
+                    || c.ClaimType == UserClaimTypes.Permission))
+            .Select(c => new { c.UserId, c.ClaimType, c.ClaimValue })
+            .ToListAsync();
+
+        return claimRows
+            .GroupBy(c => c.UserId)
+            .ToDictionary(
+                g => g.Key,
+                g => MapClaimsToResponse(g.Select(c => new Claim(c.ClaimType!, c.ClaimValue!))));
+    }
+
+    static UserClaimsResponse MapClaimsToResponse(IEnumerable<Claim> claims)
+    {
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims.ToList()));
+
+        return new UserClaimsResponse(
+            IsAdmin: principal.HasClaim(UserClaimTypes.Role, UserClaims.Admin),
+            ReadUsers: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanReadUsers),
+            UpdateUserPermissions: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanUpdateUserPermissions),
+            LockOutUsers: principal.HasClaim(UserClaimTypes.Permission, UserClaims.CanLockOutUsers));
     }
 
     static Claim CreateClaim(string type, string value) => new(type, value);
