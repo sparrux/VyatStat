@@ -1,0 +1,46 @@
+<div class="dashboard-page">
+  <main class="dashboard-page__main">
+    <div class="dashboard-page__content">
+      <h1 class="dashboard-page__title">Dashboard</h1>
+      <p class="dashboard-page__subtitle">System users dashboard</p>
+
+      @if (isLoading()) {
+        <p class="dashboard-page__status" role="status">Loading…</p>
+      } @else if (loadError(); as err) {
+        <p class="dashboard-page__error" role="alert">{{ err }}</p>
+        <button
+          type="button"
+          class="vt-btn vt-btn--primary dashboard-page__retry"
+          (click)="reload()"
+        >
+          Try again
+        </button>
+      } @else {
+        @if (usersLoadError(); as usersErr) {
+          <p class="dashboard-page__error" role="alert">{{ usersErr }}</p>
+          <button
+            type="button"
+            class="vt-btn vt-btn--primary dashboard-page__retry"
+            (click)="reload()"
+          >
+            Try again
+          </button>
+        } @else if (isUsersLoading()) {
+          <p class="dashboard-page__status" role="status">Loading users…</p>
+        } @else {
+          <app-users-table
+            [users]="users()"
+            [total]="total()"
+            [skip]="skip()"
+            [pageSize]="pageSize"
+            [canUpdatePermissions]="claims()?.updateUserPermissions ?? false"
+            [canLockOutUsers]="claims()?.lockOutUsers ?? false"
+            (pageChange)="onPageChange($event)"
+            (changeAccess)="onChangeAccess($event)"
+            (blockUser)="onBlockUser($event)"
+          />
+        }
+      }
+    </div>
+  </main>
+</div>

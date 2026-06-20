@@ -1,0 +1,31 @@
+{
+  "name": "@vyatka-tracker/ui",
+  "version": "0.1.0",
+  "description": "Shared Angular UI components and design tokens for VyatkaTracker frontends.",
+  "sideEffects": [
+    "**/*.scss"
+  ],
+  "exports": {
+    "./styles": "./styles.scss",
+    "./styles.scss": "./styles.scss",
+    "./styles/buttons": "./src/lib/styles/_buttons.scss",
+    "./styles/text-fields": "./src/lib/styles/_text-fields.scss",
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./types/vyatka-tracker-ui.d.ts",
+      "default": "./fesm2022/vyatka-tracker-ui.mjs"
+    }
+  },
+  "peerDependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "module": "fesm2022/vyatka-tracker-ui.mjs",
+  "typings": "types/vyatka-tracker-ui.d.ts",
+  "type": "module"
+}

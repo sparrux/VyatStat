@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/Backend/AppHost/AppHost.csproj" />
+  <Project Path="src/Backend/Identity.WebAPI/Identity.WebAPI.csproj" />
+  <Project Path="src/Backend/ServiceDefaults/ServiceDefaults.csproj" />
+</Solution>

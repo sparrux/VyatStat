@@ -1,0 +1,25 @@
+.user-permissions-dialog__status {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--vt-font-color-primary);
+}
+
+.user-permissions-dialog__error {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--vt-color-error);
+}
+
+.user-permissions-dialog__note {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--vt-corner-default);
+  background: var(--vt-color-primary);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--vt-font-color-primary);
+}
+
+.user-permissions-dialog__switches {
+  margin-bottom: 0.25rem;
+}

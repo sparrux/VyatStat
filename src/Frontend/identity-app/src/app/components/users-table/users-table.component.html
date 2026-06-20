@@ -1,0 +1,90 @@
+<div class="vt-table-wrap">
+  <table class="vt-table" aria-label="System users">
+    <thead>
+      <tr>
+        <th scope="col">Login</th>
+        <th scope="col">Email</th>
+        <th scope="col">Status</th>
+        <th scope="col">Role</th>
+        <th scope="col" class="vt-table__cell--actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @if (users().length === 0) {
+        <tr>
+          <td colspan="5">
+            <p class="vt-table__empty">No users found.</p>
+          </td>
+        </tr>
+      } @else {
+        @for (user of users(); track user.id) {
+          <tr>
+            <td>{{ displayValue(user.userName) }}</td>
+            <td>{{ displayValue(user.email) }}</td>
+            <td>{{ statusLabel(user) }}</td>
+            <td>{{ roleLabel(user) }}</td>
+            <td class="vt-table__cell--actions">
+              <div class="vt-table__actions">
+                <!-- <button
+                  type="button"
+                  class="vt-btn vt-btn--table-action vt-btn--table-icon"
+                  aria-label="More info"
+                  (click)="onMoreInfoClick(user)"
+                >
+                  <img src="/icons/info.png" alt="" width="18" height="18" />
+                </button> -->
+                @if (canUpdatePermissions()) {
+                  <button
+                    type="button"
+                    class="vt-btn vt-btn--table-action vt-btn--table-icon"
+                    aria-label="Change access"
+                    (click)="onChangeAccessClick(user)"
+                  >
+                    <img src="/icons/edit.png" alt="" width="18" height="18" />
+                  </button>
+                }
+                @if (canLockOutUsers()) {
+                  <button
+                    type="button"
+                    [class]="
+                      'vt-btn vt-btn--table-action vt-btn--table-icon ' +
+                      blockActionButtonClass(user)
+                    "
+                    [attr.aria-label]="blockActionLabel(user)"
+                    (click)="onBlockClick(user)"
+                  >
+                    <img [src]="blockActionIcon(user)" alt="" width="18" height="18" />
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+
+  @if (total() > 0) {
+    <div class="vt-table__pagination">
+      <span>{{ rangeLabel() }}</span>
+      <div class="vt-table__pagination-controls">
+        <button
+          type="button"
+          class="vt-btn vt-btn--secondary"
+          [disabled]="!hasPreviousPage()"
+          (click)="onPreviousPage()"
+        >
+          Previous
+        </button>
+        <button
+          type="button"
+          class="vt-btn vt-btn--secondary"
+          [disabled]="!hasNextPage()"
+          (click)="onNextPage()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>

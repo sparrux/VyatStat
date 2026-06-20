@@ -1,0 +1,15 @@
+<app-dialog-shell
+  [title]="data.title ?? 'Message'"
+  (closed)="onClose()"
+>
+  <p class="message-dialog__text">{{ data.message }}</p>
+
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn vt-btn--primary"
+    (click)="onClose()"
+  >
+    OK
+  </button>
+</app-dialog-shell>

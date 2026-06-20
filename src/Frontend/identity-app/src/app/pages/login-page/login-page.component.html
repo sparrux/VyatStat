@@ -1,0 +1,66 @@
+<div class="login-page">
+  <main class="login-page__main">
+    <div class="login-page__card">
+      <div class="login-page__logo">
+        <img
+          class="login-page__logo-img"
+          src="/logo.png"
+          alt="VyatkaLarp"
+          decoding="async"
+        />
+      </div>
+
+      <h1 class="login-page__title">Login</h1>
+      <p class="login-page__subtitle">You are welcome, мбаец</p>
+
+      <form class="login-page__form" (submit)="onSubmit($event)" novalidate>
+        <label class="vt-field">
+          <span class="vt-field__label">Login</span>
+          <input
+            class="vt-field__input"
+            type="text"
+            name="username"
+            autocomplete="username"
+            [(ngModel)]="username"
+            placeholder="Enter your login"
+          />
+        </label>
+
+        <label class="vt-field">
+          <span class="vt-field__label">Password</span>
+          <input
+            class="vt-field__input"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+          />
+        </label>
+
+        @if (submitError(); as err) {
+          <p class="login-page__error" role="alert">{{ err }}</p>
+        }
+
+        <button
+          class="vt-btn vt-btn--primary vt-btn--block login-page__submit"
+          type="submit"
+          [disabled]="isSubmitting()"
+        >
+          Enter
+        </button>
+      </form>
+
+      <div class="login-page__divider">
+        <span class="login-page__divider-text">or</span>
+      </div>
+
+      <a
+        class="vt-btn vt-btn--secondary vt-btn--block login-page__secondary"
+        routerLink="/register"
+      >
+        No account? Create
+      </a>
+    </div>
+  </main>
+</div>

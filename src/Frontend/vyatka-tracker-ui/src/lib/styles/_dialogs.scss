@@ -1,0 +1,88 @@
+.vt-dialog-backdrop {
+  background: rgb(0 0 0 / 40%);
+}
+
+.vt-dialog-panel {
+  display: block;
+  max-width: min(32rem, calc(100vw - 2rem));
+  margin: 1rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.vt-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: min(80dvh, 32rem);
+  overflow: hidden;
+  background: var(--vt-surface-card);
+  border: 1px solid var(--vt-border-subtle);
+  border-radius: calc(var(--vt-corner-default) + 3px);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 12%);
+  color: var(--vt-font-color-primary);
+}
+
+.vt-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  background: var(--vt-surface-muted);
+  border-bottom: 1px solid var(--vt-border-subtle);
+}
+
+.vt-dialog__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--vt-font-color-secondary);
+}
+
+.vt-dialog__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--vt-corner-default);
+  background: transparent;
+  color: var(--vt-font-color-primary);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    background: rgb(0 0 0 / 6%);
+    color: var(--vt-font-color-secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--vt-color-gray-green);
+    outline-offset: 2px;
+  }
+}
+
+.vt-dialog__body {
+  flex: 1 1 auto;
+  padding: 1rem 1.1rem;
+  overflow: auto;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.vt-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding: 0.85rem 1.1rem;
+  border-top: 1px solid var(--vt-border-subtle);
+  background: var(--vt-surface-card);
+}

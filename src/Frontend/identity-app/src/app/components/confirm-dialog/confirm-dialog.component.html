@@ -1,0 +1,23 @@
+<app-dialog-shell
+  [title]="data.title ?? 'Confirm'"
+  (closed)="onCancel()"
+>
+  <p class="confirm-dialog__text">{{ data.message }}</p>
+
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn"
+    (click)="onCancel()"
+  >
+    {{ data.cancelLabel ?? 'Cancel' }}
+  </button>
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn vt-btn--primary"
+    (click)="onConfirm()"
+  >
+    {{ data.confirmLabel ?? 'Confirm' }}
+  </button>
+</app-dialog-shell>
