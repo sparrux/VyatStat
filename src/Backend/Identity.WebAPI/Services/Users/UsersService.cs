@@ -4,6 +4,7 @@ using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Contracts;
 using Identity.WebAPI.Exceptions;
 using Identity.WebAPI.Extensions;
+using Identity.WebAPI.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,6 +14,7 @@ namespace Identity.WebAPI.Services.Users;
 sealed class UsersService(
     ILogger<UsersService> logger,
     UserManager<IdentityUser<Guid>> userManager,
+    ApplicationDbContext dbContext,
     IMemoryCache memoryCache
 ) : IUsersService
 {
@@ -104,11 +106,9 @@ sealed class UsersService(
         if (await userManager.FindByIdAsync(userId.ToString()) is var user && user is null)
             return Result.Fail<UserClaimsResponse>(ApiErrors.UserNotFound);
 
-        var errors = new List<Error>();
-        
         var claims = await userManager.GetClaimsAsync(user);
         var claimsMap = claims.ToDictionary(x => x.Value, x => x);
-        
+
         var updateValuesMap = new Dictionary<string, bool?>
             {
                 { UserClaims.CanReadUsers, request.ReadUsers },
@@ -118,11 +118,16 @@ sealed class UsersService(
             .Where(x => x.Value is not null)
             .ToDictionary(x => x.Key, x => x.Value);
 
-        var permissionsChanged = false;
+        if (updateValuesMap.Count == 0)
+            return await GetUserClaimsAsync(user.Id);
 
-        foreach (var updatePair in updateValuesMap)
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+        try
         {
-            try
+            var permissionsChanged = false;
+
+            foreach (var updatePair in updateValuesMap)
             {
                 if (updatePair.Value is true && !claimsMap.ContainsKey(updatePair.Key))
                 {
@@ -136,17 +141,23 @@ sealed class UsersService(
                     permissionsChanged = true;
                 }
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to update permission {Permission} for user {UserId}", updatePair.Key, userId);
-                errors.Add(new Error(ApiErrors.FailedToUpdatePermissions, new ExceptionalError(ex)));
-            }
+
+            if (permissionsChanged)
+                await UpdateSecurityStampAsync(user);
+
+            await transaction.CommitAsync();
+
+            if (permissionsChanged)
+                SecurityStampCache.Invalidate(memoryCache, user.Id);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            logger.LogError(ex, "Failed to update permissions for user {UserId}", userId);
+            return Result.Fail<UserClaimsResponse>(ApiErrors.FailedToUpdatePermissions);
         }
 
-        if (permissionsChanged)
-            await InvalidateUserSecurityStampAsync(user);
-
-        return (await GetUserClaimsAsync(user.Id)).WithErrors(errors);
+        return await GetUserClaimsAsync(user.Id);
     }
 
     public async Task<Result> SetLockOutAsync(Guid userId, bool isLocked)
@@ -216,12 +227,16 @@ sealed class UsersService(
     static bool IsUserLockedOut(bool lockoutEnabled, DateTimeOffset? lockoutEnd) =>
         lockoutEnabled && lockoutEnd is { } end && end > DateTimeOffset.UtcNow;
 
-    async Task InvalidateUserSecurityStampAsync(IdentityUser<Guid> user)
+    async Task UpdateSecurityStampAsync(IdentityUser<Guid> user)
     {
         var result = await userManager.UpdateSecurityStampAsync(user);
         if (!result.Succeeded)
             throw new InvalidOperationException("Failed to update user security stamp");
+    }
 
+    async Task InvalidateUserSecurityStampAsync(IdentityUser<Guid> user)
+    {
+        await UpdateSecurityStampAsync(user);
         SecurityStampCache.Invalidate(memoryCache, user.Id);
     }
 }
