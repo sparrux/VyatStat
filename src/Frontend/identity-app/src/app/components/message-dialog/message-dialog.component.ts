@@ -1,11 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { DialogShellComponent } from '../dialog-shell/dialog-shell.component';
-
-export interface MessageDialogData {
-  message: string;
-  title?: string;
-}
+import { MessageDialogData } from '../../models/dialog.model';
 
 @Component({
   selector: 'app-message-dialog',

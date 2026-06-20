@@ -1,5 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
-import { DashboardUser } from '../../services/users';
+import { DashboardUser } from '../../models/user.model';
 
 @Component({
   selector: 'app-users-table',

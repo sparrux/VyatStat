@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../services/auth';
+import { AuthService } from '../services/auth.service';
 
 const AUTH_RETRY_HEADER = 'X-Auth-Retry';
 

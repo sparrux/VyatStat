@@ -1,16 +1,17 @@
-import { inject, Injectable, Type } from '@angular/core';
 import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
-import {
-  MessageDialogComponent,
-  MessageDialogData,
-} from '../components/message-dialog/message-dialog.component';
+import { inject, Injectable, Type } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { ChangePasswordDialogComponent } from '../components/change-password-dialog/change-password-dialog.component';
+import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
+import { MessageDialogComponent } from '../components/message-dialog/message-dialog.component';
+import { UserPermissionsDialogComponent } from '../components/user-permissions-dialog/user-permissions-dialog.component';
 import {
-  UserPermissionsDialogComponent,
+  ConfirmDialogData,
+  MessageDialogData,
   UserPermissionsDialogData,
   UserPermissionsDialogResult,
-} from '../components/user-permissions-dialog/user-permissions-dialog.component';
-import { DashboardUser } from './users';
+} from '../models/dialog.model';
+import { DashboardUser } from '../models/user.model';
 
 const DEFAULT_DIALOG_CONFIG = {
   panelClass: 'vt-dialog-panel',
@@ -39,6 +40,18 @@ export class DialogService {
     return this.open(MessageDialogComponent, {
       data: { message, title } satisfies MessageDialogData,
     });
+  }
+
+  openConfirm(
+    message: string,
+    title = 'Confirm',
+  ): Promise<boolean> {
+    const dialogRef = this.open(ConfirmDialogComponent, {
+      data: { message, title } satisfies ConfirmDialogData,
+      maxWidth: '28rem',
+    });
+
+    return firstValueFrom(dialogRef.closed).then((result) => result === true);
   }
 
   openUserPermissions(

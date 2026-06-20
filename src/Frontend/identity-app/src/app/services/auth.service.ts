@@ -11,32 +11,14 @@ import {
   switchMap,
   throwError,
 } from 'rxjs';
+import { environment } from '../../environments/environment';
+import {
+  OAuthTokenResponse,
+  UpdatePasswordRequest,
+  UserClaims,
+  UserProfile,
+} from '../models/auth.model';
 import { getJwtExpirationUtcMs } from '../utils/jwt-exp';
-
-export interface UserProfile {
-  id: string;
-  userName: string | null;
-  email: string | null;
-  claims: UserClaims | null;
-}
-
-export interface UserClaims {
-  isAdmin: boolean;
-  readUsers: boolean;
-  updateUserPermissions: boolean;
-  lockOutUsers: boolean;
-}
-
-export interface OAuthTokenResponse {
-  access_token: string;
-  refresh_token?: string;
-  expires_in?: number;
-}
-
-export interface UpdatePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-}
 
 /** Refresh this many ms before JWT exp (target ~30–60 s window with skew). */
 const PROACTIVE_LEAD_MS = 50_000;
@@ -49,8 +31,8 @@ const OAUTH_SCOPE = 'openid profile offline_access';
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly authServerUrl = 'https://localhost:7019';
-  private readonly clientId = 'angular-client';
+  private readonly authServerUrl = environment.authServerUrl;
+  private readonly clientId = environment.clientId;
   private readonly redirectUri = window.location.origin + '/callback';
 
   private readonly http = inject(HttpClient);
@@ -214,22 +196,6 @@ export class AuthService {
     return from(this.refreshInFlight);
   }
 
-  private generateVerifier(): string {
-    const array = new Uint32Array(56);
-    crypto.getRandomValues(array);
-    return Array.from(array, (dec) => ('0' + dec.toString(16)).slice(-2)).join('');
-  }
-
-  private async generateChallenge(verifier: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return btoa(String.fromCharCode(...new Uint8Array(hash)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-  }
-
   register(username: string, password: string): Observable<unknown> {
     const url = `${this.authServerUrl}/register`;
     const body = { login: username, password };
@@ -290,7 +256,7 @@ export class AuthService {
   /**
    * Ensures an access token exists when a refresh token is present (OAuth refresh grant).
    */
-  private ensureAccessTokenIfNeeded(): Observable<void> {
+  ensureAccessTokenIfNeeded(): Observable<void> {
     if (localStorage.getItem('access_token')) {
       return of(undefined);
     }
@@ -298,6 +264,22 @@ export class AuthService {
       return throwError(() => new Error('Missing refresh token'));
     }
     return this.refreshAccessTokenSilently();
+  }
+
+  private generateVerifier(): string {
+    const array = new Uint32Array(56);
+    crypto.getRandomValues(array);
+    return Array.from(array, (dec) => ('0' + dec.toString(16)).slice(-2)).join('');
+  }
+
+  private async generateChallenge(verifier: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode(...new Uint8Array(hash)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
   }
 
   private runRefreshRequest(refreshToken: string): Promise<OAuthTokenResponse> {
@@ -384,4 +366,3 @@ export class AuthService {
     void this.router.navigate(['/login']);
   }
 }
-

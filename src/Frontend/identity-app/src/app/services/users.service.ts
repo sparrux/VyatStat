@@ -1,26 +1,13 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, defer, of, switchMap, throwError } from 'rxjs';
-import { AuthService, UserClaims } from './auth';
-
-export interface DashboardUser {
-  id: string;
-  userName: string | null;
-  email: string | null;
-  claims: UserClaims | null;
-  isLockedOut: boolean;
-}
-
-export interface UsersListResponse {
-  users: DashboardUser[];
-  total: number;
-}
-
-export interface UpdateUserPermissionsRequest {
-  readUsers: boolean;
-  updateUserPermissions: boolean;
-  lockOutUsers: boolean;
-}
+import { Observable, defer, switchMap, throwError } from 'rxjs';
+import { UserClaims } from '../models/auth.model';
+import {
+  DashboardUser,
+  UpdateUserPermissionsRequest,
+  UsersListResponse,
+} from '../models/user.model';
+import { AuthService } from './auth.service';
 
 const PAGE_SIZE = 10;
 
@@ -34,7 +21,7 @@ export class UsersService {
   readonly pageSize = PAGE_SIZE;
 
   getUsers(skip = 0, take = PAGE_SIZE): Observable<UsersListResponse> {
-    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
+    return defer(() => this.auth.ensureAccessTokenIfNeeded()).pipe(
       switchMap(() => {
         const token = localStorage.getItem('access_token');
         if (!token) {
@@ -60,7 +47,7 @@ export class UsersService {
     userId: string,
     request: UpdateUserPermissionsRequest,
   ): Observable<UserClaims> {
-    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
+    return defer(() => this.auth.ensureAccessTokenIfNeeded()).pipe(
       switchMap(() => {
         const token = localStorage.getItem('access_token');
         if (!token) {
@@ -81,7 +68,7 @@ export class UsersService {
   }
 
   setUserLockOut(userId: string, lockout: boolean): Observable<void> {
-    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
+    return defer(() => this.auth.ensureAccessTokenIfNeeded()).pipe(
       switchMap(() => {
         const token = localStorage.getItem('access_token');
         if (!token) {
@@ -100,15 +87,5 @@ export class UsersService {
         );
       }),
     );
-  }
-
-  private ensureAccessTokenIfNeeded(): Observable<void> {
-    if (localStorage.getItem('access_token')) {
-      return of(undefined);
-    }
-    if (!localStorage.getItem('refresh_token')) {
-      return throwError(() => new Error('Missing refresh token'));
-    }
-    return this.auth.refreshAccessTokenSilently();
   }
 }

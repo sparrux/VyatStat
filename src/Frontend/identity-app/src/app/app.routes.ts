@@ -1,24 +1,41 @@
 import { Routes } from '@angular/router';
-import { CallbackComponent } from './components/callback/callback';
 import { authGuard } from './guards/auth.guard';
 import { readUsersGuard } from './guards/read-users.guard';
-import { AccountPageComponent } from './pages/account-page/account-page.component';
-import { DashboardPageComponent } from './pages/dashboard-page/dashboard-page.component';
-import { LoginPageComponent } from './pages/login-page/login-page.component';
-import { RegisterPageComponent } from './pages/register-page/register-page.component';
 
 export const routes: Routes = [
-  { path: 'callback', component: CallbackComponent },
-  { path: 'login', component: LoginPageComponent },
-  { path: 'register', component: RegisterPageComponent },
+  {
+    path: 'callback',
+    loadComponent: () =>
+      import('./pages/callback-page/callback-page.component').then(
+        (m) => m.CallbackPageComponent,
+      ),
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login-page/login-page.component').then((m) => m.LoginPageComponent),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./pages/register-page/register-page.component').then(
+        (m) => m.RegisterPageComponent,
+      ),
+  },
   {
     path: 'account',
-    component: AccountPageComponent,
+    loadComponent: () =>
+      import('./pages/account-page/account-page.component').then(
+        (m) => m.AccountPageComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard',
-    component: DashboardPageComponent,
+    loadComponent: () =>
+      import('./pages/dashboard-page/dashboard-page.component').then(
+        (m) => m.DashboardPageComponent,
+      ),
     canActivate: [authGuard, readUsersGuard],
   },
   { path: '', pathMatch: 'full', redirectTo: 'account' },

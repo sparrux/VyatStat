@@ -6,9 +6,11 @@ import {
 } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { UsersTableComponent } from '../../components/users-table/users-table.component';
-import { AuthService, UserClaims } from '../../services/auth';
-import { DialogService } from '../../services/dialog';
-import { DashboardUser, UsersService } from '../../services/users';
+import { UserClaims } from '../../models/auth.model';
+import { DashboardUser } from '../../models/user.model';
+import { AuthService } from '../../services/auth.service';
+import { DialogService } from '../../services/dialog.service';
+import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -69,7 +71,12 @@ export class DashboardPageComponent implements OnInit {
     const action = nextLocked ? 'block' : 'unblock';
     const displayName = user.userName?.trim() || 'this user';
 
-    if (!confirm(`Are you sure you want to ${action} ${displayName}?`)) {
+    const confirmed = await this.dialog.openConfirm(
+      `Are you sure you want to ${action} ${displayName}?`,
+      'Confirm action',
+    );
+
+    if (!confirmed) {
       return;
     }
 

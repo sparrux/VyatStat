@@ -7,8 +7,10 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { AuthService, UserClaims, UserProfile } from '../../services/auth';
-import { DialogService } from '../../services/dialog';
+import { UserClaims, UserProfile } from '../../models/auth.model';
+import { AuthService } from '../../services/auth.service';
+import { DialogService } from '../../services/dialog.service';
+import { displayInitials, displayOrNull } from '../../utils/display.utils';
 
 @Component({
   selector: 'app-account-page',
@@ -26,6 +28,9 @@ export class AccountPageComponent implements OnInit {
   protected readonly claims = signal<UserClaims | null>(null);
   protected readonly loadError = signal<string | null>(null);
   protected readonly isLoading = signal(true);
+
+  protected readonly displayInitials = displayInitials;
+  protected readonly displayOrNull = displayOrNull;
 
   protected readonly roleLabel = computed(() =>
     this.claims()?.isAdmin ? 'Administrator' : 'User',
@@ -87,23 +92,6 @@ export class AccountPageComponent implements OnInit {
     } finally {
       this.isLoading.set(false);
     }
-  }
-
-  protected displayOrNull(value: string | null | undefined): string {
-    const trimmed = value?.trim();
-    return trimmed ? trimmed : 'null';
-  }
-
-  protected displayInitials(userName: string | null | undefined): string {
-    const name = userName?.trim();
-    if (!name) {
-      return '?';
-    }
-    const parts = name.split(/\s+/).filter(Boolean);
-    if (parts.length >= 2) {
-      return `${parts[0]![0]!}${parts[1]![0]!}`.toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
   }
 
   protected onChangeEmailClick(): void {

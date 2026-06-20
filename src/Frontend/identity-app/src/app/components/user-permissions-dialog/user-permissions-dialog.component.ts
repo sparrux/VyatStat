@@ -2,17 +2,13 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { firstValueFrom } from 'rxjs';
 import { DialogShellComponent } from '../dialog-shell/dialog-shell.component';
-import { AuthService, UserClaims } from '../../services/auth';
-import { DashboardUser, UsersService } from '../../services/users';
-
-export interface UserPermissionsDialogData {
-  user: DashboardUser;
-}
-
-export interface UserPermissionsDialogResult {
-  userId: string;
-  claims: UserClaims;
-}
+import { UserClaims } from '../../models/auth.model';
+import {
+  UserPermissionsDialogData,
+  UserPermissionsDialogResult,
+} from '../../models/dialog.model';
+import { AuthService } from '../../services/auth.service';
+import { UsersService } from '../../services/users.service';
 
 type PermissionKey = keyof Pick<
   UserClaims,

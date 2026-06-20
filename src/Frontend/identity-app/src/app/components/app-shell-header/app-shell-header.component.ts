@@ -1,7 +1,9 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, firstValueFrom, Subscription } from 'rxjs';
-import { AuthService, UserProfile } from '../../services/auth';
+import { UserProfile } from '../../models/auth.model';
+import { AuthService } from '../../services/auth.service';
+import { displayInitials } from '../../utils/display.utils';
 
 @Component({
   selector: 'app-shell-header',
@@ -18,6 +20,7 @@ export class AppShellHeaderComponent implements OnInit, OnDestroy {
 
   protected readonly profile = signal<UserProfile | null>(null);
   protected readonly isVisible = signal(this.shouldShowHeader());
+  protected readonly displayInitials = displayInitials;
 
   ngOnInit(): void {
     void this.syncHeader();
@@ -31,18 +34,6 @@ export class AppShellHeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
-  }
-
-  protected displayInitials(userName: string | null | undefined): string {
-    const name = userName?.trim();
-    if (!name) {
-      return '?';
-    }
-    const parts = name.split(/\s+/).filter(Boolean);
-    if (parts.length >= 2) {
-      return `${parts[0]![0]!}${parts[1]![0]!}`.toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
   }
 
   protected onLogout(): void {

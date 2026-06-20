@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DialogRef } from '@angular/cdk/dialog';
 import { firstValueFrom } from 'rxjs';
 import { DialogShellComponent } from '../dialog-shell/dialog-shell.component';
-import { AuthService } from '../../services/auth';
+import { AuthService } from '../../services/auth.service';
 
 const MIN_PASSWORD_LENGTH = 6;
 
