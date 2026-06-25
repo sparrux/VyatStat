@@ -19,7 +19,7 @@ export class CallbackPageComponent implements OnInit {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const code = params['code'];
       if (!code) {
-        void this.router.navigate(['/login']);
+        void this.authService.startAuthorizationFlow();
         return;
       }
 
@@ -29,7 +29,7 @@ export class CallbackPageComponent implements OnInit {
           void this.router.navigate(['/account']);
         },
         error: () => {
-          void this.router.navigate(['/login']);
+          void this.authService.startAuthorizationFlow();
         },
       });
     });

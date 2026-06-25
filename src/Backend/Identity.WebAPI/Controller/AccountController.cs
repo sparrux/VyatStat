@@ -27,14 +27,10 @@ public sealed class AccountController(
 
     [AllowAnonymous]
     [HttpPost("/account/login")]
-    [Consumes(MediaTypeNames.Application.Json, MediaTypeNames.Application.FormUrlEncoded)]
-    public async Task<IActionResult> Login(
-        [FromForm] LoginRequest? formRequest,
-        [FromBody] LoginRequest? bodyRequest,
-        [FromQuery] string? returnUrl)
+    [Consumes(MediaTypeNames.Application.Json)]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request, [FromQuery] string? returnUrl)
     {
-        var request = formRequest ?? bodyRequest;
-        if (request is null || string.IsNullOrWhiteSpace(request.Login) || string.IsNullOrWhiteSpace(request.Password))
+        if (string.IsNullOrWhiteSpace(request.Login) || string.IsNullOrWhiteSpace(request.Password))
             return BadRequest(new AccountActionResponse(false));
 
         var user = await userManager.FindByNameAsync(request.Login.Trim());

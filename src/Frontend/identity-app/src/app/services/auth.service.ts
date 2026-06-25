@@ -33,6 +33,7 @@ const OAUTH_SCOPE = 'openid profile offline_access';
 export class AuthService {
   private readonly authServerUrl = environment.authServerUrl;
   private readonly clientId = environment.clientId;
+  private readonly apiAudience = environment.apiAudience;
   private readonly redirectUri = window.location.origin + '/callback';
 
   private readonly http = inject(HttpClient);
@@ -143,12 +144,17 @@ export class AuthService {
     );
   }
 
-  logout(): void {
-    this.authEpoch++;
-    this.clearProactiveRefreshTimer();
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('code_verifier');
+  async logout(): Promise<void> {
+    this.clearLocalSession();
+
+    try {
+      await fetch(`${this.authServerUrl}/account/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {
+      // IdP session cleanup is best-effort; local tokens are already cleared.
+    }
   }
 
   /**
@@ -203,36 +209,50 @@ export class AuthService {
     return this.http.post(url, body, { headers });
   }
 
-  async login(username: string, password: string): Promise<void> {
+  /**
+   * Starts the OAuth authorization code flow (GET /connect/authorize).
+   * Uses the IdP cookie when present so the user can skip the login form.
+   */
+  async startAuthorizationFlow(): Promise<void> {
+    window.location.href = await this.buildAuthorizeReturnUrl();
+  }
+
+  /**
+   * Signs in via IdP cookie session, then continues the OAuth authorize redirect.
+   */
+  async login(username: string, password: string, authorizeReturnUrl?: string | null): Promise<void> {
+    const response = await fetch(`${this.authServerUrl}/account/login`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ login: username, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Login failed');
+    }
+
+    window.location.href = authorizeReturnUrl ?? (await this.buildAuthorizeReturnUrl());
+  }
+
+  /**
+   * Builds the GET /connect/authorize URL and stores a fresh PKCE verifier.
+   */
+  async buildAuthorizeReturnUrl(): Promise<string> {
     const verifier = this.generateVerifier();
     localStorage.setItem('code_verifier', verifier);
     const challenge = await this.generateChallenge(verifier);
 
-    const params: Record<string, string> = {
+    const params = new URLSearchParams({
       client_id: this.clientId,
       response_type: 'code',
       scope: OAUTH_SCOPE,
       redirect_uri: this.redirectUri,
       code_challenge: challenge,
       code_challenge_method: 'S256',
-      username,
-      password,
-    };
+    });
 
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `${this.authServerUrl}/connect/authorize`;
-
-    for (const key of Object.keys(params)) {
-      const hiddenField = document.createElement('input');
-      hiddenField.type = 'hidden';
-      hiddenField.name = key;
-      hiddenField.value = params[key]!;
-      form.appendChild(hiddenField);
-    }
-
-    document.body.appendChild(form);
-    form.submit();
+    return `${this.authServerUrl}/connect/authorize?${params.toString()}`;
   }
 
   exchangeCodeForToken(code: string): Observable<OAuthTokenResponse> {
@@ -240,7 +260,7 @@ export class AuthService {
 
     const body = new HttpParams()
       .set('client_id', this.clientId)
-      .set('aud', 'vyatka-identity-api')
+      .set('aud', this.apiAudience)
       .set('grant_type', 'authorization_code')
       .set('code', code)
       .set('redirect_uri', this.redirectUri)
@@ -285,7 +305,7 @@ export class AuthService {
   private runRefreshRequest(refreshToken: string): Promise<OAuthTokenResponse> {
     const body = new HttpParams()
       .set('client_id', this.clientId)
-      .set('aud', 'vyatka-identity-api')
+      .set('aud', this.apiAudience)
       .set('grant_type', 'refresh_token')
       .set('refresh_token', refreshToken)
       .set('scope', OAUTH_SCOPE);
@@ -354,15 +374,19 @@ export class AuthService {
     this.visibilityHandlerBound = true;
   }
 
-  /**
-   * Clears stored tokens and sends the user to login (refresh failure, revoked session).
-   */
-  invalidateSessionAndRedirectToLogin(): void {
+  private clearLocalSession(): void {
     this.authEpoch++;
     this.clearProactiveRefreshTimer();
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('code_verifier');
-    void this.router.navigate(['/login']);
+  }
+
+  /**
+   * Clears stored tokens and restarts OAuth (uses IdP cookie when still valid).
+   */
+  invalidateSessionAndRedirectToLogin(): void {
+    this.clearLocalSession();
+    void this.startAuthorizationFlow();
   }
 }

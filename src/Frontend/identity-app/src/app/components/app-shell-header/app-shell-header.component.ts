@@ -36,8 +36,8 @@ export class AppShellHeaderComponent implements OnInit, OnDestroy {
     this.routerSub?.unsubscribe();
   }
 
-  protected onLogout(): void {
-    this.auth.logout();
+  protected async onLogout(): Promise<void> {
+    await this.auth.logout();
     void this.router.navigate(['/login']);
   }
 

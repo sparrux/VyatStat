@@ -16,6 +16,9 @@ function shouldHandleUnauthorized(url: string, authBaseUrl: string): boolean {
   if (pathOrQuery === '/register' || pathOrQuery.startsWith('/register?')) {
     return false;
   }
+  if (pathOrQuery.startsWith('/account/login') || pathOrQuery.startsWith('/account/logout')) {
+    return false;
+  }
   return true;
 }
 
