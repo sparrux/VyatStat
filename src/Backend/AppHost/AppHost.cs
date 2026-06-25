@@ -18,7 +18,13 @@ var webClient = builder.AddJavaScriptApp(
     .WaitFor(identityApi);
 
 var clientIsHttps = webClient.GetEndpoint("https").Exists;
+var apiIsHttps = identityApi.GetEndpoint("https").Exists;
 
-identityApi.WithEnvironment("Clients:WebClient:Url", webClient.GetEndpoint(clientIsHttps ? "https" : "http"));
+var webClientEndpoint = webClient.GetEndpoint(clientIsHttps ? "https" : "http");
+var identityApiEndpoint = identityApi.GetEndpoint(apiIsHttps ? "https" : "http");
+
+identityApi.WithEnvironment("Clients:WebClient:Url", webClientEndpoint);
+identityApi.WithEnvironment("Idp:Authority", identityApiEndpoint);
+identityApi.WithEnvironment("Idp:LoginPageUrl", $"{webClientEndpoint}/login");
 
 builder.Build().Run();

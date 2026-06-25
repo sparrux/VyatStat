@@ -16,15 +16,7 @@ public sealed class UsersController(
 ) : IdentityControllerBase
 {
     const int MaxTakeUsers = 30;
-    
-    [AllowAnonymous]
-    [HttpPost("/register")]
-    public async Task<IActionResult> Register(RegistrationRequest request)
-    {
-        var result = await usersService.CreateAsync(request);
-        return result.ToActionResult();
-    }
-    
+
     [HttpGet("/me")]
     public async Task<ActionResult<UserResponse>> GetMe()
     {

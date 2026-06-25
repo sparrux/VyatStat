@@ -2,11 +2,14 @@ using System.Net.Mime;
 using System.Security.Claims;
 using Identity.WebAPI.Authentication.Audience;
 using Identity.WebAPI.Authentication.Tokens;
+using Identity.WebAPI.Configuration;
 using Identity.WebAPI.Exceptions;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
@@ -18,69 +21,55 @@ public sealed class AuthorizationController(
     SignInManager<IdentityUser<Guid>> signInManager,
     IOpenIddictApplicationManager applicationManager,
     ITokenClaimsBuilder tokenClaimsBuilder,
-    IAudienceResolver audienceResolver
+    IAudienceResolver audienceResolver,
+    IOptions<IdpOptions> idpOptions
 ) : IdentityControllerBase
 {
+    [HttpGet("/connect/authorize")]
+    public Task<IActionResult> AuthorizeGet() =>
+        AuthorizeWithSessionAsync();
+
     [HttpPost("/connect/authorize")]
     [Consumes(MediaTypeNames.Application.FormUrlEncoded)]
-    public async Task<IActionResult> Authorize()
+    public async Task<IActionResult> AuthorizePost()
     {
         var request = HttpContext.GetOpenIddictServerRequest();
-        
         if (request is null)
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.InvalidRequest,
-                ErrorDescription = ApiErrors.OAuth.InvalidRequest
-            });
-        
-        if (!request.IsAuthorizationCodeGrantType() && request.ResponseType != OpenIddictConstants.ResponseTypes.Code)
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.UnsupportedResponseType,
-                ErrorDescription = "Only response_type=code"
-            });
+            return InvalidOAuthRequest();
 
-        var user = await userManager.FindByNameAsync(request.Username!);
+        if (!IsAuthorizationCodeRequest(request))
+            return UnsupportedResponseType();
+
+        var cookieUser = await GetAuthenticatedUserFromCookieAsync();
+        if (cookieUser is not null)
+            return await IssueAuthorizationCodeAsync(request, cookieUser);
+
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            return RedirectToLoginPage();
+
+        var user = await userManager.FindByNameAsync(request.Username);
         if (user is null)
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.InvalidGrant,
-                ErrorDescription = ApiErrors.OAuth.InvalidUserCredentials
-            });
+            return InvalidCredentials();
 
-        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password!, lockoutOnFailure: false);
-        if (!result.Succeeded)
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.InvalidGrant,
-                ErrorDescription = ApiErrors.OAuth.InvalidUserCredentials
-            });
+        var passwordResult = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: false);
+        if (!passwordResult.Succeeded)
+            return InvalidCredentials();
 
         if (await userManager.IsLockedOutAsync(user))
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.AccessDenied,
-                ErrorDescription = ApiErrors.OAuth.AccountLockedOut
-            });
-        
-        var principal = await tokenClaimsBuilder.BuildAsync(user, request.GetScopes());
+            return AccountLockedOut();
 
-        return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        await signInManager.SignInAsync(user, isPersistent: true);
+        return await IssueAuthorizationCodeAsync(request, user);
     }
-    
+
     [HttpPost("/connect/token"), Produces("application/json")]
     [Consumes(MediaTypeNames.Application.FormUrlEncoded)]
     public async Task<IActionResult> Exchange()
     {
         var request = HttpContext.GetOpenIddictServerRequest();
-        
+
         if (request is null)
-            return BadRequest(new OpenIddictResponse
-            {
-                Error = OpenIddictConstants.Errors.InvalidRequest,
-                ErrorDescription = ApiErrors.OAuth.InvalidRequest
-            });
+            return InvalidOAuthRequest();
 
         if (request.IsAuthorizationCodeGrantType())
         {
@@ -101,9 +90,9 @@ public sealed class AuthorizationController(
                 return InvalidAudienceResponse();
 
             var principal = (await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)).Principal;
-            
+
             var user = await userManager.FindByIdAsync(principal!.GetClaim(OpenIddictConstants.Claims.Subject)!);
-            
+
             if (user is null || await userManager.IsLockedOutAsync(user))
                 return Forbid(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
@@ -111,11 +100,11 @@ public sealed class AuthorizationController(
             freshPrincipal.SetAudiences(audience);
             return SignIn(freshPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
-        
+
         if (request.IsClientCredentialsGrantType())
         {
             var application = await applicationManager.FindByClientIdAsync(request.ClientId ?? "");
-            
+
             if (application is null)
                 return BadRequest(new OpenIddictResponse
                 {
@@ -152,8 +141,90 @@ public sealed class AuthorizationController(
         });
     }
 
+    async Task<IActionResult> AuthorizeWithSessionAsync()
+    {
+        var request = HttpContext.GetOpenIddictServerRequest();
+        if (request is null)
+            return InvalidOAuthRequest();
+
+        if (!IsAuthorizationCodeRequest(request))
+            return UnsupportedResponseType();
+
+        var user = await GetAuthenticatedUserFromCookieAsync();
+        if (user is null)
+            return RedirectToLoginPage();
+
+        return await IssueAuthorizationCodeAsync(request, user);
+    }
+
+    async Task<IdentityUser<Guid>?> GetAuthenticatedUserFromCookieAsync()
+    {
+        var result = await HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme);
+        if (!result.Succeeded || result.Principal is null)
+            return null;
+
+        return await userManager.GetUserAsync(result.Principal);
+    }
+
+    async Task<IActionResult> IssueAuthorizationCodeAsync(OpenIddictRequest request, IdentityUser<Guid> user)
+    {
+        if (await userManager.IsLockedOutAsync(user))
+            return AccountLockedOut();
+
+        var principal = await tokenClaimsBuilder.BuildAsync(user, request.GetScopes());
+        return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    RedirectResult RedirectToLoginPage()
+    {
+        var returnUrl = BuildAuthorizeReturnUrl();
+        var loginPageUrl = idpOptions.Value.LoginPageUrl;
+
+        if (string.IsNullOrWhiteSpace(loginPageUrl))
+            throw new InvalidOperationException("IdP login page URL is not configured. Set Idp:LoginPageUrl.");
+
+        return Redirect(QueryHelpers.AddQueryString(loginPageUrl, "returnUrl", returnUrl));
+    }
+
+    string BuildAuthorizeReturnUrl()
+    {
+        var request = HttpContext.Request;
+        return $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
+    }
+
+    static bool IsAuthorizationCodeRequest(OpenIddictRequest request) =>
+        request.IsAuthorizationCodeGrantType() || request.ResponseType == OpenIddictConstants.ResponseTypes.Code;
+
     string? ResolveAudience(OpenIddictRequest request, string? clientId = null) =>
         audienceResolver.ResolveFromTokenRequest(request, clientId ?? request.ClientId);
+
+    static BadRequestObjectResult InvalidOAuthRequest() =>
+        new(new OpenIddictResponse
+        {
+            Error = OpenIddictConstants.Errors.InvalidRequest,
+            ErrorDescription = ApiErrors.OAuth.InvalidRequest
+        });
+
+    static BadRequestObjectResult UnsupportedResponseType() =>
+        new(new OpenIddictResponse
+        {
+            Error = OpenIddictConstants.Errors.UnsupportedResponseType,
+            ErrorDescription = "Only response_type=code"
+        });
+
+    static BadRequestObjectResult InvalidCredentials() =>
+        new(new OpenIddictResponse
+        {
+            Error = OpenIddictConstants.Errors.InvalidGrant,
+            ErrorDescription = ApiErrors.OAuth.InvalidUserCredentials
+        });
+
+    static BadRequestObjectResult AccountLockedOut() =>
+        new(new OpenIddictResponse
+        {
+            Error = OpenIddictConstants.Errors.AccessDenied,
+            ErrorDescription = ApiErrors.OAuth.AccountLockedOut
+        });
 
     static BadRequestObjectResult InvalidAudienceResponse() =>
         new(new OpenIddictResponse
