@@ -1,15 +1,15 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-callback-page',
-  standalone: true,
-  templateUrl: './callback-page.component.html',
-  styleUrl: './callback-page.component.scss',
+  imports: [],
+  templateUrl: './callback-page.html',
+  styleUrl: './callback-page.scss',
 })
-export class CallbackPageComponent implements OnInit {
+export class CallbackPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -33,7 +33,7 @@ export class CallbackPageComponent implements OnInit {
       this.authService.exchangeCodeForToken(code).subscribe({
         next: (tokens) => {
           this.authService.applyOAuthTokens(tokens);
-          void this.router.navigate(['/account']);
+          void this.router.navigate(['/calendar']);
         },
         error: () => {
           void this.authService.startAuthorizationFlow();

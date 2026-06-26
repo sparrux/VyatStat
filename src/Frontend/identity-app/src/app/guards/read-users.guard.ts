@@ -8,7 +8,8 @@ export const readUsersGuard: CanActivateFn = async () => {
   const router = inject(Router);
 
   if (!auth.isAuthenticated()) {
-    return router.createUrlTree(['/login']);
+    void auth.startAuthorizationFlow();
+    return false;
   }
 
   try {
@@ -21,6 +22,7 @@ export const readUsersGuard: CanActivateFn = async () => {
 
     return router.createUrlTree(['/account']);
   } catch {
-    return router.createUrlTree(['/login']);
+    void auth.startAuthorizationFlow();
+    return false;
   }
 };

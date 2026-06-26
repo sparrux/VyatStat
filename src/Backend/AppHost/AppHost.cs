@@ -17,8 +17,23 @@ var webClient = builder.AddJavaScriptApp(
     .WithHttpEndpoint(port: 4200, env: "PORT")
     .WaitFor(identityApi);
 
-var clientIsHttps = webClient.GetEndpoint("https").Exists;
+var trackerApp = builder.AddJavaScriptApp(
+        "tracker-app", "../../Frontend/tracker-app")
+    .WithReference(identityApi)
+    .WithHttpEndpoint(port: 4201, env: "PORT")
+    .WaitFor(identityApi);
 
-identityApi.WithEnvironment("Clients:WebClient:Url", webClient.GetEndpoint(clientIsHttps ? "https" : "http"));
+var clientIsHttps = webClient.GetEndpoint("https").Exists;
+var trackerIsHttps = trackerApp.GetEndpoint("https").Exists;
+var apiIsHttps = identityApi.GetEndpoint("https").Exists;
+
+var webClientEndpoint = webClient.GetEndpoint(clientIsHttps ? "https" : "http");
+var trackerAppEndpoint = trackerApp.GetEndpoint(trackerIsHttps ? "https" : "http");
+var identityApiEndpoint = identityApi.GetEndpoint(apiIsHttps ? "https" : "http");
+
+identityApi.WithEnvironment("Clients:IdentityWebClient:Url", webClientEndpoint);
+identityApi.WithEnvironment("Clients:TrackerWebClient:Url", trackerAppEndpoint);
+identityApi.WithEnvironment("Idp:Authority", identityApiEndpoint);
+identityApi.WithEnvironment("Idp:LoginPageUrl", $"{webClientEndpoint}/login");
 
 builder.Build().Run();
