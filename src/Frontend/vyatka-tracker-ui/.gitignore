@@ -1,14 +1,9 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files
 
-# Compiled output
+# ng-packagr / library build output
 /dist/
 /tmp/
 /out-tsc/
-/bazel-out
-
-# Angular CLI cache and build artifacts
-/.angular/
-.angular/
 
 # Node
 /node_modules/
@@ -23,17 +18,6 @@ lerna-debug.log*
 
 # TypeScript
 *.tsbuildinfo
-
-# Testing
-/coverage/
-*.lcov
-.nyc_output
-/e2e/test-output/
-test-results/
-playwright-report/
-playwright/.cache/
-blob-report/
-__screenshots__/
 
 # Linting
 .eslintcache
@@ -63,17 +47,6 @@ __screenshots__/
 !.vscode/mcp.json
 !.vscode/*.code-snippets
 .history/
-
-# Miscellaneous
-.sass-cache/
-/connect.lock
-/libpeerconnection.log
-testem.log
-/typings
-.parcel-cache
-.vite/
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
 
 # System files
 .DS_Store
