@@ -1,4 +1,4 @@
-import { UserClaims } from './auth.model';
+import { UserClaims } from '@vyatka-tracker/auth';
 import { DashboardUser } from './user.model';
 
 export interface MessageDialogData {

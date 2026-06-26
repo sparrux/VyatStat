@@ -1,13 +1,12 @@
 {
-  "extends": "../tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "compileOnSave": false,
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
     "strict": true,
     "outDir": "out-tsc/lib"
-  },
-  "angularCompilerOptions": {
+  },  "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,

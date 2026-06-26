@@ -1,0 +1,5 @@
+/node_modules/
+
+# Library build outputs (also ignored in package folders)
+libs/auth/dist/
+vyatka-tracker-ui/dist/

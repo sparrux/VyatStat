@@ -1,5 +1,7 @@
+using System;
 using System.Net.Mime;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Identity.WebAPI.Authentication.Audience;
 using Identity.WebAPI.Authentication.Tokens;
 using Identity.WebAPI.Configuration;

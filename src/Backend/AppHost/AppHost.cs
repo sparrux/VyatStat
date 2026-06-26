@@ -11,14 +11,16 @@ var identityApi = builder.AddProject<Projects.Identity_WebAPI>(
     .WithReference(postgresDb)
     .WithHttpHealthCheck("/health");
 
-var webClient = builder.AddJavaScriptApp(
-        "identity-app", "../../Frontend/identity-app")
+var frontend = "../../Frontend";
+
+var webClient = builder.AddJavaScriptApp("identity-app", frontend)
+    .WithRunScript("start:identity")
     .WithReference(identityApi)
     .WithHttpEndpoint(port: 4200, env: "PORT")
     .WaitFor(identityApi);
 
-var trackerApp = builder.AddJavaScriptApp(
-        "tracker-app", "../../Frontend/tracker-app")
+var trackerApp = builder.AddJavaScriptApp("tracker-app", frontend)
+    .WithRunScript("start:tracker")
     .WithReference(identityApi)
     .WithHttpEndpoint(port: 4201, env: "PORT")
     .WaitFor(identityApi);
@@ -31,8 +33,8 @@ var webClientEndpoint = webClient.GetEndpoint(clientIsHttps ? "https" : "http");
 var trackerAppEndpoint = trackerApp.GetEndpoint(trackerIsHttps ? "https" : "http");
 var identityApiEndpoint = identityApi.GetEndpoint(apiIsHttps ? "https" : "http");
 
-identityApi.WithEnvironment("Clients:IdentityWebClient:Url", webClientEndpoint);
-identityApi.WithEnvironment("Clients:TrackerWebClient:Url", trackerAppEndpoint);
+identityApi.WithEnvironment("Clients:identity-app:Url", webClientEndpoint);
+identityApi.WithEnvironment("Clients:tracker-app:Url", trackerAppEndpoint);
 identityApi.WithEnvironment("Idp:Authority", identityApiEndpoint);
 identityApi.WithEnvironment("Idp:LoginPageUrl", $"{webClientEndpoint}/login");
 

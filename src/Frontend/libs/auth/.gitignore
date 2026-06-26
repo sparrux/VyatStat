@@ -1,0 +1,10 @@
+# ng-packagr / library build output
+/dist/
+/tmp/
+/out-tsc/
+
+# Node
+/node_modules/
+
+# TypeScript
+*.tsbuildinfo

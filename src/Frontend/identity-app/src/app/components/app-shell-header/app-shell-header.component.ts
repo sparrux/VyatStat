@@ -1,8 +1,8 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, firstValueFrom, Subscription } from 'rxjs';
-import { UserProfile } from '../../models/auth.model';
-import { AuthService } from '../../services/auth.service';
+import { UserProfile } from '@vyatka-tracker/auth';
+import { AuthService } from '@vyatka-tracker/auth';
 import { displayInitials } from '../../utils/display.utils';
 
 @Component({
