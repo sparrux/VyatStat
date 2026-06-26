@@ -30,7 +30,9 @@ src/
 
 The token values come from `docs/design/.variables/Firgma_Variables.json`.
 
-Use SCSS tokens by importing the style entry point from an app later:
+Apps import via path mapping (`@vyatka-tracker/ui` → `libs/shared-ui/src/public-api.ts`).
+
+Use SCSS tokens by importing the style entry point from an app:
 
 ```scss
 @use '@vyatka-tracker/ui/styles';

@@ -5,7 +5,7 @@
     "ignoreDeprecations": "6.0",
     "paths": {
       "@vyatka-tracker/auth": ["libs/auth/src/public-api.ts"],
-      "@vyatka-tracker/ui": ["vyatka-tracker-ui/src/public-api.ts"]
+      "@vyatka-tracker/ui": ["libs/shared-ui/src/public-api.ts"]
     },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
