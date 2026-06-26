@@ -26,6 +26,7 @@ const PROACTIVE_LEAD_MS = 50_000;
 const CLOCK_SKEW_MS = 10_000;
 
 const OAUTH_SCOPE = 'openid profile offline_access';
+const OAUTH_STATE_KEY = 'oauth_state';
 
 @Injectable({
   providedIn: 'root',
@@ -262,11 +263,13 @@ export class AuthService {
   }
 
   /**
-   * Builds the GET /connect/authorize URL and stores a fresh PKCE verifier.
+   * Builds the GET /connect/authorize URL and stores a fresh PKCE verifier and state.
    */
   async buildAuthorizeReturnUrl(): Promise<string> {
     const verifier = this.generateVerifier();
+    const state = this.generateState();
     localStorage.setItem('code_verifier', verifier);
+    sessionStorage.setItem(OAUTH_STATE_KEY, state);
     const challenge = await this.generateChallenge(verifier);
 
     const params = new URLSearchParams({
@@ -274,11 +277,32 @@ export class AuthService {
       response_type: 'code',
       scope: OAUTH_SCOPE,
       redirect_uri: this.redirectUri,
+      state,
       code_challenge: challenge,
       code_challenge_method: 'S256',
     });
 
     return `${this.authServerUrl}/connect/authorize?${params.toString()}`;
+  }
+
+  /**
+   * Validates the OAuth state from the callback query and consumes it (one-time use).
+   */
+  validateAndConsumeOAuthState(receivedState: string | null | undefined): boolean {
+    const expected = sessionStorage.getItem(OAUTH_STATE_KEY);
+    sessionStorage.removeItem(OAUTH_STATE_KEY);
+
+    if (!expected || !receivedState || expected !== receivedState) {
+      this.clearOAuthTransientState();
+      return false;
+    }
+
+    return true;
+  }
+
+  clearOAuthTransientState(): void {
+    sessionStorage.removeItem(OAUTH_STATE_KEY);
+    localStorage.removeItem('code_verifier');
   }
 
   exchangeCodeForToken(code: string): Observable<OAuthTokenResponse> {
@@ -310,6 +334,12 @@ export class AuthService {
       return throwError(() => new Error('Missing refresh token'));
     }
     return this.refreshAccessTokenSilently();
+  }
+
+  private generateState(): string {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   private generateVerifier(): string {
@@ -403,9 +433,9 @@ export class AuthService {
   private clearLocalSession(): void {
     this.authEpoch++;
     this.clearProactiveRefreshTimer();
+    this.clearOAuthTransientState();
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    localStorage.removeItem('code_verifier');
   }
 
   /**

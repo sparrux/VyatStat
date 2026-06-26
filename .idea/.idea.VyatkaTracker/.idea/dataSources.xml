@@ -61,15 +61,5 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="vyatka-db" uuid="dd895263-36ae-401b-a7e9-53b232e5a632">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:59321/?password=mRyn%7D0j3G2T1XCtzSKR1%7Bc&amp;user=postgres</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="aspireResourceId" value="vyatka-db-fjbywmhf" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
   </component>
 </project>

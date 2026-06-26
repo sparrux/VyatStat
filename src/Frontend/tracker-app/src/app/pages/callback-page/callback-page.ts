@@ -17,8 +17,15 @@ export class CallbackPage implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      if (params['error']) {
+        this.authService.clearOAuthTransientState();
+        void this.authService.startAuthorizationFlow();
+        return;
+      }
+
       const code = params['code'];
-      if (!code) {
+      const state = params['state'];
+      if (!code || !this.authService.validateAndConsumeOAuthState(state)) {
         void this.authService.startAuthorizationFlow();
         return;
       }

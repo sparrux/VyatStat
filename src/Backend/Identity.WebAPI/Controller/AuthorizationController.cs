@@ -18,7 +18,6 @@ namespace Identity.WebAPI.Controller;
 
 public sealed class AuthorizationController(
     UserManager<IdentityUser<Guid>> userManager,
-    SignInManager<IdentityUser<Guid>> signInManager,
     IOpenIddictApplicationManager applicationManager,
     ITokenClaimsBuilder tokenClaimsBuilder,
     IAudienceResolver audienceResolver,
@@ -28,39 +27,6 @@ public sealed class AuthorizationController(
     [HttpGet("/connect/authorize")]
     public Task<IActionResult> AuthorizeGet() =>
         AuthorizeWithSessionAsync();
-
-    [HttpPost("/connect/authorize")]
-    [Consumes(MediaTypeNames.Application.FormUrlEncoded)]
-    public async Task<IActionResult> AuthorizePost()
-    {
-        var request = HttpContext.GetOpenIddictServerRequest();
-        if (request is null)
-            return InvalidOAuthRequest();
-
-        if (!IsAuthorizationCodeRequest(request))
-            return UnsupportedResponseType();
-
-        var cookieUser = await GetAuthenticatedUserFromCookieAsync();
-        if (cookieUser is not null)
-            return await IssueAuthorizationCodeAsync(request, cookieUser);
-
-        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-            return RedirectToLoginPage();
-
-        var user = await userManager.FindByNameAsync(request.Username);
-        if (user is null)
-            return InvalidCredentials();
-
-        var passwordResult = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: false);
-        if (!passwordResult.Succeeded)
-            return InvalidCredentials();
-
-        if (await userManager.IsLockedOutAsync(user))
-            return AccountLockedOut();
-
-        await signInManager.SignInAsync(user, isPersistent: true);
-        return await IssueAuthorizationCodeAsync(request, user);
-    }
 
     [HttpPost("/connect/token"), Produces("application/json")]
     [Consumes(MediaTypeNames.Application.FormUrlEncoded)]
@@ -210,13 +176,6 @@ public sealed class AuthorizationController(
         {
             Error = OpenIddictConstants.Errors.UnsupportedResponseType,
             ErrorDescription = "Only response_type=code"
-        });
-
-    static BadRequestObjectResult InvalidCredentials() =>
-        new(new OpenIddictResponse
-        {
-            Error = OpenIddictConstants.Errors.InvalidGrant,
-            ErrorDescription = ApiErrors.OAuth.InvalidUserCredentials
         });
 
     static BadRequestObjectResult AccountLockedOut() =>
