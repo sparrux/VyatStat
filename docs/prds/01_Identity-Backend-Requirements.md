@@ -59,8 +59,8 @@ Permissions are stored as Identity claims and enforced via ASP.NET authorization
 
 | Config key | Client ID | Audience | Redirect URI |
 |------------|-----------|----------|--------------|
-| `IdentityWebClient` | `identity-web-client` | `vyatka-identity-api` | `{IdentityWebClient.Url}/callback` |
-| `TrackerWebClient` | `tracker-web-client` | `vyatka-tracker-api` | `{TrackerWebClient.Url}/callback` |
+| `identity-app` | `identity-app` | `vyatka-identity-api` | `{identity-app.Url}/callback` |
+| `tracker-app` | `tracker-app` | `vyatka-tracker-api` | `{tracker-app.Url}/callback` |
 
 Client `Url`, `Idp:Authority`, and `Idp:LoginPageUrl` are supplied at runtime (Aspire AppHost or deployment env vars). Base `appsettings.json` keeps empty URLs.
 
@@ -69,7 +69,7 @@ Client `Url`, `Idp:Authority`, and `Idp:LoginPageUrl` are supplied at runtime (A
 | Key | Description |
 |-----|-------------|
 | `Authority` | Public base URL of Identity Server (validates authorize `returnUrl`) |
-| `LoginPageUrl` | Absolute URL of identity-app login page (e.g. `{IdentityWebClient.Url}/login`) |
+| `LoginPageUrl` | Absolute URL of identity-app login page (e.g. `{identity-app.Url}/login`) |
 
 ## Non-Functional Requirements
 
@@ -152,15 +152,15 @@ Typical parameters for the identity web client:
 
 | Parameter | Value |
 |-----------|-------|
-| `client_id` | `identity-web-client` |
+| `client_id` | `identity-app` |
 | `response_type` | `code` |
 | `scope` | `openid profile offline_access` |
-| `redirect_uri` | `{IdentityWebClient.Url}/callback` |
+| `redirect_uri` | `{identity-app.Url}/callback` |
 | `state` | CSRF token (validated by SPA on callback) |
 | `code_challenge` | PKCE challenge (S256) |
 | `code_challenge_method` | `S256` |
 
-For tracker-app use `client_id=tracker-web-client` and `redirect_uri={TrackerWebClient.Url}/callback`; token exchange uses `aud=vyatka-tracker-api`.
+For tracker-app use `client_id=tracker-app` and `redirect_uri={tracker-app.Url}/callback`; token exchange uses `aud=vyatka-tracker-api`.
 
 On success, redirects to `redirect_uri` with `?code=...&state=...`. On failure, returns OAuth error or redirects to login.
 
@@ -180,7 +180,7 @@ Accept: application/json
 
 | Parameter | Description |
 |-----------|-------------|
-| `client_id` | `identity-web-client` or `tracker-web-client` |
+| `client_id` | `identity-app` or `tracker-app` |
 | `code` | Authorization code from callback |
 | `redirect_uri` | Same as authorize request |
 | `code_verifier` | PKCE verifier |

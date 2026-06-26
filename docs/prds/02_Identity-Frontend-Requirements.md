@@ -8,7 +8,7 @@ Angular SPA (`Identity.Web`) for the Identity service: registration, OAuth login
 
 **Auth server URL (dev):** `https://localhost:7019` — configured in `src/environments/environment.ts`
 
-**OAuth client:** `identity-web-client` (public, PKCE S256)
+**OAuth client:** `identity-app` (public, PKCE S256)
 
 **API audience:** `vyatka-identity-api`
 

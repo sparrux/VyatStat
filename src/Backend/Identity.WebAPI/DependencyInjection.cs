@@ -27,7 +27,7 @@ static class DependencyInjection
 
             if (string.IsNullOrWhiteSpace(options.LoginPageUrl))
             {
-                var webClientUrl = builder.Configuration["Clients:IdentityWebClient:Url"];
+                var webClientUrl = builder.Configuration["Clients:identity-app:Url"];
                 if (!string.IsNullOrWhiteSpace(webClientUrl))
                     options.LoginPageUrl = $"{webClientUrl.TrimEnd('/')}/login";
             }
