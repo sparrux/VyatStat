@@ -4,6 +4,7 @@ using Identity.WebAPI.Authentication;
 using Identity.WebAPI.Contracts;
 using Identity.WebAPI.Exceptions;
 using Identity.WebAPI.Services.Users;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,21 @@ public sealed class AccountController(
     {
         var result = await usersService.CreateAsync(request);
         return result.ToActionResult();
+    }
+
+    [AllowAnonymous]
+    [HttpGet("/account/session")]
+    public async Task<IActionResult> GetSession()
+    {
+        var result = await HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme);
+        if (!result.Succeeded || result.Principal is null)
+            return Unauthorized();
+
+        var user = await userManager.GetUserAsync(result.Principal);
+        if (user is null || await userManager.IsLockedOutAsync(user))
+            return Unauthorized();
+
+        return Ok(new AccountActionResponse(true));
     }
 
     [AllowAnonymous]

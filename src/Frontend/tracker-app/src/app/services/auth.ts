@@ -1,23 +1,15 @@
 import { HttpBackend, HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   Observable,
   catchError,
-  defer,
   firstValueFrom,
   from,
   of,
-  switchMap,
   throwError,
 } from 'rxjs';
 import { environment } from '../../environments/environment';
-import {
-  OAuthTokenResponse,
-  UpdatePasswordRequest,
-  UserClaims,
-  UserProfile,
-} from '../models/auth.model';
+import { OAuthTokenResponse } from '../models/auth.model';
 import { getJwtExpirationUtcMs } from '../utils/jwt-exp';
 
 /** Refresh this many ms before JWT exp (target ~30–60 s window with skew). */
@@ -36,14 +28,11 @@ export class AuthService {
   private readonly apiAudience = environment.apiAudience;
   private readonly redirectUri = window.location.origin + '/callback';
 
-  private readonly http = inject(HttpClient);
   private readonly directHttp = new HttpClient(inject(HttpBackend));
-  private readonly router = inject(Router);
 
   private proactiveRefreshTimer: ReturnType<typeof setTimeout> | null = null;
   private refreshInFlight: Promise<void> | null = null;
   private visibilityHandlerBound = false;
-  /** Bumps on logout / invalidation so in-flight refresh cannot resurrect a session. */
   private authEpoch = 0;
   private readonly onDocumentVisibilityChange = (): void => {
     if (typeof document === 'undefined' || document.visibilityState !== 'visible') {
@@ -58,7 +47,7 @@ export class AuthService {
       void this.refreshAccessTokenSilently()
         .pipe(
           catchError(() => {
-            this.invalidateSessionAndRedirectToLogin();
+            this.invalidateSessionAndRestartAuth();
             return throwError(() => new Error('Silent refresh failed'));
           }),
         )
@@ -75,7 +64,7 @@ export class AuthService {
       void this.refreshAccessTokenSilently()
         .pipe(
           catchError(() => {
-            this.invalidateSessionAndRedirectToLogin();
+            this.invalidateSessionAndRestartAuth();
             return throwError(() => new Error('Silent refresh failed'));
           }),
         )
@@ -89,85 +78,13 @@ export class AuthService {
     return this.authServerUrl;
   }
 
-  isValidAuthorizeReturnUrl(returnUrl: string): boolean {
-    try {
-      const url = new URL(returnUrl);
-      const authority = new URL(this.authServerUrl);
-      if (url.protocol !== authority.protocol || url.host !== authority.host) {
-        return false;
-      }
-      const path = url.pathname.replace(/\/$/, '');
-      return path.toLowerCase().endsWith('/connect/authorize');
-    } catch {
-      return false;
-    }
+  getTrackerApiUrl(): string {
+    return environment.trackerApiUrl;
   }
 
-  async hasIdpCookieSession(): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.authServerUrl}/account/session`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-      return response.ok;
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Call once at app startup: schedules proactive refresh and tab visibility handling.
-   */
   onAppBootstrap(): void {
     this.scheduleProactiveRefresh();
     this.attachVisibilityListener();
-  }
-
-  getProfile(): Observable<UserProfile> {
-    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
-      switchMap(() => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-          return throwError(() => new Error('Missing access token after refresh'));
-        }
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
-        return this.http.get<UserProfile>(`${this.authServerUrl}/me`, { headers });
-      }),
-    );
-  }
-
-  updatePassword(request: UpdatePasswordRequest): Observable<void> {
-    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
-      switchMap(() => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-          return throwError(() => new Error('Missing access token after refresh'));
-        }
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
-        return this.http.put<void>(`${this.authServerUrl}/me/password`, request, { headers });
-      }),
-    );
-  }
-
-  getUserPermissions(userId: string): Observable<UserClaims> {
-    return defer(() => this.ensureAccessTokenIfNeeded()).pipe(
-      switchMap(() => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-          return throwError(() => new Error('Missing access token after refresh'));
-        }
-        const headers = new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        });
-        return this.http.get<UserClaims>(`${this.authServerUrl}/users/${userId}/permissions`, {
-          headers,
-        });
-      }),
-    );
   }
 
   async logout(): Promise<void> {
@@ -181,18 +98,14 @@ export class AuthService {
     } catch {
       // IdP session cleanup is best-effort; local tokens are already cleared.
     }
+
+    window.location.href = environment.identityAppUrl;
   }
 
-  /**
-   * True if there is a usable access token or a refresh token that can mint a new one.
-   */
   isAuthenticated(): boolean {
     return !!localStorage.getItem('access_token') || !!localStorage.getItem('refresh_token');
   }
 
-  /**
-   * Persists tokens from the authorization server and (re)schedules background refresh.
-   */
   applyOAuthTokens(tokens: OAuthTokenResponse): void {
     localStorage.setItem('access_token', tokens.access_token);
     if (tokens.refresh_token) {
@@ -201,10 +114,6 @@ export class AuthService {
     this.scheduleProactiveRefresh();
   }
 
-  /**
-   * Refresh using the refresh_token grant. Uses HttpBackend so interceptors are not involved.
-   * Concurrent callers share one in-flight refresh (promise mutex).
-   */
   refreshAccessTokenSilently(): Observable<void> {
     const refreshToken = localStorage.getItem('refresh_token');
     if (!refreshToken) {
@@ -228,42 +137,10 @@ export class AuthService {
     return from(this.refreshInFlight);
   }
 
-  register(username: string, password: string): Observable<unknown> {
-    const url = `${this.authServerUrl}/register`;
-    const body = { login: username, password };
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(url, body, { headers });
-  }
-
-  /**
-   * Starts the OAuth authorization code flow (GET /connect/authorize).
-   * Uses the IdP cookie when present so the user can skip the login form.
-   */
   async startAuthorizationFlow(): Promise<void> {
     window.location.href = await this.buildAuthorizeReturnUrl();
   }
 
-  /**
-   * Signs in via IdP cookie session, then continues the OAuth authorize redirect.
-   */
-  async login(username: string, password: string, authorizeReturnUrl?: string | null): Promise<void> {
-    const response = await fetch(`${this.authServerUrl}/account/login`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ login: username, password }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Login failed');
-    }
-
-    window.location.href = authorizeReturnUrl ?? (await this.buildAuthorizeReturnUrl());
-  }
-
-  /**
-   * Builds the GET /connect/authorize URL and stores a fresh PKCE verifier.
-   */
   async buildAuthorizeReturnUrl(): Promise<string> {
     const verifier = this.generateVerifier();
     localStorage.setItem('code_verifier', verifier);
@@ -294,14 +171,13 @@ export class AuthService {
 
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
 
-    return this.directHttp.post<OAuthTokenResponse>(`${this.authServerUrl}/connect/token`, body.toString(), {
-      headers,
-    });
+    return this.directHttp.post<OAuthTokenResponse>(
+      `${this.authServerUrl}/connect/token`,
+      body.toString(),
+      { headers },
+    );
   }
 
-  /**
-   * Ensures an access token exists when a refresh token is present (OAuth refresh grant).
-   */
   ensureAccessTokenIfNeeded(): Observable<void> {
     if (localStorage.getItem('access_token')) {
       return of(undefined);
@@ -310,6 +186,11 @@ export class AuthService {
       return throwError(() => new Error('Missing refresh token'));
     }
     return this.refreshAccessTokenSilently();
+  }
+
+  invalidateSessionAndRestartAuth(): void {
+    this.clearLocalSession();
+    void this.startAuthorizationFlow();
   }
 
   private generateVerifier(): string {
@@ -339,9 +220,11 @@ export class AuthService {
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
 
     return firstValueFrom(
-      this.directHttp.post<OAuthTokenResponse>(`${this.authServerUrl}/connect/token`, body.toString(), {
-        headers,
-      }),
+      this.directHttp.post<OAuthTokenResponse>(
+        `${this.authServerUrl}/connect/token`,
+        body.toString(),
+        { headers },
+      ),
     );
   }
 
@@ -357,7 +240,7 @@ export class AuthService {
       void this.refreshAccessTokenSilently()
         .pipe(
           catchError(() => {
-            this.invalidateSessionAndRedirectToLogin();
+            this.invalidateSessionAndRestartAuth();
             return throwError(() => new Error('Restore access token failed'));
           }),
         )
@@ -377,7 +260,7 @@ export class AuthService {
       this.refreshAccessTokenSilently()
         .pipe(
           catchError(() => {
-            this.invalidateSessionAndRedirectToLogin();
+            this.invalidateSessionAndRestartAuth();
             return throwError(() => new Error('Proactive refresh failed'));
           }),
         )
@@ -406,13 +289,5 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('code_verifier');
-  }
-
-  /**
-   * Clears stored tokens and restarts OAuth (uses IdP cookie when still valid).
-   */
-  invalidateSessionAndRedirectToLogin(): void {
-    this.clearLocalSession();
-    void this.startAuthorizationFlow();
   }
 }

@@ -11,7 +11,13 @@
       </div>
 
       <h1 class="login-page__title">Login</h1>
-      <p class="login-page__subtitle">You are welcome, мбаец</p>
+      <p class="login-page__subtitle">
+        @if (isExternalOAuth()) {
+          Sign in to continue to the application
+        } @else {
+          You are welcome, мбаец
+        }
+      </p>
 
       <form class="login-page__form" (submit)="onSubmit($event)" novalidate>
         <label class="vt-field">
