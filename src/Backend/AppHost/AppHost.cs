@@ -11,14 +11,16 @@ var identityApi = builder.AddProject<Projects.Identity_WebAPI>(
     .WithReference(postgresDb)
     .WithHttpHealthCheck("/health");
 
-var webClient = builder.AddJavaScriptApp(
-        "identity-app", "../../Frontend/identity-app")
+var frontend = "../../Frontend";
+
+var webClient = builder.AddJavaScriptApp("identity-app", frontend)
+    .WithRunScript("start:identity")
     .WithReference(identityApi)
     .WithHttpEndpoint(port: 4200, env: "PORT")
     .WaitFor(identityApi);
 
-var trackerApp = builder.AddJavaScriptApp(
-        "tracker-app", "../../Frontend/tracker-app")
+var trackerApp = builder.AddJavaScriptApp("tracker-app", frontend)
+    .WithRunScript("start:tracker")
     .WithReference(identityApi)
     .WithHttpEndpoint(port: 4201, env: "PORT")
     .WaitFor(identityApi);

@@ -2,12 +2,11 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { firstValueFrom } from 'rxjs';
 import { DialogShellComponent } from '../dialog-shell/dialog-shell.component';
-import { UserClaims } from '../../models/auth.model';
+import { UserClaims, AuthService } from '@vyatka-tracker/auth';
 import {
   UserPermissionsDialogData,
   UserPermissionsDialogResult,
 } from '../../models/dialog.model';
-import { AuthService } from '../../services/auth.service';
 import { UsersService } from '../../services/users.service';
 
 type PermissionKey = keyof Pick<

@@ -1,12 +1,12 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../services/auth';
+import { AuthService } from '../services/auth.service';
 
 const AUTH_RETRY_HEADER = 'X-Auth-Retry';
 
-function isTrackerApiRequest(url: string, trackerApiUrl: string): boolean {
-  return url.startsWith(trackerApiUrl);
+function isResourceApiRequest(url: string, resourceApiUrl: string): boolean {
+  return !!resourceApiUrl && url.startsWith(resourceApiUrl);
 }
 
 function isAuthServerOAuthRequest(url: string, authBaseUrl: string): boolean {
@@ -16,12 +16,13 @@ function isAuthServerOAuthRequest(url: string, authBaseUrl: string): boolean {
   );
 }
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
+/** Attaches Bearer tokens and retries 401s for resource API requests (e.g. tracker API). */
+export const resourceApiInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
-  const trackerBase = auth.getTrackerApiUrl();
+  const resourceBase = auth.getResourceApiUrl();
   const authBase = auth.getAuthServerUrl();
 
-  if (isAuthServerOAuthRequest(req.url, authBase) || !isTrackerApiRequest(req.url, trackerBase)) {
+  if (isAuthServerOAuthRequest(req.url, authBase) || !isResourceApiRequest(req.url, resourceBase)) {
     return next(req);
   }
 

@@ -27,7 +27,8 @@ function shouldHandleUnauthorized(url: string, authBaseUrl: string): boolean {
   return true;
 }
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
+/** 401 retry interceptor for identity/auth-server API requests. */
+export const authServerInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const base = auth.getAuthServerUrl();
 
@@ -41,14 +42,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => err);
       }
       if (req.headers.has(AUTH_RETRY_HEADER)) {
-        auth.invalidateSessionAndRedirectToLogin();
+        auth.invalidateSessionAndRestartAuth();
         return throwError(() => err);
       }
       return auth.refreshAccessTokenSilently().pipe(
         switchMap(() => {
           const token = localStorage.getItem('access_token');
           if (!token) {
-            auth.invalidateSessionAndRedirectToLogin();
+            auth.invalidateSessionAndRestartAuth();
             return throwError(() => err);
           }
           const retried = req.clone({
@@ -60,7 +61,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           return next(retried);
         }),
         catchError((refreshErr) => {
-          auth.invalidateSessionAndRedirectToLogin();
+          auth.invalidateSessionAndRestartAuth();
           return throwError(() => refreshErr);
         }),
       );

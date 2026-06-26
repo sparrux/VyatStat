@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './guards/auth.guard';
+import { authGuard } from '@vyatka-tracker/auth';
 import { readUsersGuard } from './guards/read-users.guard';
 
 export const routes: Routes = [

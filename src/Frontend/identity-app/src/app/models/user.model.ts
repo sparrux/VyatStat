@@ -1,4 +1,4 @@
-import { UserClaims } from './auth.model';
+import { UserClaims } from '@vyatka-tracker/auth';
 
 export interface DashboardUser {
   id: string;

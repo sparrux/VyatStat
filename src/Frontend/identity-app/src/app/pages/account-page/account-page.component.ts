@@ -7,8 +7,8 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { UserClaims, UserProfile } from '../../models/auth.model';
-import { AuthService } from '../../services/auth.service';
+import { UserClaims, UserProfile } from '@vyatka-tracker/auth';
+import { AuthService } from '@vyatka-tracker/auth';
 import { DialogService } from '../../services/dialog.service';
 import { displayInitials, displayOrNull } from '../../utils/display.utils';
 

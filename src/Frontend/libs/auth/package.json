@@ -1,0 +1,28 @@
+{
+  "name": "@vyatka-tracker/auth",
+  "version": "0.1.0",
+  "description": "Shared OAuth authentication library for VyatkaTracker frontends.",
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json"
+  },
+  "sideEffects": false,
+  "peerDependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "rxjs": "~7.8.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/compiler": "^22.0.0",
+    "@angular/compiler-cli": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "ng-packagr": "^22.0.0",
+    "rxjs": "~7.8.0",
+    "typescript": "~6.0.2"
+  }
+}
