@@ -6,7 +6,7 @@ Single Angular workspace for all VyatkaTracker SPAs and shared libraries.
 
 | Project | Path | Description |
 |---------|------|-------------|
-| `Identity.Web` | `identity-app/` | Identity / IdP UI |
+| `identity-app` | `identity-app/` | Identity / IdP UI |
 | `tracker-app` | `tracker-app/` | Tracker UI |
 | `auth` | `libs/auth/` | `@vyatka-tracker/auth` |
 | `ui` | `vyatka-tracker-ui/` | `@vyatka-tracker/ui` |
