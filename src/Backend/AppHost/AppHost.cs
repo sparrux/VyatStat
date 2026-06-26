@@ -31,7 +31,7 @@ var webClientEndpoint = webClient.GetEndpoint(clientIsHttps ? "https" : "http");
 var trackerAppEndpoint = trackerApp.GetEndpoint(trackerIsHttps ? "https" : "http");
 var identityApiEndpoint = identityApi.GetEndpoint(apiIsHttps ? "https" : "http");
 
-identityApi.WithEnvironment("Clients:WebClient:Url", webClientEndpoint);
+identityApi.WithEnvironment("Clients:IdentityWebClient:Url", webClientEndpoint);
 identityApi.WithEnvironment("Clients:TrackerWebClient:Url", trackerAppEndpoint);
 identityApi.WithEnvironment("Idp:Authority", identityApiEndpoint);
 identityApi.WithEnvironment("Idp:LoginPageUrl", $"{webClientEndpoint}/login");
