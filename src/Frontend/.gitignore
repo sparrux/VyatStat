@@ -2,4 +2,4 @@
 
 # Library build outputs (also ignored in package folders)
 libs/auth/dist/
-vyatka-tracker-ui/dist/
+libs/shared-ui/dist/

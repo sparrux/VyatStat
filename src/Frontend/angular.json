@@ -185,18 +185,18 @@
     },
     "ui": {
       "projectType": "library",
-      "root": "vyatka-tracker-ui",
-      "sourceRoot": "vyatka-tracker-ui/src",
+      "root": "libs/shared-ui",
+      "sourceRoot": "libs/shared-ui/src",
       "prefix": "vt",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
           "configurations": {
             "production": {
-              "tsConfig": "vyatka-tracker-ui/tsconfig.lib.prod.json"
+              "tsConfig": "libs/shared-ui/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "vyatka-tracker-ui/tsconfig.lib.json"
+              "tsConfig": "libs/shared-ui/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
