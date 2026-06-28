@@ -97,7 +97,6 @@ public abstract class Target : Auditable
 
     void UpdateAchieved()
     {
-        if (CurrentValue >= TargetValue)
-            IsAchieved = true;
+        IsAchieved = CurrentValue >= TargetValue;
     }
 }

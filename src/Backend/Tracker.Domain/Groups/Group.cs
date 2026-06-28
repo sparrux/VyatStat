@@ -39,6 +39,25 @@ public sealed class Group : Auditable
         return Result.Ok();
     }
     
+    public Result<GroupEvent> AddEvent(string title, DateTimeOffset start, DateTimeOffset end)
+    {
+        var groupEvent = GroupEvent.CreateDraft(title, start, end);
+        
+        if (groupEvent.IsFailed)
+            return groupEvent;
+        
+        _events.Add(groupEvent.Value);
+        return Result.Ok(groupEvent.Value);
+    }
+    
+    public Result RemoveEvent(GroupEvent groupEvent)
+    {
+        if (!_events.Remove(groupEvent))
+            return Result.Fail("Event not found");
+        
+        return Result.Ok();
+    }
+    
     public Result<GroupMember> AddMember(User user)
     {
         var member = GroupMember.Create(user, this);

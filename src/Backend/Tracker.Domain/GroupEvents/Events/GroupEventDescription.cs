@@ -4,7 +4,7 @@ using Tracker.Domain.Text;
 
 namespace Tracker.Domain.GroupEvents.Events;
 
-public sealed class GroupEventDescription : Auditable
+public sealed class GroupEventDescription : Entity
 {
     public GroupEventDescription() { }
     
@@ -44,6 +44,6 @@ public sealed class GroupEventDescription : Auditable
 
     static Result ValidateText(string? text)
     {
-        return Result.FailIf(text is null, "Text cannot be null or whitespace");
+        return Result.FailIf(string.IsNullOrWhiteSpace(text), "Text cannot be null or whitespace");
     }
 }

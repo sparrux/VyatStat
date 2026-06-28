@@ -48,6 +48,6 @@ public sealed class User : Auditable
     
     static Result ValidateNickname(string nickname)
     {
-        return Result.FailIf(string.IsNullOrEmpty(nickname), "Invalid nickname");
+        return Result.FailIf(string.IsNullOrWhiteSpace(nickname), "Invalid nickname");
     }
 }

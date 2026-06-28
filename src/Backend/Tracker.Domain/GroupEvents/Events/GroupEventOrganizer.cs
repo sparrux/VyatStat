@@ -12,6 +12,7 @@ public sealed class GroupEventOrganizer : Entity
         User = user;
     }
 
+    public Guid UserId { get; }
     public User User { get; }
 
     public Guid EventId { get; }
