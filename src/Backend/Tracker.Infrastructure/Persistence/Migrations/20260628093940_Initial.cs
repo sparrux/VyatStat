@@ -228,24 +228,23 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "targets",
+                name: "group_event_targets",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    EventId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     IsAchieved = table.Column<bool>(type: "boolean", nullable: false),
                     CurrentValue = table.Column<int>(type: "integer", nullable: false),
-                    TargetValue = table.Column<int>(type: "integer", nullable: false),
-                    discriminator = table.Column<string>(type: "character varying(21)", maxLength: 21, nullable: false),
-                    EventId = table.Column<Guid>(type: "uuid", nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                    TargetValue = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_targets", x => x.Id);
+                    table.PrimaryKey("PK_group_event_targets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_targets_group_events_EventId",
+                        name: "FK_group_event_targets_group_events_EventId",
                         column: x => x.EventId,
                         principalTable: "group_events",
                         principalColumn: "Id",
@@ -337,6 +336,11 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_group_event_targets_EventId",
+                table: "group_event_targets",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_group_events_GroupId",
                 table: "group_events",
                 column: "GroupId");
@@ -363,11 +367,6 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_targets_EventId",
-                table: "targets",
-                column: "EventId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_users_Nickname",
                 table: "users",
                 column: "Nickname",
@@ -390,10 +389,10 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                 name: "group_event_organizers");
 
             migrationBuilder.DropTable(
-                name: "group_members");
+                name: "group_event_targets");
 
             migrationBuilder.DropTable(
-                name: "targets");
+                name: "group_members");
 
             migrationBuilder.DropTable(
                 name: "group_event_invitees");

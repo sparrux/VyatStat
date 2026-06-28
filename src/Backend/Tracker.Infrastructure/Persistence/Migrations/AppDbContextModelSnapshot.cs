@@ -227,6 +227,42 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                     b.ToTable("group_event_requirements", (string)null);
                 });
 
+            modelBuilder.Entity("Tracker.Domain.GroupEvents.Events.GroupEventTarget", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CurrentValue")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsAchieved")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("TargetValue")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("group_event_targets", (string)null);
+                });
+
             modelBuilder.Entity("Tracker.Domain.Groups.Group", b =>
                 {
                     b.Property<Guid>("Id")
@@ -304,46 +340,6 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                     b.ToTable("locations", (string)null);
                 });
 
-            modelBuilder.Entity("Tracker.Domain.Target", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CurrentValue")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsAchieved")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("TargetValue")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("character varying(21)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("targets", (string)null);
-
-                    b.HasDiscriminator<string>("discriminator").HasValue("Target");
-
-                    b.UseTphMappingStrategy();
-                });
-
             modelBuilder.Entity("Tracker.Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -367,18 +363,6 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("users", (string)null);
-                });
-
-            modelBuilder.Entity("Tracker.Domain.GroupEvents.Events.GroupEventTarget", b =>
-                {
-                    b.HasBaseType("Tracker.Domain.Target");
-
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("EventId");
-
-                    b.HasDiscriminator().HasValue("group_event_target");
                 });
 
             modelBuilder.Entity("Tracker.Domain.GroupEvents.Events.GroupEvent", b =>
@@ -490,6 +474,17 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("Tracker.Domain.GroupEvents.Events.GroupEventTarget", b =>
+                {
+                    b.HasOne("Tracker.Domain.GroupEvents.Events.GroupEvent", "Event")
+                        .WithMany("Targets")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+                });
+
             modelBuilder.Entity("Tracker.Domain.Groups.GroupMember", b =>
                 {
                     b.HasOne("Tracker.Domain.Groups.Group", "Group")
@@ -507,17 +502,6 @@ namespace Tracker.Infrastructure.Persistence.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Tracker.Domain.GroupEvents.Events.GroupEventTarget", b =>
-                {
-                    b.HasOne("Tracker.Domain.GroupEvents.Events.GroupEvent", "Event")
-                        .WithMany("Targets")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("Tracker.Domain.GroupEvents.Events.GroupEvent", b =>

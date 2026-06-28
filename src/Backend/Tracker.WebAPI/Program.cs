@@ -1,18 +1,24 @@
 using ServiceDefaults;
+using Tracker.WebAPI;
+using Tracker.WebAPI.Services;
+using Tracker.WebAPI.Services.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
 builder.AddServiceDefaults();
+builder.AddWebServices();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
+app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-app.MapControllers();
+await DatabaseMigrator.MigrateAsync(app);
+await DatabaseSeeder.SeedAsync(app);
 
 app.Run();

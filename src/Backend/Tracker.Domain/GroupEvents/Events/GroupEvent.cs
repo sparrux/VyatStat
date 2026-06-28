@@ -117,13 +117,13 @@ public sealed class GroupEvent : Auditable
         return Result.FailIf(!_targets.Remove(target), "Target not found");
     }
     
-    public Result AddInvitee(GroupEventInvitee invitee)
+    public Result<GroupEventInvitee> AddInvitee(GroupEventInvitee invitee)
     {
         if (ValidateFinished() is { IsSuccess: false } validation)
             return validation;
         
         _invitees.Add(invitee);
-        return Result.Ok();
+        return Result.Ok(invitee);
     }
     
     public Result AddOrganizer(GroupEventOrganizer organizer)

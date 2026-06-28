@@ -8,6 +8,23 @@ public sealed class GroupEventTargetEntityConfiguration : IEntityTypeConfigurati
 {
     public void Configure(EntityTypeBuilder<GroupEventTarget> builder)
     {
+        builder.ToTable("group_event_targets");
+
+        builder.ConfigureAuditable();
+
+        builder.Property(t => t.Title)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder.Property(t => t.IsAchieved)
+            .IsRequired();
+
+        builder.Property(t => t.CurrentValue)
+            .IsRequired();
+
+        builder.Property(t => t.TargetValue)
+            .IsRequired();
+
         builder.ConfigureReadOnlyProperty(t => t.EventId);
 
         builder.HasOne(t => t.Event)
