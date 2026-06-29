@@ -11,6 +11,6 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
             .UseNpgsql("Host=localhost;Database=vt-tracker;Username=postgres;Password=postgres")
             .Options;
 
-        return new AppDbContext(options);
+        return new AppDbContext(options, TimeProvider.System);
     }
 }
