@@ -185,6 +185,8 @@ static class DependencyInjection
                     options.AddEncryptionCertificate(encryptionCertificate)
                         .AddSigningCertificate(signingCertificate);
                 }
+
+                options.DisableAccessTokenEncryption();
                 
                 options.UseAspNetCore()
                     .EnableTokenEndpointPassthrough()

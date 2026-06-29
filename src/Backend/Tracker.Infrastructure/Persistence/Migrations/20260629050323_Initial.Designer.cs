@@ -12,7 +12,7 @@ using Tracker.Infrastructure.Persistence;
 namespace Tracker.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260628093940_Initial")]
+    [Migration("20260629050323_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -346,7 +346,6 @@ namespace Tracker.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Tracker.Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")

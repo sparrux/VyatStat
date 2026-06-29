@@ -343,7 +343,6 @@ namespace Tracker.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Tracker.Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")

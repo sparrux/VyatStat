@@ -10,21 +10,25 @@ public sealed class User : Auditable
 
     User() { }
     
-    User(string nickname)
+    User(Guid id, string nickname)
     {
+        Id = id;
         Nickname = nickname;
     }
-    
+
     public string Nickname { get; }
 
     public IReadOnlyCollection<GroupMember> Memberships => _memberships;
 
-    public static Result<User> Create(string nickname)
+    public static Result<User> Create(Guid id, string nickname)
     {
+        if (id == Guid.Empty)
+            return Result.Fail("Invalid user id");
+
         if (ValidateNickname(nickname) is { IsSuccess: false } validation)
             return validation;
 
-        return Result.Ok(new User(nickname));
+        return Result.Ok(new User(id, nickname));
     }
 
     public Result<GroupMember> CreateMembership(Group group)

@@ -17,6 +17,7 @@ var identityApi = builder.AddProject<Projects.Identity_WebAPI>(
 var trackerApi = builder.AddProject<Projects.Tracker_WebAPI>(
         "tracker-api")
     .WithExternalHttpEndpoints()
+    .WithReference(identityApi)
     .WithReference(trackerDb)
     .WithHttpHealthCheck("/health");
 
@@ -48,5 +49,9 @@ identityApi.WithEnvironment("Clients:identity-app:Url", webClientEndpoint);
 identityApi.WithEnvironment("Clients:tracker-app:Url", trackerAppEndpoint);
 identityApi.WithEnvironment("Idp:Authority", identityApiEndpoint);
 identityApi.WithEnvironment("Idp:LoginPageUrl", $"{webClientEndpoint}/login");
+
+trackerApi.WithEnvironment("OpenIddict:Authority", identityApiEndpoint);
+trackerApi.WithEnvironment("OpenIddict:Audience", "vyatka-tracker-api");
+trackerApi.WithEnvironment("Clients:tracker-app:Url", trackerAppEndpoint);
 
 builder.Build().Run();

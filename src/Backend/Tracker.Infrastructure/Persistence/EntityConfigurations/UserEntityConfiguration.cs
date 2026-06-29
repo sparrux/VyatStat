@@ -12,6 +12,11 @@ public sealed class UserEntityConfiguration : IEntityTypeConfiguration<User>
 
         builder.ConfigureAuditable();
 
+        builder.Property(u => u.Id)
+            .ValueGeneratedNever();
+
+        builder.ConfigureReadOnlyProperty(u => u.Id);
+
         builder.Property(u => u.Nickname)
             .HasMaxLength(100)
             .IsRequired();
