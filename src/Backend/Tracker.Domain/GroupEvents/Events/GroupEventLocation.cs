@@ -5,7 +5,7 @@ namespace Tracker.Domain.GroupEvents.Events;
 
 public sealed class GroupEventLocation : Entity
 {
-    public GroupEventLocation() { }
+    GroupEventLocation() { }
     
     GroupEventLocation(Location location)
     {

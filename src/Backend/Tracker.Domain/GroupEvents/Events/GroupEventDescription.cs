@@ -6,7 +6,7 @@ namespace Tracker.Domain.GroupEvents.Events;
 
 public sealed class GroupEventDescription : Entity
 {
-    public GroupEventDescription() { }
+    GroupEventDescription() { }
     
     GroupEventDescription(string text, TextFormat format)
     {

@@ -5,7 +5,7 @@ namespace Tracker.Domain;
 
 public sealed class Location : Auditable
 {
-    public Location() { }
+    Location() { }
     
     Location(string? name, double lat, double lng)
     {

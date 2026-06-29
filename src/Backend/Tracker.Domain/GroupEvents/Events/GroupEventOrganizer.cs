@@ -5,7 +5,7 @@ namespace Tracker.Domain.GroupEvents.Events;
 
 public sealed class GroupEventOrganizer : Entity
 {
-    public GroupEventOrganizer() { }
+    GroupEventOrganizer() { }
     
     GroupEventOrganizer(User user)
     {

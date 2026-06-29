@@ -5,7 +5,7 @@ namespace Tracker.Domain.GroupEvents.Events;
 
 public sealed class GroupEventInviteeRequirementCompletion : Auditable
 {
-    public GroupEventInviteeRequirementCompletion() { }
+    GroupEventInviteeRequirementCompletion() { }
     
     GroupEventInviteeRequirementCompletion(
         GroupEventInvitee invitee, GroupEventRequirement requirement)

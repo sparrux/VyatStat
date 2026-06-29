@@ -7,7 +7,7 @@ public sealed class GroupEventInvitee : Auditable
 {
     readonly List<GroupEventInviteeRequirementCompletion> _requirementCompletions = [];
 
-    public GroupEventInvitee() { }
+    GroupEventInvitee() { }
     
     GroupEventInvitee(User user)
     {

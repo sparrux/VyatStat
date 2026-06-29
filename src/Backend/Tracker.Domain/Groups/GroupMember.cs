@@ -5,7 +5,7 @@ namespace Tracker.Domain.Groups;
 
 public sealed class GroupMember : Auditable
 {
-    public GroupMember() { }
+    GroupMember() { }
     
     GroupMember(User user, Group group)
     {
