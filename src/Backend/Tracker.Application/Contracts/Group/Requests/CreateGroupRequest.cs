@@ -1,5 +1,5 @@
 namespace Tracker.Application.Contracts.Group.Requests;
 
-public sealed class CreateGroupRequest(
+public sealed record CreateGroupRequest(
     string Name
 );

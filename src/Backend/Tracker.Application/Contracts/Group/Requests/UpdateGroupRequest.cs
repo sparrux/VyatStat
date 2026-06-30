@@ -1,5 +1,5 @@
 namespace Tracker.Application.Contracts.Group.Requests;
 
-public sealed class UpdateGroupNameRequest(
+public sealed record UpdateGroupRequest(
     string NewName
 );

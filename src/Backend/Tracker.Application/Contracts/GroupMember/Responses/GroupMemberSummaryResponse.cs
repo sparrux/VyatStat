@@ -1,6 +1,9 @@
+using Tracker.Application.Contracts.User.Responses;
+
 namespace Tracker.Application.Contracts.GroupMember.Responses;
 
-public sealed class GroupMemberSummaryResponse(
-    Guid UserId,
+public sealed record GroupMemberSummaryResponse(
+    Guid Id,
+    UserSummaryResponse User,
     Guid GroupId
 );

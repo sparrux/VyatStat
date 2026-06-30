@@ -1,6 +1,6 @@
 namespace Tracker.Application.Contracts.User.Responses;
 
-public sealed class UserSummaryResponse(
+public sealed record UserSummaryResponse(
     Guid Id,
     string Nickname,
     DateTimeOffset CreatedAt

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Validation.AspNetCore;
 using Tracker.Application.Services.Users;
 using Tracker.Infrastructure.Persistence;
-using Tracker.WebAPI.Services.Users;
+using Tracker.Infrastructure.Services.Users;
 
 namespace Tracker.WebAPI;
 

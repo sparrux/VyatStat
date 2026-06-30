@@ -14,7 +14,7 @@ sealed class UserProvisioningMiddleware(RequestDelegate next, ILogger<UserProvis
         }
 
         var subject = context.User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value;
-        var nickname = context.User.FindFirst(OpenIddictConstants.Claims.Nickname)?.Value;
+        var nickname = context.User.FindFirst(OpenIddictConstants.Claims.Username)?.Value;
 
         if (string.IsNullOrWhiteSpace(subject) || !Guid.TryParse(subject, out var userId))
         {
@@ -36,7 +36,7 @@ sealed class UserProvisioningMiddleware(RequestDelegate next, ILogger<UserProvis
     }
 }
 
-static class TrackerUserProvisioningMiddlewareExtensions
+static class UserProvisioningMiddlewareExtensions
 {
     public static IApplicationBuilder UseUserProvisioning(this IApplicationBuilder app) =>
         app.UseMiddleware<UserProvisioningMiddleware>();

@@ -1,11 +1,10 @@
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using Tracker.Application.Services.Users;
 using Tracker.Domain;
 using Tracker.Infrastructure.Persistence;
 
-namespace Tracker.WebAPI.Services.Users;
+namespace Tracker.Infrastructure.Services.Users;
 
 public sealed class UserProvisioningService(AppDbContext dbContext) : IUserProvisioningService
 {

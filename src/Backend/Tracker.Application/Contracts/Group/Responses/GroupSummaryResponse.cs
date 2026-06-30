@@ -1,6 +1,6 @@
 namespace Tracker.Application.Contracts.Group.Responses;
 
-public sealed class GroupSummaryResponse(
+public sealed record GroupSummaryResponse(
     Guid Id,
     string Name,
     int MemberCount

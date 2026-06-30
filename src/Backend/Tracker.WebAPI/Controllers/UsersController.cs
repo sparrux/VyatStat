@@ -1,26 +1,41 @@
+using FluentResults.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using OpenIddict.Validation.AspNetCore;
+using Tracker.Application.Contracts.User.Requests;
 using Tracker.Application.Contracts.User.Responses;
-using Tracker.Infrastructure.Persistence;
+using Tracker.Application.Services.Users;
 
 namespace Tracker.WebAPI.Controllers;
 
+[Route("users")]
 [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
-public sealed class UsersController(AppDbContext dbContext) : ApiControllerBase
+public sealed class UsersController(IUsersService usersService) : ApiControllerBase
 {
-    [HttpGet("/me")]
-    public async Task<ActionResult<UserDetailsResponse>> GetMe(CancellationToken cancellationToken)
+    [HttpGet("me")]
+    public Task<ActionResult<UserDetailsResponse>> GetMe()
     {
-        var user = await dbContext.Users
-            .AsNoTracking()
-            .FirstAsync(u => u.Id == UserId, cancellationToken);
-
-        return Ok(new UserDetailsResponse(
-            user.Id,
-            user.Nickname,
-            [],
-            user.CreatedAt));
+        return GetUser(UserId);
+    }
+    
+    [HttpGet("{userId:guid}")]
+    public async Task<ActionResult<UserDetailsResponse>> GetUser(Guid userId)
+    {
+        var result = await usersService.GetDetailsAsync(userId);
+        return result.ToActionResult();
+    }
+    
+    [HttpPut("{userId:guid}/info")]
+    public async Task<ActionResult<UserDetailsResponse>> UpdateUser(UpdateUserRequest request)
+    {
+        var result = await usersService.UpdateAsync(UserId, request);
+        return result.ToActionResult();
+    }
+    
+    [HttpGet]
+    public async Task<ActionResult<UsersListResponse>> GetUsers(int offset, int take)
+    {
+        var result = await usersService.GetListAsync(offset, take);
+        return result.ToActionResult();
     }
 }
