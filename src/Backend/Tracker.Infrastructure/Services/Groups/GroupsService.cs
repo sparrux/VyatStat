@@ -106,10 +106,7 @@ public sealed class GroupsService(AppDbContext context) : IGroupsService
         
         await context.SaveChangesAsync(ctk);
         
-        var member = memberResult.Value;
-
         return Result.Ok(new GroupMemberSummaryResponse(
-            member.Id, 
             new UserSummaryResponse(user.Id, user.Nickname, user.CreatedAt), 
             groupId));
     }
