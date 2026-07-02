@@ -1,7 +1,6 @@
 using Identity.WebAPI;
 using Identity.WebAPI.Middlewares;
 using Identity.WebAPI.Services.Seed;
-using Scalar.AspNetCore;
 using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,8 +23,7 @@ app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapApiDocs();
 }
 
 await DatabaseSeeder.SeedDatabaseAsync(app);

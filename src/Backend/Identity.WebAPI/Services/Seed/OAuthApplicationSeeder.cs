@@ -17,6 +17,7 @@ static class OAuthApplicationSeeder
             if (string.IsNullOrWhiteSpace(client.Url))
                 continue;
 
+            var redirectUri = ResolveRedirectUri(client);
             var application = await manager.FindByClientIdAsync(client.ClientId);
 
             if (application is null)
@@ -28,7 +29,7 @@ static class OAuthApplicationSeeder
                     ConsentType = OpenIddictConstants.ConsentTypes.Implicit,
                     RedirectUris =
                     {
-                        new($"{client.Url}/callback")
+                        new(redirectUri)
                     },
                     Permissions =
                     {
@@ -52,6 +53,14 @@ static class OAuthApplicationSeeder
 
             await EnsureAudiencePermissionAsync(manager, application, client.Audience);
         }
+    }
+
+    static string ResolveRedirectUri(OAuthClientOptions client)
+    {
+        if (!string.IsNullOrWhiteSpace(client.RedirectUri))
+            return client.RedirectUri;
+
+        return $"{client.Url!.TrimEnd('/')}/callback";
     }
 
     static async Task EnsureAudiencePermissionAsync(

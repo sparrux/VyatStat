@@ -6,11 +6,11 @@ using Identity.WebAPI.Configuration;
 using Identity.WebAPI.Exceptions;
 using Identity.WebAPI.Persistence;
 using Identity.WebAPI.Services.Users;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
+using Scalar.AspNetCore;
 
 namespace Identity.WebAPI;
 
@@ -226,5 +226,14 @@ static class DependencyInjection
                 throw new InvalidOperationException(
                     $"Client '{client.ClientId}' uses audience '{client.Audience}' that is not listed in OpenIddict:Audiences");
         }
+    }
+
+    public static void MapApiDocs(this WebApplication app)
+    {
+        if (!app.Environment.IsDevelopment())
+            return;
+
+        app.MapOpenApi();
+        app.MapScalarApiReference();
     }
 }

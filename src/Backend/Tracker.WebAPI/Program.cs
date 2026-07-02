@@ -1,4 +1,3 @@
-using Scalar.AspNetCore;
 using ServiceDefaults;
 using Tracker.Application;
 using Tracker.Infrastructure;
@@ -27,8 +26,7 @@ app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapApiDocs();
 }
 
 await DatabaseMigrator.MigrateAsync(app);

@@ -40,13 +40,17 @@ var trackerApp = builder.AddJavaScriptApp("tracker-app", frontend)
 var identityIsHttps = identityApp.GetEndpoint("https").Exists;
 var trackerIsHttps = trackerApp.GetEndpoint("https").Exists;
 var identityApiIsHttps = identityApi.GetEndpoint("https").Exists;
+var trackerApiIsHttps = trackerApi.GetEndpoint("https").Exists;
 
 var webClientEndpoint = identityApp.GetEndpoint(identityIsHttps ? "https" : "http");
 var trackerAppEndpoint = trackerApp.GetEndpoint(trackerIsHttps ? "https" : "http");
 var identityApiEndpoint = identityApi.GetEndpoint(identityApiIsHttps ? "https" : "http");
+var trackerApiEndpoint = trackerApi.GetEndpoint(trackerApiIsHttps ? "https" : "http");
 
 identityApi.WithEnvironment("Clients:identity-app:Url", webClientEndpoint);
 identityApi.WithEnvironment("Clients:tracker-app:Url", trackerAppEndpoint);
+identityApi.WithEnvironment("Clients:tracker-scalar:Url", trackerApiEndpoint);
+identityApi.WithEnvironment("Clients:tracker-scalar:RedirectUri", $"{trackerApiEndpoint}/scalar/v1");
 identityApi.WithEnvironment("Idp:Authority", identityApiEndpoint);
 identityApi.WithEnvironment("Idp:LoginPageUrl", $"{webClientEndpoint}/login");
 
