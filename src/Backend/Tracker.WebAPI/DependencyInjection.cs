@@ -1,8 +1,12 @@
+using FluentResults;
+using FluentResults.Extensions.AspNetCore;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using Scalar.AspNetCore;
+using Tracker.Application.Contracts.Common.Responses;
 using Tracker.Application.Services.Users;
 using Tracker.Infrastructure.Persistence;
 using Tracker.Infrastructure.Services.Users;
@@ -19,6 +23,20 @@ static class DependencyInjection
             options.AddDocumentTransformer<OAuth2SecuritySchemeTransformer>();
         });
         builder.Services.AddControllers();
+        builder.Services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var errors = context.ModelState.Values
+                    .SelectMany(entry => entry.Errors)
+                    .Select(error => new ExceptionalError(error.ErrorMessage, error.Exception))
+                    .ToArray();
+                
+                var result = Result.Fail(errors);
+
+                return result.ToActionResult();
+            };
+        });
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddProblemDetails();
 
