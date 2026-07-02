@@ -21,9 +21,9 @@ public sealed class GroupsController(IGroupsService groupsService) : ApiControll
     }
     
     [HttpPut("{groupId:guid}")]
-    public async Task<IActionResult> UpdateGroup(UpdateGroupRequest request)
+    public async Task<IActionResult> UpdateGroup(Guid groupId, UpdateGroupRequest request)
     {
-        var result = await groupsService.UpdateAsync(UserId, request);
+        var result = await groupsService.UpdateAsync(groupId, request);
         return result.ToActionResult();
     }
     

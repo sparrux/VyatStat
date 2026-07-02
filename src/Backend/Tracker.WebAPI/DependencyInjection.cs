@@ -1,3 +1,4 @@
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Validation.AspNetCore;
 using Tracker.Application.Services.Users;
@@ -12,6 +13,7 @@ static class DependencyInjection
     {
         builder.Services.AddOpenApi();
         builder.Services.AddControllers();
+        builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddProblemDetails();
 
         builder.AddAuthentication();
