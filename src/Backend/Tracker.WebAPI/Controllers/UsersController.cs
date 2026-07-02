@@ -2,6 +2,7 @@ using FluentResults.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Validation.AspNetCore;
+using Tracker.Application.Contracts.Common.Requests;
 using Tracker.Application.Contracts.User.Requests;
 using Tracker.Application.Contracts.User.Responses;
 using Tracker.Application.Services.Users;
@@ -33,9 +34,9 @@ public sealed class UsersController(IUsersService usersService) : ApiControllerB
     }
     
     [HttpGet]
-    public async Task<ActionResult<UsersListResponse>> GetUsers(int offset, int take)
+    public async Task<ActionResult<UsersListResponse>> GetUsers([FromQuery] PageSelectionRequest request)
     {
-        var result = await usersService.GetListAsync(offset, take);
+        var result = await usersService.GetListAsync(request.Offset, request.Take);
         return result.ToActionResult();
     }
 }

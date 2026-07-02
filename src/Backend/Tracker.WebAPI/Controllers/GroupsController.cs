@@ -2,6 +2,7 @@ using FluentResults.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Validation.AspNetCore;
+using Tracker.Application.Contracts.Common.Requests;
 using Tracker.Application.Contracts.Group.Requests;
 using Tracker.Application.Contracts.Group.Responses;
 using Tracker.Application.Contracts.GroupMember.Responses;
@@ -28,16 +29,16 @@ public sealed class GroupsController(IGroupsService groupsService) : ApiControll
     }
     
     [HttpGet]
-    public async Task<ActionResult<GroupsListResponse>> GetGroups(int offset, int take)
+    public async Task<ActionResult<GroupsListResponse>> GetGroups([FromQuery] PageSelectionRequest request)
     {
-        var result = await groupsService.GetListAsync(offset, take);
+        var result = await groupsService.GetListAsync(request.Offset, request.Take);
         return result.ToActionResult();
     }
 
     [HttpGet("{groupId:guid}/members")]
-    public async Task<ActionResult<GroupMembersListResponse>> GetMembers(Guid groupId, int offset, int take)
+    public async Task<ActionResult<GroupMembersListResponse>> GetMembers(Guid groupId, [FromQuery] PageSelectionRequest request)
     {
-        var result = await groupsService.GetMembersListAsync(groupId, offset, take);
+        var result = await groupsService.GetMembersListAsync(groupId, request.Offset, request.Take);
         return result.ToActionResult();
     }
     
