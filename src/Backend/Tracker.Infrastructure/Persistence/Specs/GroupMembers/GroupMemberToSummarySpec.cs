@@ -9,8 +9,10 @@ sealed class GroupMemberToSummarySpec : Specification<GroupMember, GroupMemberSu
 {
     public GroupMemberToSummarySpec()
     {
-        Query.Select(member => new GroupMemberSummaryResponse(
-            new UserSummaryResponse(member.User.Id, member.User.Nickname, member.User.CreatedAt),
-            member.GroupId));
+        Query
+            .AsNoTracking()
+            .Select(member => new GroupMemberSummaryResponse(
+                new UserSummaryResponse(member.User.Id, member.User.Nickname, member.User.CreatedAt),
+                member.GroupId));
     }
 }

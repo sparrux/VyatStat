@@ -18,6 +18,7 @@ public sealed class GroupEventInviteeEntityConfiguration : IEntityTypeConfigurat
         builder.Property(i => i.AdmissionStatus)
             .IsRequired();
 
+        builder.ConfigureReadOnlyProperty(i => i.UserId);
         builder.ConfigureReadOnlyProperty(i => i.EventId);
 
         builder.HasOne(i => i.Event)
@@ -27,7 +28,7 @@ public sealed class GroupEventInviteeEntityConfiguration : IEntityTypeConfigurat
 
         builder.HasOne(i => i.User)
             .WithMany()
-            .HasForeignKey("UserId")
+            .HasForeignKey(i => i.UserId)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 

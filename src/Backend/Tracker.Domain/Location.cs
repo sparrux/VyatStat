@@ -18,7 +18,7 @@ public sealed class Location : Auditable
     public double Latitude { get; private set; }
     public double Longitude { get; private set; }
 
-    public static Result<Location> Create(string name, double lat, double lng)
+    public static Result<Location> Create(string? name, double lat, double lng)
     {
         return Result.Ok(new Location(name, lat, lng));
     }

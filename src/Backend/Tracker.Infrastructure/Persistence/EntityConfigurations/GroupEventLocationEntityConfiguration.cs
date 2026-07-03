@@ -16,7 +16,7 @@ public sealed class GroupEventLocationEntityConfiguration : IEntityTypeConfigura
 
         builder.HasOne(l => l.Location)
             .WithMany()
-            .HasForeignKey("LocationId")
+            .HasForeignKey(l => l.LocationId)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 

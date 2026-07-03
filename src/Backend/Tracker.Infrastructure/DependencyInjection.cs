@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
+using Tracker.Application.Services.Events;
 using Tracker.Application.Services.Groups;
 using Tracker.Application.Services.Users;
+using Tracker.Infrastructure.Services.GroupEvents;
 using Tracker.Infrastructure.Services.Groups;
 using Tracker.Infrastructure.Services.Users;
 
@@ -12,6 +14,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IGroupsService, GroupsService>();
+        services.AddScoped<IGroupEventsService, GroupEventsService>();
         
         return services;
     }

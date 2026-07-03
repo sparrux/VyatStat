@@ -3,11 +3,11 @@ using Tracker.Domain.GroupEvents.Events;
 
 namespace Tracker.Application.Contracts.Event.Responses;
 
-public sealed record GroupEventResponse(
+public sealed record GroupEventDetailsResponse(
     Guid Id,
     Guid GroupId,
     string Title,
-    GroupEventDescriptionResponse Description,
+    FormatTextResponse Description,
     DateTimeOffset EndDate,
     DateTimeOffset StartDate,
     GroupEventState State,

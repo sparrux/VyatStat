@@ -129,11 +129,20 @@ public sealed class GroupsService(AppDbContext context) : IGroupsService
 
     public async Task<Result> UpdateAsync(Guid groupId, UpdateGroupRequest request, CancellationToken ctk = default)
     {
-        var rows = await context.Groups
+        var group = await context.Groups
             .WithSpecification(new ByIdSpec<Group>(groupId))
-            .ExecuteUpdateAsync(x =>
-                x.SetProperty(e => e.Name, request.NewName), ctk);
+            .FirstOrDefaultAsync(cancellationToken: ctk);
         
-        return Result.FailIf(rows <= 0, "Failed to update group info");
+        if (group is null)
+            return Result.Fail("Group not found");
+        
+        var nameUpdate = group.UpdateName(request.NewName);
+
+        if (nameUpdate.IsFailed)
+            return nameUpdate;
+        
+        await context.SaveChangesAsync(ctk);
+        
+        return Result.Ok();
     }
 }

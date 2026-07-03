@@ -13,8 +13,9 @@ public sealed class GroupEventInvitee : Auditable
     {
         User = user;
     }
-    
+
     public User User { get; private set; }
+    public Guid UserId { get; private set; }
     public GroupEventRsvpStatus RsvpStatus { get; private set; }
     public GroupEventAdmissionStatus AdmissionStatus { get; private set; }
 

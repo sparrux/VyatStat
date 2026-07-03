@@ -6,6 +6,8 @@ sealed class SelectionSpec<T> : Specification<T>
 {
     public SelectionSpec(int skip, int take)
     {
-        Query.Skip(skip).Take(take);
+        Query
+            .Skip(skip)
+            .Take(take);
     }
 }

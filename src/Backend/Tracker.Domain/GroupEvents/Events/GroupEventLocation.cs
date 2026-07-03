@@ -12,6 +12,7 @@ public sealed class GroupEventLocation : Entity
         Location = location;
     }
     
+    public Guid LocationId { get; private set; }
     public Location Location { get; private set; }
     
     public Guid EventId { get; }
