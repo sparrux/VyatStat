@@ -40,8 +40,6 @@ public sealed class GroupEvent : Auditable
     public Guid GroupId { get; }
     public Group Group { get; }
     
-    bool IsFinished => State is GroupEventState.Completed or GroupEventState.Cancelled;
-
     public static Result<GroupEvent> CreateDraft(string title, DateTimeOffset start, DateTimeOffset end)
     {
         if (ValidateTitle(title).Bind(() => ValidateDates(start, end)) 
@@ -82,7 +80,7 @@ public sealed class GroupEvent : Auditable
     
     public Result UpdateState(GroupEventState state)
     {
-        if (ValidateFinished().Bind(() => ValidateState(state)) is { IsSuccess: false } validation)
+        if (ValidateState(state) is { IsSuccess: false } validation)
             return validation;
         
         State = state;
@@ -113,7 +111,7 @@ public sealed class GroupEvent : Auditable
 
     public Result AddTarget(GroupEventTarget target)
     {
-        if (ValidateFinished() is { IsSuccess: false } validation)
+        if (ValidateOngoing().Bind(ValidateFinished) is { IsSuccess: false } validation)
             return validation;
         
         _targets.Add(target);
@@ -122,7 +120,7 @@ public sealed class GroupEvent : Auditable
     
     public Result RemoveTarget(GroupEventTarget target)
     {
-        if (ValidateFinished() is { IsSuccess: false } validation)
+        if (ValidateOngoing().Bind(ValidateFinished) is { IsSuccess: false } validation)
             return validation;
         
         return Result.FailIf(!_targets.Remove(target), "Target not found");
@@ -156,7 +154,7 @@ public sealed class GroupEvent : Auditable
     
     public Result AddRequirement(GroupEventRequirement requirement)
     {
-        if (ValidateFinished() is { IsSuccess: false } validation)
+        if (ValidateOngoing().Bind(ValidateFinished) is { IsSuccess: false } validation)
             return validation;
         
         _requirements.Add(requirement);
@@ -169,7 +167,7 @@ public sealed class GroupEvent : Auditable
         string? description,
         bool isMandatory)
     {
-        if (ValidateFinished() is { IsSuccess: false } validation)
+        if (ValidateOngoing().Bind(ValidateFinished) is { IsSuccess: false } validation)
             return validation;
         
         var requirement = Requirements.FirstOrDefault(r => r.Id == requirementId);
@@ -182,7 +180,7 @@ public sealed class GroupEvent : Auditable
     
     public Result RemoveRequirement(GroupEventRequirement requirement)
     {
-        if (ValidateFinished() is { IsSuccess: false } validation)
+        if (ValidateOngoing().Bind(ValidateFinished) is { IsSuccess: false } validation)
             return validation;
         
         return Result.FailIf(!_requirements.Remove(requirement), "Requirement not found");
@@ -200,11 +198,40 @@ public sealed class GroupEvent : Auditable
     
     Result ValidateState(GroupEventState state)
     {
-        return ValidateFinished();
+        if (IsDraft(state) && IsOngoing(State))
+            return Result.Fail("Cannot set event as draft when ongoing");
+        
+        if (IsDraft(state) && IsFinished(State))
+            return Result.Fail("Cannot set event as draft when finished");
+        
+        if (IsOngoing(state) && IsFinished(State))
+            return Result.Fail("Cannot set event as ongoing when finished");
+        
+        return Result.Ok();
     }
     
     Result ValidateFinished()
     {
-        return Result.FailIf(IsFinished, "Cannot update finished event");
+        return Result.FailIf(IsFinished(State), "Cannot update finished event");
     }
+    
+    Result ValidateOngoing()
+    {
+        return Result.FailIf(IsOngoing(State), "Cannot update ongoing event");
+    }
+
+    static bool IsDraft(GroupEventState state) =>
+        state
+            is GroupEventState.Draft;
+
+    static bool IsFinished(GroupEventState state) =>
+        state 
+            is GroupEventState.Completed 
+            or GroupEventState.Cancelled;
+
+    static bool IsOngoing(GroupEventState state) =>
+        state
+            is GroupEventState.RegistrationOpen
+            or GroupEventState.RegistrationClosed
+            or GroupEventState.InProgress;
 }
