@@ -76,7 +76,8 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
             groupEvent.Title,
             groupEvent.EndDate,
             groupEvent.StartDate,
-            groupEvent.Invitees.Count));
+            groupEvent.Invitees.Count,
+            groupEvent.Organizers.Count));
     }
 
     public async Task<Result<GroupEventsListResponse>> GetListAsync(Guid groupId, int offset, int take, CancellationToken ctk = default)
@@ -218,10 +219,10 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
         
         if (groupEvent is null)
             return Result.Fail("Group event not found");
-        
-        var maxSortOrder = await context.GroupEventRequirements
-            .WithSpecification(new ByEventIdSpec(eventId))
-            .MaxAsync(x => x.SortOrder, cancellationToken: ctk);
+
+        var maxSortOrder = groupEvent.Requirements.Count > 0
+            ? groupEvent.Requirements.Max(x => x.SortOrder)
+            : 0;
 
         var requirement = GroupEventRequirement
             .Create(request.Title, request.Description, request.IsMandatory, maxSortOrder + 1);

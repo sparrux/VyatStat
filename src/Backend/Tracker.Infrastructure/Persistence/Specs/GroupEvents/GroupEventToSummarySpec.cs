@@ -15,6 +15,7 @@ sealed class GroupEventToSummarySpec : Specification<GroupEvent, GroupEventSumma
                 x.Title,
                 x.EndDate,
                 x.StartDate,
-                x.Invitees.Count));
+                x.Invitees.Count,
+                x.Organizers.Count));
     }
 }

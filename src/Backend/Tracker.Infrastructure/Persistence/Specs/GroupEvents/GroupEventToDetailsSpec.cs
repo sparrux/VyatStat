@@ -1,6 +1,7 @@
 using Ardalis.Specification;
 using Tracker.Application.Contracts.Common.Responses;
 using Tracker.Application.Contracts.Event.Responses;
+using Tracker.Application.Contracts.User.Responses;
 using Tracker.Domain.GroupEvents.Events;
 
 namespace Tracker.Infrastructure.Persistence.Specs.GroupEvents;
@@ -26,6 +27,12 @@ sealed class GroupEventToDetailsSpec : Specification<GroupEvent, GroupEventDetai
                         x.Location.Location.Latitude,
                         x.Location.Location.Longitude)
                     : null,
+                x.Organizers
+                    .Select(o => new GroupEventOrganizerResponse(
+                        new UserSummaryResponse(
+                            o.User.Id,
+                            o.User.Nickname,
+                            o.User.CreatedAt))).ToList(),
                 x.Requirements
                     .OrderByDescending(r => r.SortOrder)
                     .Select(r => new GroupEventRequirementResponse(

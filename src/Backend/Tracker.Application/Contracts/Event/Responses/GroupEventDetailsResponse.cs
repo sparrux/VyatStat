@@ -12,5 +12,6 @@ public sealed record GroupEventDetailsResponse(
     DateTimeOffset StartDate,
     GroupEventState State,
     LocationResponse? Location,
+    IReadOnlyCollection<GroupEventOrganizerResponse> Organizers,
     IReadOnlyCollection<GroupEventRequirementResponse> Requirements
 );

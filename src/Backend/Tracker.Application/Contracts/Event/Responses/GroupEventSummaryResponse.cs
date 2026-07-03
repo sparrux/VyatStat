@@ -5,5 +5,6 @@ public sealed record GroupEventSummaryResponse(
     string Title,
     DateTimeOffset EndDate,
     DateTimeOffset StartDate,
-    int InviteeCount
+    int InviteesCount,
+    int OrganizersCount
 );
