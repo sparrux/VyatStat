@@ -11,6 +11,7 @@ using Tracker.Domain.Groups;
 using Tracker.Infrastructure.Persistence;
 using Tracker.Infrastructure.Persistence.Specs.Common;
 using Tracker.Infrastructure.Persistence.Specs.GroupEvents;
+using Tracker.Infrastructure.Persistence.Specs.Requirements;
 
 namespace Tracker.Infrastructure.Services.GroupEvents;
 
@@ -52,6 +53,18 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
         
         if (description.IsFailed)
             return draft.ToResult();
+
+        if (request.Location is not null)
+        {
+            var location = draft.Value.UpdateLocation(
+                Location.Create(
+                    request.Location.Name, 
+                    request.Location.Latitude, 
+                    request.Location.Longitude).Value);
+
+            if (location.IsFailed)
+                return location;
+        }
         
         await context.AddAsync(draft.Value, ctk);
         await context.SaveChangesAsync(ctk);
@@ -80,7 +93,11 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
             .WithSpecification(projection)
             .ToListAsync(cancellationToken: ctk);
 
-        return Result.Ok(new GroupEventsListResponse(groupEvents, await context.GroupEvents.CountAsync(ctk)));
+        return Result.Ok(new GroupEventsListResponse(
+            groupEvents, 
+            await context.GroupEvents
+                .WithSpecification(new ByGroupIdSpec(groupId))
+                .CountAsync(ctk)));
     }
 
     public async Task<Result<GroupEventDetailsResponse>> GetAsync(Guid eventId, CancellationToken ctk = default)
@@ -181,16 +198,99 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
         if (newLocation?.IsFailed ?? false)
             return newLocation.ToResult();
 
-        var locationUpdate = groupEvent.UpdateLocation(
-            newLocation is null
-                ? null
-                : GroupEventLocation.Create(newLocation.Value).Value);
+        var locationUpdate = groupEvent.UpdateLocation(newLocation?.Value);
 
         if (locationUpdate.IsFailed)
             return locationUpdate;
         
         await context.SaveChangesAsync(ctk);
         
+        return Result.Ok();
+    }
+
+    public async Task<Result<GroupEventRequirementResponse>> CreateRequirementAsync(
+        Guid eventId, CreateGroupEventRequirementRequest request, CancellationToken ctk = default)
+    {
+        var groupEvent = await context.GroupEvents
+            .WithSpecification(new ByIdSpec<GroupEvent>(eventId))
+            .WithSpecification(new WithRequirementsSpec())
+            .FirstOrDefaultAsync(cancellationToken: ctk);
+        
+        if (groupEvent is null)
+            return Result.Fail("Group event not found");
+        
+        var maxSortOrder = await context.GroupEventRequirements
+            .WithSpecification(new ByEventIdSpec(eventId))
+            .MaxAsync(x => x.SortOrder, cancellationToken: ctk);
+
+        var requirement = GroupEventRequirement
+            .Create(request.Title, request.Description, request.IsMandatory, maxSortOrder + 1);
+        
+        if (requirement.IsFailed)
+            return requirement.ToResult();
+        
+        var addRequirement = groupEvent.AddRequirement(requirement.Value);
+        
+        if (addRequirement.IsFailed)
+            return addRequirement;
+        
+        await context.SaveChangesAsync(ctk);
+
+        return Result.Ok(new GroupEventRequirementResponse(
+            requirement.Value.Id,
+            requirement.Value.Title,
+            requirement.Value.Description,
+            requirement.Value.IsMandatory));
+    }
+
+    public async Task<Result<GroupEventRequirementResponse>> UpdateRequirementAsync(
+        Guid eventId, Guid reqId, UpdateGroupEventRequirementRequest request, CancellationToken ctk = default)
+    {
+        var groupEvent = await context.GroupEvents
+            .WithSpecification(new ByIdSpec<GroupEvent>(eventId))
+            .WithSpecification(new WithRequirementsSpec())
+            .FirstOrDefaultAsync(cancellationToken: ctk);
+        
+        if (groupEvent is null)
+            return Result.Fail("Group event not found");
+        
+        var updateRequirement = groupEvent.UpdateRequirement(
+            reqId, request.Title, request.Description, request.IsMandatory);
+        
+        if (updateRequirement.IsFailed)
+            return updateRequirement;
+        
+        await context.SaveChangesAsync(ctk);
+        
+        var requirement = groupEvent.Requirements.First(x => x.Id == reqId);
+
+        return Result.Ok(new GroupEventRequirementResponse(
+            requirement.Id,
+            requirement.Title,
+            requirement.Description,
+            requirement.IsMandatory));
+    }
+
+    public async Task<Result> DeleteRequirementAsync(Guid eventId, Guid reqId, CancellationToken ctk = default)
+    {
+        var groupEvent = await context.GroupEvents
+            .WithSpecification(new ByIdSpec<GroupEvent>(eventId))
+            .WithSpecification(new ByRequirementIdSpec(reqId))
+            .WithSpecification(new WithRequirementsSpec())
+            .FirstOrDefaultAsync(cancellationToken: ctk);
+        
+        if (groupEvent is null)
+            return Result.Fail("Group event or requirement not found");
+        
+        var requirement = groupEvent.Requirements.First(x => x.Id == reqId);
+        
+        var removeRequirement = groupEvent.RemoveRequirement(requirement);
+
+        if (removeRequirement.IsFailed)
+            return removeRequirement;
+
+        await context.SaveChangesAsync(ctk);
+
         return Result.Ok();
     }
 

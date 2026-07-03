@@ -98,6 +98,13 @@ public sealed class GroupsService(AppDbContext context) : IGroupsService
         
         if (user is null)
             return Result.Fail<GroupMemberSummaryResponse>("User not found");
+        
+        var isMember = await context.GroupMembers.AnyAsync(
+            x => x.UserId == user.Id && x.GroupId == groupId, 
+            cancellationToken: ctk);
+        
+        if (isMember)
+            return Result.Fail<GroupMemberSummaryResponse>("User is already a member of this group");
 
         var memberResult = group.AddMember(user);
 

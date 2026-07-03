@@ -90,12 +90,23 @@ public sealed class GroupEvent : Auditable
         return Result.Ok();
     }
 
-    public Result UpdateLocation(GroupEventLocation? location)
+    public Result UpdateLocation(Location? location)
     {
         if (ValidateFinished() is { IsSuccess: false } validation)
             return validation;
+
+        if (location is null)
+        {
+            Location = null;
+            return Result.Ok();
+        }
         
-        Location = location;
+        var locationResult = GroupEventLocation.Create(location);
+
+        if (locationResult.IsFailed)
+            return locationResult.ToResult();
+
+        Location = locationResult.Value;
         
         return Result.Ok();
     }
@@ -150,6 +161,23 @@ public sealed class GroupEvent : Auditable
         
         _requirements.Add(requirement);
         return Result.Ok();
+    }
+    
+    public Result UpdateRequirement(
+        Guid requirementId,
+        string title,
+        string? description,
+        bool isMandatory)
+    {
+        if (ValidateFinished() is { IsSuccess: false } validation)
+            return validation;
+        
+        var requirement = Requirements.FirstOrDefault(r => r.Id == requirementId);
+        
+        if (requirement is null)
+            return Result.Fail("Requirement not found");
+
+        return requirement.UpdateRequirement(title, description, isMandatory);
     }
     
     public Result RemoveRequirement(GroupEventRequirement requirement)

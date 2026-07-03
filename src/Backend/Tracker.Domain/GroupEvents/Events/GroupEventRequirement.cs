@@ -34,6 +34,18 @@ public sealed class GroupEventRequirement : Entity
             SortOrder = sortOrder
         };
     }
+
+    public Result UpdateRequirement(string title, string? description, bool isMandatory)
+    {
+        if (ValidateTitle(title) is { IsSuccess: false } validation)
+            return validation;
+        
+        Title = title;
+        Description = description;
+        IsMandatory = isMandatory;
+        
+        return Result.Ok();
+    }
     
     static Result ValidateTitle(string title)
     {

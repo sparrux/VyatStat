@@ -71,4 +71,27 @@ public sealed class GroupEventsController(IGroupEventsService eventsService) : A
         var result = await eventsService.UpdateLocationAsync(eventId, request);
         return result.ToActionResult();
     }
+    
+    [HttpPost("events/{eventId:guid}/requirements")]
+    public async Task<ActionResult<GroupEventsListResponse>> CreateRequirement(
+        Guid eventId, CreateGroupEventRequirementRequest request)
+    {
+        var result = await eventsService.CreateRequirementAsync(eventId, request);
+        return result.ToActionResult();
+    }
+    
+    [HttpPut("events/{eventId:guid}/requirements/{requirementId:guid}")]
+    public async Task<ActionResult<GroupEventsListResponse>> CreateRequirement(
+        Guid eventId, Guid requirementId, UpdateGroupEventRequirementRequest request)
+    {
+        var result = await eventsService.UpdateRequirementAsync(eventId, requirementId, request);
+        return result.ToActionResult();
+    }
+    
+    [HttpDelete("events/{eventId:guid}/requirements/{requirementId:guid}")]
+    public async Task<ActionResult<GroupEventsListResponse>> DeleteRequirement(Guid eventId, Guid requirementId)
+    {
+        var result = await eventsService.DeleteRequirementAsync(eventId, requirementId);
+        return result.ToActionResult();
+    }
 }

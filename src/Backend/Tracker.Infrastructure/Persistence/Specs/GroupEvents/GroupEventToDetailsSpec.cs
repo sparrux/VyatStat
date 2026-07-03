@@ -25,7 +25,14 @@ sealed class GroupEventToDetailsSpec : Specification<GroupEvent, GroupEventDetai
                         x.Location.Location.Name,
                         x.Location.Location.Latitude,
                         x.Location.Location.Longitude)
-                    : null
+                    : null,
+                x.Requirements
+                    .OrderByDescending(r => r.SortOrder)
+                    .Select(r => new GroupEventRequirementResponse(
+                        r.Id,
+                        r.Title,
+                        r.Description,
+                        r.IsMandatory)).ToList()
             ));
     }
 }

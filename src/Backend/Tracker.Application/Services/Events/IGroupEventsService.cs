@@ -13,5 +13,8 @@ public interface IGroupEventsService
     Task<Result> UpdateDescriptionAsync(Guid eventId, UpdateGroupEventDescriptionRequest request, CancellationToken ctk = default);
     Task<Result> UpdateDatesAsync(Guid eventId, UpdateGroupEventDatesRequest request, CancellationToken ctk = default);
     Task<Result> UpdateLocationAsync(Guid eventId, UpdateGroupEventLocationRequest request, CancellationToken ctk = default);
+    Task<Result<GroupEventRequirementResponse>> CreateRequirementAsync(Guid eventId, CreateGroupEventRequirementRequest request, CancellationToken ctk = default);
+    Task<Result<GroupEventRequirementResponse>> UpdateRequirementAsync(Guid eventId, Guid reqId, UpdateGroupEventRequirementRequest request, CancellationToken ctk = default);
+    Task<Result> DeleteRequirementAsync(Guid eventId, Guid reqId, CancellationToken ctk = default);
     Task<Result> DeleteAsync(Guid eventId, CancellationToken ctk = default);
 }
