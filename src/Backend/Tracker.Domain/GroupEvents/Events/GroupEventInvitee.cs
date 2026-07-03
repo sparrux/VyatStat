@@ -45,6 +45,27 @@ public sealed class GroupEventInvitee : Auditable
         return Result.Ok();
     }
 
+    public Result<GroupEventInviteeRequirementCompletion> AddCompletion(GroupEventRequirement requirement)
+    {
+        var completion = GroupEventInviteeRequirementCompletion
+            .Create(this, requirement);
+        
+        if (completion.IsFailed)
+            return completion;
+
+        _requirementCompletions.Add(completion.Value);
+
+        return completion;
+    }
+    
+    public Result RemoveCompletion(GroupEventInviteeRequirementCompletion completion)
+    {
+        if (!_requirementCompletions.Remove(completion))
+            return Result.Fail("Requirement completion not found");
+        
+        return Result.Ok();
+    }
+    
     static Result ValidateUser(User? user)
     {
         return Result.FailIf(user is null, "User is required");

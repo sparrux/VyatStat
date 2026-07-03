@@ -33,6 +33,10 @@ public sealed class GroupEventRequirementEntityConfiguration : IEntityTypeConfig
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.ConfigureCollection(r => r.Completions, "_completions");
+        
+        builder.HasMany(x => x.Completions)
+            .WithOne(x => x.Requirement)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(r => new { r.EventId, r.SortOrder })
             .IsUnique();

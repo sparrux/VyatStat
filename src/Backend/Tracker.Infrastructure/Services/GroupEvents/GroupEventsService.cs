@@ -5,17 +5,20 @@ using Microsoft.EntityFrameworkCore;
 using Tracker.Application.Contracts.Event.Requests;
 using Tracker.Application.Contracts.Event.Responses;
 using Tracker.Application.Services.Events;
+using Tracker.Application.Services.Requirements;
 using Tracker.Domain;
 using Tracker.Domain.GroupEvents.Events;
 using Tracker.Domain.Groups;
 using Tracker.Infrastructure.Persistence;
 using Tracker.Infrastructure.Persistence.Specs.Common;
 using Tracker.Infrastructure.Persistence.Specs.GroupEvents;
-using Tracker.Infrastructure.Persistence.Specs.Requirements;
 
 namespace Tracker.Infrastructure.Services.GroupEvents;
 
-public sealed class GroupEventsService(AppDbContext context) : IGroupEventsService
+public sealed class GroupEventsService(
+    AppDbContext context,
+    IRequirementsSynchronization synchronization
+) : IGroupEventsService
 {
     public async Task<Result<GroupEventSummaryResponse>> CreateAsync(Guid groupId, Guid orgId, CreateGroupEventRequest request, CancellationToken ctk = default)
     {
@@ -215,6 +218,7 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
         var groupEvent = await context.GroupEvents
             .WithSpecification(new ByIdSpec<GroupEvent>(eventId))
             .WithSpecification(new WithRequirementsSpec())
+            .WithSpecification(new WithInviteesCompletionsSpec())
             .FirstOrDefaultAsync(cancellationToken: ctk);
         
         if (groupEvent is null)
@@ -236,6 +240,7 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
             return addRequirement;
         
         await context.SaveChangesAsync(ctk);
+        await synchronization.SynchronizeAsync(groupEvent, ctk);
 
         return Result.Ok(new GroupEventRequirementResponse(
             requirement.Value.Id,
@@ -278,6 +283,7 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
             .WithSpecification(new ByIdSpec<GroupEvent>(eventId))
             .WithSpecification(new ByRequirementIdSpec(reqId))
             .WithSpecification(new WithRequirementsSpec())
+            .WithSpecification(new WithInviteesCompletionsSpec())
             .FirstOrDefaultAsync(cancellationToken: ctk);
         
         if (groupEvent is null)
@@ -290,7 +296,9 @@ public sealed class GroupEventsService(AppDbContext context) : IGroupEventsServi
         if (removeRequirement.IsFailed)
             return removeRequirement;
 
+        context.Remove(requirement);
         await context.SaveChangesAsync(ctk);
+        await synchronization.SynchronizeAsync(groupEvent, ctk);
 
         return Result.Ok();
     }
