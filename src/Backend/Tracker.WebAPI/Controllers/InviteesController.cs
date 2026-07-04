@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Validation.AspNetCore;
 using Tracker.Application.Contracts.Common.Requests;
-using Tracker.Application.Contracts.Event.Responses;
-using Tracker.Application.Services.Events;
+using Tracker.Application.Contracts.Invitees.Responses;
 using Tracker.Application.Services.Invitees;
 
 namespace Tracker.WebAPI.Controllers;

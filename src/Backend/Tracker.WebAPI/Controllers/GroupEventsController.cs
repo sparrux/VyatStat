@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Validation.AspNetCore;
 using Tracker.Application.Contracts.Common.Requests;
-using Tracker.Application.Contracts.Event.Requests;
-using Tracker.Application.Contracts.Event.Responses;
-using Tracker.Application.Services.Events;
+using Tracker.Application.Contracts.GroupEvents.Requests;
+using Tracker.Application.Contracts.GroupEvents.Responses;
+using Tracker.Application.Services.GroupEvents;
 
 namespace Tracker.WebAPI.Controllers;
 
@@ -69,29 +69,6 @@ public sealed class GroupEventsController(IGroupEventsService eventsService) : A
         Guid eventId, UpdateGroupEventLocationRequest request)
     {
         var result = await eventsService.UpdateLocationAsync(eventId, request);
-        return result.ToActionResult();
-    }
-    
-    [HttpPost("events/{eventId:guid}/requirements")]
-    public async Task<ActionResult<GroupEventsListResponse>> CreateRequirement(
-        Guid eventId, CreateGroupEventRequirementRequest request)
-    {
-        var result = await eventsService.CreateRequirementAsync(eventId, request);
-        return result.ToActionResult();
-    }
-    
-    [HttpPut("events/{eventId:guid}/requirements/{requirementId:guid}")]
-    public async Task<ActionResult<GroupEventsListResponse>> CreateRequirement(
-        Guid eventId, Guid requirementId, UpdateGroupEventRequirementRequest request)
-    {
-        var result = await eventsService.UpdateRequirementAsync(eventId, requirementId, request);
-        return result.ToActionResult();
-    }
-    
-    [HttpDelete("events/{eventId:guid}/requirements/{requirementId:guid}")]
-    public async Task<ActionResult<GroupEventsListResponse>> DeleteRequirement(Guid eventId, Guid requirementId)
-    {
-        var result = await eventsService.DeleteRequirementAsync(eventId, requirementId);
         return result.ToActionResult();
     }
 }

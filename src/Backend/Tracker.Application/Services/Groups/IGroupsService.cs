@@ -1,7 +1,7 @@
 using FluentResults;
-using Tracker.Application.Contracts.Group.Requests;
-using Tracker.Application.Contracts.Group.Responses;
-using Tracker.Application.Contracts.GroupMember.Responses;
+using Tracker.Application.Contracts.GroupMembers.Responses;
+using Tracker.Application.Contracts.Groups.Requests;
+using Tracker.Application.Contracts.Groups.Responses;
 
 namespace Tracker.Application.Services.Groups;
 

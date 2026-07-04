@@ -1,5 +1,5 @@
 using FluentValidation;
-using Tracker.Application.Contracts.User.Requests;
+using Tracker.Application.Contracts.Users.Requests;
 
 namespace Tracker.Application.Validators.User;
 

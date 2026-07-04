@@ -1,6 +1,6 @@
 using Ardalis.Specification;
-using Tracker.Application.Contracts.Event.Responses;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Application.Contracts.GroupEvents.Responses;
+using Tracker.Domain.GroupEvents;
 
 namespace Tracker.Infrastructure.Persistence.Specs.GroupEvents;
 

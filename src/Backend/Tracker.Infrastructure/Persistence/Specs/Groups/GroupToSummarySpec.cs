@@ -1,5 +1,5 @@
 using Ardalis.Specification;
-using Tracker.Application.Contracts.Group.Responses;
+using Tracker.Application.Contracts.Groups.Responses;
 using Tracker.Domain.Groups;
 
 namespace Tracker.Infrastructure.Persistence.Specs.Groups;

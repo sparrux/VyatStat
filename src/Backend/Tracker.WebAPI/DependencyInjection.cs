@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using Scalar.AspNetCore;
-using Tracker.Application.Contracts.Common.Responses;
 using Tracker.Application.Services.Users;
 using Tracker.Infrastructure.Persistence;
 using Tracker.Infrastructure.Services.Users;

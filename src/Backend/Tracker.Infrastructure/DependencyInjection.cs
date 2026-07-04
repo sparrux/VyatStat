@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Tracker.Application.Services.Events;
+using Tracker.Application.Services.GroupEvents;
 using Tracker.Application.Services.Groups;
 using Tracker.Application.Services.Invitees;
 using Tracker.Application.Services.Requirements;
@@ -20,7 +20,7 @@ public static class DependencyInjection
         services.AddScoped<IGroupsService, GroupsService>();
         services.AddScoped<IGroupEventsService, GroupEventsService>();
         services.AddScoped<IInviteesService, InviteesService>();
-        
+        services.AddScoped<IRequirementsService, RequirementsService>();
         services.AddScoped<IRequirementsSynchronization, RequirementsSynchronization>();
         
         return services;

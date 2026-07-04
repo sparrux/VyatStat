@@ -1,6 +1,6 @@
 using FluentResults;
-using Tracker.Application.Contracts.User.Requests;
-using Tracker.Application.Contracts.User.Responses;
+using Tracker.Application.Contracts.Users.Requests;
+using Tracker.Application.Contracts.Users.Responses;
 
 namespace Tracker.Application.Services.Users;
 

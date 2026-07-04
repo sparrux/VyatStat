@@ -1,6 +1,6 @@
 using Ardalis.Specification;
-using Tracker.Application.Contracts.GroupMember.Responses;
-using Tracker.Application.Contracts.User.Responses;
+using Tracker.Application.Contracts.GroupMembers.Responses;
+using Tracker.Application.Contracts.Users.Responses;
 using Tracker.Domain.Groups;
 
 namespace Tracker.Infrastructure.Persistence.Specs.GroupMembers;

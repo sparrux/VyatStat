@@ -1,8 +1,10 @@
 using Ardalis.Specification;
 using Tracker.Application.Contracts.Common.Responses;
-using Tracker.Application.Contracts.Event.Responses;
-using Tracker.Application.Contracts.User.Responses;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Application.Contracts.GroupEvents.Responses;
+using Tracker.Application.Contracts.Organizers.Responses;
+using Tracker.Application.Contracts.Requirements.Responses;
+using Tracker.Application.Contracts.Users.Responses;
+using Tracker.Domain.GroupEvents;
 
 namespace Tracker.Infrastructure.Persistence.Specs.GroupEvents;
 

@@ -4,7 +4,8 @@ using Tracker.Infrastructure;
 using Tracker.WebAPI;
 using Tracker.WebAPI.Authentication;
 using Tracker.WebAPI.Services;
-using Tracker.WebAPI.Services.Seed;
+using Tracker.WebAPI.Services.Migrations;
+using Tracker.WebAPI.Services.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,7 @@ if (app.Environment.IsDevelopment())
     app.MapApiDocs();
 }
 
-await DatabaseMigrator.MigrateAsync(app);
+await DatabaseMigrationService.MigrateAsync(app);
 await DatabaseSeeder.SeedAsync(app);
 
 app.Run();

@@ -1,4 +1,5 @@
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Domain.GroupEvents;
+using Tracker.Domain.GroupEvents.Invitees;
 
 namespace Tracker.Application.Services.Requirements;
 

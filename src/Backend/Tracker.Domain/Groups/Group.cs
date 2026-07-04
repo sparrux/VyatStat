@@ -1,6 +1,6 @@
 using FluentResults;
 using Tracker.Domain.Common;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Domain.GroupEvents;
 
 namespace Tracker.Domain.Groups;
 

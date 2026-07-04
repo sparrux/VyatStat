@@ -1,5 +1,5 @@
 using FluentResults;
-using Tracker.Application.Contracts.Event.Responses;
+using Tracker.Application.Contracts.Invitees.Responses;
 
 namespace Tracker.Application.Services.Invitees;
 

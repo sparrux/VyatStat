@@ -1,12 +1,13 @@
 using Ardalis.Specification.EntityFrameworkCore;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using Tracker.Application.Contracts.Event.Responses;
-using Tracker.Application.Contracts.User.Responses;
+using Tracker.Application.Contracts.Invitees.Responses;
+using Tracker.Application.Contracts.Users.Responses;
 using Tracker.Application.Services.Invitees;
 using Tracker.Application.Services.Requirements;
 using Tracker.Domain;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Domain.GroupEvents;
+using Tracker.Domain.GroupEvents.Invitees;
 using Tracker.Infrastructure.Persistence;
 using Tracker.Infrastructure.Persistence.Specs.Common;
 using Tracker.Infrastructure.Persistence.Specs.GroupEvents;

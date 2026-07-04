@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Domain.GroupEvents;
 
 namespace Tracker.Infrastructure.Persistence.EntityConfigurations;
 

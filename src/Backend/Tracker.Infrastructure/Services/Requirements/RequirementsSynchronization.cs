@@ -1,5 +1,6 @@
 using Tracker.Application.Services.Requirements;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Domain.GroupEvents;
+using Tracker.Domain.GroupEvents.Invitees;
 using Tracker.Infrastructure.Persistence;
 
 namespace Tracker.Infrastructure.Services.Requirements;

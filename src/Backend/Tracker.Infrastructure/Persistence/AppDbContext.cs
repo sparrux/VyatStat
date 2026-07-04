@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Tracker.Domain;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Domain.GroupEvents;
+using Tracker.Domain.GroupEvents.Invitees;
 using Tracker.Domain.Groups;
 using Tracker.Infrastructure.Persistence.Extensions;
 

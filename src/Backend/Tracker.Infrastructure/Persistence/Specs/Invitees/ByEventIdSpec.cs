@@ -1,5 +1,5 @@
 using Ardalis.Specification;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Domain.GroupEvents.Invitees;
 
 namespace Tracker.Infrastructure.Persistence.Specs.Invitees;
 

@@ -1,7 +1,7 @@
 using Ardalis.Specification;
-using Tracker.Application.Contracts.Event.Responses;
-using Tracker.Application.Contracts.User.Responses;
-using Tracker.Domain.GroupEvents.Events;
+using Tracker.Application.Contracts.Invitees.Responses;
+using Tracker.Application.Contracts.Users.Responses;
+using Tracker.Domain.GroupEvents.Invitees;
 
 namespace Tracker.Infrastructure.Persistence.Specs.Invitees;
 
