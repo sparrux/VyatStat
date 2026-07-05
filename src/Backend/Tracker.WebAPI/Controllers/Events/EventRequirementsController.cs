@@ -2,17 +2,16 @@ using FluentResults.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Validation.AspNetCore;
-using Tracker.Application.Contracts.Events.Responses;
 using Tracker.Application.Contracts.Requirements.Requests;
 using Tracker.Application.Contracts.Requirements.Responses;
 using Tracker.Application.Interfaces.Requirements;
 using Tracker.WebAPI.Controllers.Abstractions;
 
-namespace Tracker.WebAPI.Controllers;
+namespace Tracker.WebAPI.Controllers.Events;
 
 [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
 [Route("events/{eventId:guid}/requirements")]
-public sealed class RequirementsController(IRequirementsService service) : TrackerControllerBase
+public sealed class EventRequirementsController(IRequirementsService service) : TrackerControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<EventRequirementResponse>> CreateRequirement(

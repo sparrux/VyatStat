@@ -46,8 +46,7 @@ public sealed class EventsService(
         if (description.IsFailed)
             return draft.ToResult();
         
-        draft.Value.AddOrganizer(
-            EventOrganizer.Create(organizer).Value);
+        draft.Value.AddOrganizer(organizer);
         
         if (description.IsFailed)
             return draft.ToResult();

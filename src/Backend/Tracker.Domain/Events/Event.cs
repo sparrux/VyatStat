@@ -152,13 +152,18 @@ public sealed class Event : Auditable
         return invitee;
     }
     
-    public Result AddOrganizer(EventOrganizer organizer)
+    public Result<EventOrganizer> AddOrganizer(User user)
     {
         if (ValidateFinished() is { IsSuccess: false } validation)
             return validation;
+
+        var org = EventOrganizer.Create(user);
+
+        if (org.IsFailed)
+            return org.ToResult();
         
-        _organizers.Add(organizer);
-        return Result.Ok();
+        _organizers.Add(org.Value);
+        return org;
     }
     
     public Result RemoveOrganizer(EventOrganizer organizer)

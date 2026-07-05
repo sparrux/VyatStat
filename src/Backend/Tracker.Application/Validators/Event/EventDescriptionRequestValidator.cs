@@ -1,8 +1,7 @@
 using FluentValidation;
-using Tracker.Application.Contracts.Common.Requests;
 using Tracker.Application.Contracts.Events.Requests;
 
-namespace Tracker.Application.Validators.Common;
+namespace Tracker.Application.Validators.Event;
 
 sealed class EventDescriptionRequestValidator : AbstractValidator<EventDescriptionRequest>
 {

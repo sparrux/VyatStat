@@ -8,7 +8,7 @@ using Tracker.Application.Contracts.Events.Responses;
 using Tracker.Application.Interfaces.Events;
 using Tracker.WebAPI.Controllers.Abstractions;
 
-namespace Tracker.WebAPI.Controllers;
+namespace Tracker.WebAPI.Controllers.Events;
 
 [Route("events")]
 [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]

@@ -7,11 +7,11 @@ using Tracker.Application.Contracts.Invitees.Responses;
 using Tracker.Application.Interfaces.Invitees;
 using Tracker.WebAPI.Controllers.Abstractions;
 
-namespace Tracker.WebAPI.Controllers;
+namespace Tracker.WebAPI.Controllers.Events;
 
 [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
 [Route("events/{eventId:guid}/invitees")]
-public sealed class InviteesController(IInviteesService inviteesService) : TrackerControllerBase
+public sealed class EventInviteesController(IInviteesService inviteesService) : TrackerControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<EventInviteeSummaryResponse>> CreateInvitee(
