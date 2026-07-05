@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Validation.AspNetCore;
 using Tracker.Application.Contracts.Events.Responses;
 using Tracker.Application.Contracts.Requirements.Requests;
+using Tracker.Application.Contracts.Requirements.Responses;
 using Tracker.Application.Interfaces.Requirements;
 using Tracker.WebAPI.Controllers.Abstractions;
 
@@ -14,7 +15,7 @@ namespace Tracker.WebAPI.Controllers;
 public sealed class RequirementsController(IRequirementsService service) : TrackerControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<EventsListResponse>> CreateRequirement(
+    public async Task<ActionResult<EventRequirementResponse>> CreateRequirement(
         Guid eventId, CreateEventRequirementRequest request)
     {
         var result = await service.CreateAsync(eventId, request);
@@ -22,7 +23,7 @@ public sealed class RequirementsController(IRequirementsService service) : Track
     }
     
     [HttpPut("{requirementId:guid}")]
-    public async Task<ActionResult<EventsListResponse>> CreateRequirement(
+    public async Task<ActionResult<EventRequirementResponse>> CreateRequirement(
         Guid eventId, Guid requirementId, UpdateEventRequirementRequest request)
     {
         var result = await service.UpdateAsync(eventId, requirementId, request);
@@ -30,7 +31,7 @@ public sealed class RequirementsController(IRequirementsService service) : Track
     }
     
     [HttpDelete("{requirementId:guid}")]
-    public async Task<ActionResult<EventsListResponse>> DeleteRequirement(Guid eventId, Guid requirementId)
+    public async Task<ActionResult> DeleteRequirement(Guid eventId, Guid requirementId)
     {
         var result = await service.DeleteAsync(eventId, requirementId);
         return result.ToActionResult();

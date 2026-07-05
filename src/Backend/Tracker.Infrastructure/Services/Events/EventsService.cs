@@ -2,6 +2,7 @@ using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
+using Tracker.Application.Contracts.Common.Requests;
 using Tracker.Application.Contracts.Events.Requests;
 using Tracker.Application.Contracts.Events.Responses;
 using Tracker.Application.Interfaces.Events;
@@ -76,25 +77,30 @@ public sealed class EventsService(
             groupEvent.Organizers.Count));
     }
 
-    public async Task<Result<EventsListResponse>> GetListAsync(Guid organizerId, int offset, int take, CancellationToken ctk = default)
+    public async Task<Result<EventsListResponse>> GetListAsync(
+        EventFilterRequest request, 
+        ListSelectionRequest selection, 
+        CancellationToken ctk = default)
     {
+        var filter = new EventByFilterSpec(request);
+        
         var groupEvents = await context.Events
             .WithSpecification(new CreatedAtOrderingSpec<Event>())
-            .WithSpecification(new SelectionSpec<Event>(offset, take))
-            .WithSpecification(new EventByOrganizerIdSpec(organizerId))
+            .WithSpecification(filter)
             .WithSpecification(new EventToSummarySpec())
+            .WithSpecification(new SelectionSpec<EventSummaryResponse>(selection.Offset, selection.Take))
             .ToListAsync(cancellationToken: ctk);
 
         return Result.Ok(new EventsListResponse(
             groupEvents, 
             await context.Events
-                .WithSpecification(new EventByOrganizerIdSpec(organizerId))
+                .WithSpecification(filter)
                 .CountAsync(ctk)));
     }
 
-    public async Task<Result<EventDetailsResponse>> GetAsync(Guid organizerId, CancellationToken ctk = default)
+    public async Task<Result<EventDetailsResponse>> GetAsync(Guid eventId, CancellationToken ctk = default)
     {
-        var projection = new ByIdSpec<Event>(organizerId)
+        var projection = new ByIdSpec<Event>(eventId)
             .WithProjectionOf(new EventToDetailsSpec());
         
         var @event = await context.Events

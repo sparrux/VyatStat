@@ -27,8 +27,8 @@ public sealed class UsersController(IUsersService usersService) : TrackerControl
         return result.ToActionResult();
     }
     
-    [HttpPut("{userId:guid}/info")]
-    public async Task<ActionResult<UserDetailsResponse>> UpdateUser(UpdateUserRequest request)
+    [HttpPut("me/info")]
+    public async Task<ActionResult> UpdateUser(UpdateUserRequest request)
     {
         var result = await usersService.UpdateAsync(UserId, request);
         return result.ToActionResult();

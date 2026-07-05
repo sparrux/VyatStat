@@ -51,7 +51,7 @@ public sealed class GroupsController(IGroupsService groupsService) : TrackerCont
     }
     
     [HttpDelete("{groupId:guid}/left-request")]
-    public async Task<ActionResult<GroupMemberSummaryResponse>> Left(Guid groupId)
+    public async Task<ActionResult> Left(Guid groupId)
     {
         var result = await groupsService.LeftAsync(UserId, groupId);
         return result.ToActionResult();

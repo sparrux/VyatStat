@@ -23,28 +23,29 @@ public sealed class EventsController(IEventsService eventsService) : TrackerCont
     
     [HttpGet]
     public async Task<ActionResult<EventsListResponse>> GetEvents(
-        [FromQuery] Guid organizerId, [FromQuery] ListSelectionRequest selection)
+        [FromQuery] EventFilterRequest request,
+        [FromQuery] ListSelectionRequest selection)
     {
-        var result = await eventsService.GetListAsync(organizerId, selection.Offset, selection.Take);
+        var result = await eventsService.GetListAsync(request, selection);
         return result.ToActionResult();
     }
     
     [HttpGet("{eventId:guid}")]
-    public async Task<ActionResult<EventsListResponse>> GetEvent(Guid eventId)
+    public async Task<ActionResult<EventDetailsResponse>> GetEvent(Guid eventId)
     {
         var result = await eventsService.GetAsync(eventId);
         return result.ToActionResult();
     }
     
     [HttpDelete("{eventId:guid}")]
-    public async Task<ActionResult<EventsListResponse>> DeleteEvent(Guid eventId)
+    public async Task<ActionResult> DeleteEvent(Guid eventId)
     {
         var result = await eventsService.DeleteAsync(eventId);
         return result.ToActionResult();
     }
     
     [HttpPut("{eventId:guid}/title")]
-    public async Task<ActionResult<EventsListResponse>> UpdateTitle(
+    public async Task<ActionResult> UpdateTitle(
         Guid eventId, UpdateEventTitleRequest request)
     {
         var result = await eventsService.UpdateTitleAsync(eventId, request);
@@ -52,7 +53,7 @@ public sealed class EventsController(IEventsService eventsService) : TrackerCont
     }
     
     [HttpPut("{eventId:guid}/description")]
-    public async Task<ActionResult<EventsListResponse>> UpdateDescription(
+    public async Task<ActionResult> UpdateDescription(
         Guid eventId, UpdateEventDescriptionRequest request)
     {
         var result = await eventsService.UpdateDescriptionAsync(eventId, request);
@@ -60,7 +61,7 @@ public sealed class EventsController(IEventsService eventsService) : TrackerCont
     }
     
     [HttpPut("{eventId:guid}/dates")]
-    public async Task<ActionResult<EventsListResponse>> UpdateDates(
+    public async Task<ActionResult> UpdateDates(
         Guid eventId, UpdateEventDatesRequest request)
     {
         var result = await eventsService.UpdateDatesAsync(eventId, request);
@@ -68,7 +69,7 @@ public sealed class EventsController(IEventsService eventsService) : TrackerCont
     }
     
     [HttpPut("{eventId:guid}/location")]
-    public async Task<ActionResult<EventsListResponse>> UpdateLocation(
+    public async Task<ActionResult> UpdateLocation(
         Guid eventId, UpdateEventLocationRequest request)
     {
         var result = await eventsService.UpdateLocationAsync(eventId, request);

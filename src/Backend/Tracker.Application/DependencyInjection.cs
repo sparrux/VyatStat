@@ -8,7 +8,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddValidatorsFromAssemblyContaining<CreateGroupRequestValidator>();
+        services.AddValidatorsFromAssemblyContaining<CreateGroupRequestValidator>(
+            includeInternalTypes: true);
 
         return services;
     }
