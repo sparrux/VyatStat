@@ -1,60 +1,57 @@
 using Microsoft.EntityFrameworkCore;
 using Tracker.Domain;
-using Tracker.Domain.GroupEvents;
-using Tracker.Domain.GroupEvents.Invitees;
+using Tracker.Domain.Events;
+using Tracker.Domain.Events.Invitees;
+using Tracker.Domain.Events.Requirements;
 using Tracker.Domain.Groups;
-using Tracker.Infrastructure.Persistence.Extensions;
+using Tracker.Domain.Presets;
 
 namespace Tracker.Infrastructure.Persistence;
 
 public sealed class AppDbContext : DbContext
 {
-    readonly TimeProvider _timeProvider;
-
-    public AppDbContext(DbContextOptions options, TimeProvider timeProvider) : base(options)
+    public AppDbContext(DbContextOptions options) : base(options)
     {
-        _timeProvider = timeProvider;
         Users = Set<User>();
-        Locations = Set<Location>();
+        
         Groups = Set<Group>();
+        GroupEvent = Set<GroupEvent>();
         GroupMembers = Set<GroupMember>();
-        GroupEvents = Set<GroupEvent>();
-        GroupEventTargets = Set<GroupEventTarget>();
-        GroupEventInvitees = Set<GroupEventInvitee>();
-        GroupEventOrganizers = Set<GroupEventOrganizer>();
-        GroupEventRequirements = Set<GroupEventRequirement>();
-        GroupEventLocations = Set<GroupEventLocation>();
-        GroupEventDescriptions = Set<GroupEventDescription>();
-        GroupEventInviteeRequirementCompletions = Set<GroupEventInviteeRequirementCompletion>();
+        
+        LocationPresets = Set<LocationPreset>();
+        RequirementPresets = Set<RequirementPreset>();
+        
+        Events = Set<Event>();
+        EventGoals = Set<EventGoal>();
+        EventInvitees = Set<EventInvitee>();
+        EventOrganizers = Set<EventOrganizer>();
+        EventRequirements = Set<EventRequirement>();
+        EventLocations = Set<EventLocation>();
+        EventDescriptions = Set<EventDescription>();
+        EventRequirementCompletions = Set<EventRequirementCompletion>();
     }
 
+
     public DbSet<User> Users { get; }
-    public DbSet<Location> Locations { get; }
+    
     public DbSet<Group> Groups { get; }
+    public DbSet<GroupEvent> GroupEvent { get; }
     public DbSet<GroupMember> GroupMembers { get; }
-    public DbSet<GroupEvent> GroupEvents { get; }
-    public DbSet<GroupEventTarget> GroupEventTargets { get; }
-    public DbSet<GroupEventInvitee> GroupEventInvitees { get; }
-    public DbSet<GroupEventOrganizer> GroupEventOrganizers { get; }
-    public DbSet<GroupEventRequirement> GroupEventRequirements { get; }
-    public DbSet<GroupEventLocation> GroupEventLocations { get; }
-    public DbSet<GroupEventDescription> GroupEventDescriptions { get; }
-    public DbSet<GroupEventInviteeRequirementCompletion> GroupEventInviteeRequirementCompletions { get; }
+    
+    public DbSet<LocationPreset> LocationPresets { get; }
+    public DbSet<RequirementPreset> RequirementPresets { get; }
+    
+    public DbSet<Event> Events { get; }
+    public DbSet<EventGoal> EventGoals { get; }
+    public DbSet<EventInvitee> EventInvitees { get; }
+    public DbSet<EventLocation> EventLocations { get; }
+    public DbSet<EventOrganizer> EventOrganizers { get; }
+    public DbSet<EventDescription> EventDescriptions { get; }
+    public DbSet<EventRequirement> EventRequirements { get; }
+    public DbSet<EventRequirementCompletion> EventRequirementCompletions { get; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-    }
-
-    public override int SaveChanges()
-    {
-        ChangeTracker.UpdateAuditableTimestamps(_timeProvider);
-        return base.SaveChanges();
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        ChangeTracker.UpdateAuditableTimestamps(_timeProvider);
-        return base.SaveChangesAsync(cancellationToken);
     }
 }

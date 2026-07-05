@@ -1,5 +1,5 @@
 using OpenIddict.Abstractions;
-using Tracker.Application.Services.Users;
+using Tracker.Application.Interfaces.Users;
 
 namespace Tracker.WebAPI.Authentication;
 

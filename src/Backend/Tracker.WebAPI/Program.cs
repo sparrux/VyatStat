@@ -3,7 +3,6 @@ using Tracker.Application;
 using Tracker.Infrastructure;
 using Tracker.WebAPI;
 using Tracker.WebAPI.Authentication;
-using Tracker.WebAPI.Services;
 using Tracker.WebAPI.Services.Migrations;
 using Tracker.WebAPI.Services.Seeders;
 

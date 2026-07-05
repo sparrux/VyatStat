@@ -6,8 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using Scalar.AspNetCore;
-using Tracker.Application.Services.Users;
+using Tracker.Application.Interfaces.Users;
 using Tracker.Infrastructure.Persistence;
+using Tracker.Infrastructure.Persistence.Interceptors;
 using Tracker.Infrastructure.Services.Users;
 using Tracker.WebAPI.OpenApi;
 
@@ -94,8 +95,12 @@ static class DependencyInjection
     
     static void AddEntityFrameworkCore(this WebApplicationBuilder builder)
     {
-        builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("TrackerDb")));
+        builder.Services.AddDbContext<AppDbContext>((s, options) =>
+        {
+            options.UseNpgsql(builder.Configuration.GetConnectionString("TrackerDb"));
+            
+            options.AddInterceptors(s.GetRequiredService<AuditInterceptor>());
+        });
     }
     
     public static void MapApiDocs(this WebApplication app)

@@ -3,7 +3,7 @@ using Tracker.Application.Contracts.Users.Requests;
 
 namespace Tracker.Application.Validators.User;
 
-public sealed class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
+sealed class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
 {
     public UpdateUserRequestValidator()
     {

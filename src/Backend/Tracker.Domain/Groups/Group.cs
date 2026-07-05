@@ -1,14 +1,18 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentResults;
 using Tracker.Domain.Common;
-using Tracker.Domain.GroupEvents;
+using Tracker.Domain.Events;
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
 namespace Tracker.Domain.Groups;
 
 public sealed class Group : Auditable
 {
-    readonly List<GroupEvent> _events = [];
+    readonly List<GroupEvent> _groupEvents = [];
     readonly List<GroupMember> _members = [];
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     Group() { }
 
     Group(string name)
@@ -18,8 +22,8 @@ public sealed class Group : Auditable
     
     public string Name { get; private set; }
 
-    public IReadOnlyCollection<GroupEvent> Events => _events;
     public IReadOnlyCollection<GroupMember> Members => _members;
+    public IReadOnlyCollection<GroupEvent> GroupEvents => _groupEvents;
 
     public static Result<Group> Create(string name)
     {
@@ -39,21 +43,23 @@ public sealed class Group : Auditable
         return Result.Ok();
     }
     
-    public Result<GroupEvent> AddEvent(string title, DateTimeOffset start, DateTimeOffset end)
+    public Result<GroupEvent> CreateEvent(string title, DateTimeOffset start, DateTimeOffset end)
     {
-        var groupEvent = GroupEvent.CreateDraft(title, start, end);
+        var @event = Event.CreateDraft(title, start, end);
         
-        if (groupEvent.IsFailed)
-            return groupEvent;
+        if (@event.IsFailed)
+            return @event.ToResult();
+
+        var groupEvent = GroupEvent.Create(this, @event.Value);
         
-        _events.Add(groupEvent.Value);
+        _groupEvents.Add(groupEvent.Value);
         return Result.Ok(groupEvent.Value);
     }
     
     public Result RemoveEvent(GroupEvent groupEvent)
     {
-        if (!_events.Remove(groupEvent))
-            return Result.Fail("Event not found");
+        if (!_groupEvents.Remove(groupEvent))
+            return Result.Fail("Group event not found");
         
         return Result.Ok();
     }

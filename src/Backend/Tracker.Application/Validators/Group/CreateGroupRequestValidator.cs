@@ -3,7 +3,7 @@ using Tracker.Application.Contracts.Groups.Requests;
 
 namespace Tracker.Application.Validators.Group;
 
-public sealed class CreateGroupRequestValidator : AbstractValidator<CreateGroupRequest>
+sealed class CreateGroupRequestValidator : AbstractValidator<CreateGroupRequest>
 {
     public CreateGroupRequestValidator()
     {

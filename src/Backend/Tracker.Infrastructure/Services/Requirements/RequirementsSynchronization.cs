@@ -1,27 +1,27 @@
-using Tracker.Application.Services.Requirements;
-using Tracker.Domain.GroupEvents;
-using Tracker.Domain.GroupEvents.Invitees;
+using Tracker.Application.Interfaces.Requirements;
+using Tracker.Domain.Events;
+using Tracker.Domain.Events.Invitees;
 using Tracker.Infrastructure.Persistence;
 
 namespace Tracker.Infrastructure.Services.Requirements;
 
 public sealed class RequirementsSynchronization(AppDbContext context) : IRequirementsSynchronization
 {
-    public Task SynchronizeAsync(GroupEvent groupEvent, CancellationToken ctk = default)
+    public Task SynchronizeAsync(Event @event, CancellationToken ctk = default)
     {
-        Synchronize(groupEvent, groupEvent.Invitees.ToArray());
+        Synchronize(@event, @event.Invitees.ToArray());
         return context.SaveChangesAsync(ctk);
     }
 
-    public Task SynchronizeAsync(GroupEvent groupEvent, GroupEventInvitee invitee, CancellationToken ctk = default)
+    public Task SynchronizeAsync(Event @event, EventInvitee eventInvitee, CancellationToken ctk = default)
     {
-        Synchronize(groupEvent, [invitee]);
+        Synchronize(@event, [eventInvitee]);
         return context.SaveChangesAsync(ctk);
     }
     
-    static void Synchronize(GroupEvent groupEvent, GroupEventInvitee[] inviteesSelection)
+    static void Synchronize(Event @event, EventInvitee[] inviteesSelection)
     {
-        var requirements = groupEvent.Requirements;
+        var requirements = @event.Requirements;
         
         foreach (var invitee in inviteesSelection)
         {

@@ -3,15 +3,17 @@ using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using Tracker.Application.Contracts.Invitees.Responses;
 using Tracker.Application.Contracts.Users.Responses;
-using Tracker.Application.Services.Invitees;
-using Tracker.Application.Services.Requirements;
+using Tracker.Application.Interfaces.Invitees;
+using Tracker.Application.Interfaces.Requirements;
 using Tracker.Domain;
-using Tracker.Domain.GroupEvents;
-using Tracker.Domain.GroupEvents.Invitees;
+using Tracker.Domain.Events;
+using Tracker.Domain.Events.Invitees;
 using Tracker.Infrastructure.Persistence;
-using Tracker.Infrastructure.Persistence.Specs.Common;
-using Tracker.Infrastructure.Persistence.Specs.GroupEvents;
-using Tracker.Infrastructure.Persistence.Specs.Invitees;
+using Tracker.Infrastructure.Persistence.Specs.Common.Search;
+using Tracker.Infrastructure.Persistence.Specs.Common.Selection;
+using Tracker.Infrastructure.Persistence.Specs.Events.Include;
+using Tracker.Infrastructure.Persistence.Specs.Invitees.Projection;
+using Tracker.Infrastructure.Persistence.Specs.Invitees.Search;
 
 namespace Tracker.Infrastructure.Services.Invitees;
 
@@ -20,11 +22,11 @@ public sealed class InviteesService(
     IRequirementsSynchronization synchronization
 ) : IInviteesService
 {
-    public async Task<Result<GroupEventInviteeSummaryResponse>> CreateAsync(Guid eventId, Guid userId, CancellationToken ctk = default)
+    public async Task<Result<EventInviteeSummaryResponse>> CreateAsync(Guid eventId, Guid userId, CancellationToken ctk = default)
     {
-        var groupEvent = await context.GroupEvents
-            .WithSpecification(new ByIdSpec<GroupEvent>(eventId))
-            .WithSpecification(new WithRequirementsSpec())
+        var groupEvent = await context.Events
+            .WithSpecification(new ByIdSpec<Event>(eventId))
+            .WithSpecification(new EventWithRequirementsSpec())
             .FirstOrDefaultAsync(cancellationToken: ctk);
         
         if (groupEvent is null)
@@ -37,7 +39,7 @@ public sealed class InviteesService(
         if (user is null)
             return Result.Fail("User not found");
         
-        if (await context.GroupEventInvitees.AnyAsync(i => 
+        if (await context.EventInvitees.AnyAsync(i => 
                 i.EventId == eventId && i.UserId == userId, cancellationToken: ctk))
             return Result.Fail("Invitee already exists");
 
@@ -50,7 +52,7 @@ public sealed class InviteesService(
         await synchronization.SynchronizeAsync(groupEvent, addInvitee.Value, ctk);
 
         return Result.Ok(
-            new GroupEventInviteeSummaryResponse(
+            new EventInviteeSummaryResponse(
                 addInvitee.Value.Id,
                 new UserSummaryResponse(
                     addInvitee.Value.User.Id,
@@ -58,27 +60,27 @@ public sealed class InviteesService(
                     addInvitee.Value.User.CreatedAt)));
     }
 
-    public async Task<Result<GroupEventInviteesListResponse>> GetListAsync(
+    public async Task<Result<EventInviteesListResponse>> GetListAsync(
         Guid eventId, int offset, int take, CancellationToken ctk = default)
     {
-        var invitees = await context.GroupEventInvitees
-            .WithSpecification(new ByEventIdSpec(eventId))
-            .WithSpecification(new SelectionSpec<GroupEventInvitee>(offset, take))
+        var invitees = await context.EventInvitees
+            .WithSpecification(new InviteeByEventIdSpec(eventId))
+            .WithSpecification(new SelectionSpec<EventInvitee>(offset, take))
             .WithSpecification(new InviteeToSummarySpec())
             .ToListAsync(cancellationToken: ctk);
 
-        return Result.Ok(new GroupEventInviteesListResponse(
+        return Result.Ok(new EventInviteesListResponse(
             invitees, 
-            await context.GroupEventInvitees
-                .WithSpecification(new ByEventIdSpec(eventId))
+            await context.EventInvitees
+                .WithSpecification(new InviteeByEventIdSpec(eventId))
                 .CountAsync(ctk)));
     }
 
-    public async Task<Result<GroupEventInviteeDetailsResponse>> GetAsync(Guid eventId, Guid userId, CancellationToken ctk = default)
+    public async Task<Result<EventInviteeDetailsResponse>> GetAsync(Guid eventId, Guid userId, CancellationToken ctk = default)
     {
-        var invitee = await context.GroupEventInvitees
-            .WithSpecification(new ByEventIdSpec(eventId))
-            .WithSpecification(new ByUserIdSpec(userId))
+        var invitee = await context.EventInvitees
+            .WithSpecification(new InviteeByEventIdSpec(eventId))
+            .WithSpecification(new InviteeByUserIdSpec(userId))
             .WithSpecification(new InviteeToDetailsSpec())
             .FirstOrDefaultAsync(ctk);
 

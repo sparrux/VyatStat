@@ -1,6 +1,6 @@
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
-using Tracker.Application.Services.Users;
+using Tracker.Application.Interfaces.Users;
 using Tracker.Domain;
 using Tracker.Infrastructure.Persistence;
 

@@ -6,13 +6,16 @@ using Tracker.Application.Contracts.GroupMembers.Responses;
 using Tracker.Application.Contracts.Groups.Requests;
 using Tracker.Application.Contracts.Groups.Responses;
 using Tracker.Application.Contracts.Users.Responses;
-using Tracker.Application.Services.Groups;
+using Tracker.Application.Interfaces.Groups;
 using Tracker.Domain;
 using Tracker.Domain.Groups;
 using Tracker.Infrastructure.Persistence;
-using Tracker.Infrastructure.Persistence.Specs.Common;
-using Tracker.Infrastructure.Persistence.Specs.GroupMembers;
-using Tracker.Infrastructure.Persistence.Specs.Groups;
+using Tracker.Infrastructure.Persistence.Specs.Common.Ordering;
+using Tracker.Infrastructure.Persistence.Specs.Common.Search;
+using Tracker.Infrastructure.Persistence.Specs.Common.Selection;
+using Tracker.Infrastructure.Persistence.Specs.GroupMembers.Projection;
+using Tracker.Infrastructure.Persistence.Specs.GroupMembers.Search;
+using Tracker.Infrastructure.Persistence.Specs.Groups.Projection;
 
 namespace Tracker.Infrastructure.Services.Groups;
 
@@ -37,11 +40,11 @@ public sealed class GroupsService(AppDbContext context) : IGroupsService
     public async Task<Result<GroupMembersListResponse>> GetMembersListAsync(Guid groupId, int offset, int take, CancellationToken ctk = default)
     {
         var ordering = new CreatedAtOrderingSpec<GroupMember>();
-        var groupSpecified = new ByGroupIdSpec(groupId);
+        var groupSpecified = new MemberByGroupIdSpec(groupId);
 
         var projection = 
             new SelectionSpec<GroupMember>(offset, take)
-                .WithProjectionOf(new GroupMemberToSummarySpec());
+                .WithProjectionOf(new MemberToSummarySpec());
 
         var groups = await context.GroupMembers
             .WithSpecification(groupSpecified)
@@ -56,7 +59,7 @@ public sealed class GroupsService(AppDbContext context) : IGroupsService
         return Result.Ok(new GroupMembersListResponse(groups, totalCount)); 
     }
 
-    public async Task<Result<GroupSummaryResponse>> CreateAsync(Guid ownerId, CreateGroupRequest request, CancellationToken ctk = default)
+    public async Task<Result<GroupSummaryResponse>> CreateAsync(Guid userId, CreateGroupRequest request, CancellationToken ctk = default)
     {
         var creation = Group.Create(request.Name);
 
@@ -64,7 +67,7 @@ public sealed class GroupsService(AppDbContext context) : IGroupsService
             return creation.ToResult();
 
         var user = await context.Users
-            .WithSpecification(new ByIdSpec<User>(ownerId))
+            .WithSpecification(new ByIdSpec<User>(userId))
             .FirstOrDefaultAsync(cancellationToken: ctk);
         
         if (user is null)
@@ -121,8 +124,8 @@ public sealed class GroupsService(AppDbContext context) : IGroupsService
     public async Task<Result> LeftAsync(Guid userId, Guid groupId, CancellationToken ctk = default)
     {
         var member = await context.GroupMembers
-            .WithSpecification(new ByUserIdSpec(userId))
-            .WithSpecification(new ByGroupIdSpec(groupId))
+            .WithSpecification(new MemberByUserIdSpec(userId))
+            .WithSpecification(new MemberByGroupIdSpec(groupId))
             .FirstOrDefaultAsync(cancellationToken: ctk);
         
         if (member is null)

@@ -1,10 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
-using Tracker.Application.Services.GroupEvents;
-using Tracker.Application.Services.Groups;
-using Tracker.Application.Services.Invitees;
-using Tracker.Application.Services.Requirements;
-using Tracker.Application.Services.Users;
-using Tracker.Infrastructure.Services.GroupEvents;
+using Tracker.Application.Interfaces.Events;
+using Tracker.Application.Interfaces.Groups;
+using Tracker.Application.Interfaces.Invitees;
+using Tracker.Application.Interfaces.Requirements;
+using Tracker.Application.Interfaces.Users;
+using Tracker.Infrastructure.Persistence.Interceptors;
+using Tracker.Infrastructure.Services.Events;
 using Tracker.Infrastructure.Services.Groups;
 using Tracker.Infrastructure.Services.Invitees;
 using Tracker.Infrastructure.Services.Requirements;
@@ -18,10 +19,12 @@ public static class DependencyInjection
     {
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IGroupsService, GroupsService>();
-        services.AddScoped<IGroupEventsService, GroupEventsService>();
+        services.AddScoped<IEventsService, EventsService>();
         services.AddScoped<IInviteesService, InviteesService>();
         services.AddScoped<IRequirementsService, RequirementsService>();
         services.AddScoped<IRequirementsSynchronization, RequirementsSynchronization>();
+
+        services.AddSingleton<AuditInterceptor>();
         
         return services;
     }

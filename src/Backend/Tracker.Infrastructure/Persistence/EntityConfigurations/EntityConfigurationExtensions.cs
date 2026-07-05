@@ -22,15 +22,6 @@ static class EntityConfigurationExtensions
         builder.Property(e => e.UpdatedAt).IsRequired();
     }
 
-    public static void ConfigureReadOnlyProperty<TEntity, TProperty>(
-        this EntityTypeBuilder<TEntity> builder,
-        Expression<Func<TEntity, TProperty>> propertyExpression)
-        where TEntity : class
-    {
-        builder.Property(propertyExpression)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-    }
-
     public static NavigationBuilder ConfigureCollection<TEntity, TRelated>(
         this EntityTypeBuilder<TEntity> builder,
         Expression<Func<TEntity, IEnumerable<TRelated>?>> navigationExpression,

@@ -5,13 +5,14 @@ using OpenIddict.Validation.AspNetCore;
 using Tracker.Application.Contracts.Common.Requests;
 using Tracker.Application.Contracts.Users.Requests;
 using Tracker.Application.Contracts.Users.Responses;
-using Tracker.Application.Services.Users;
+using Tracker.Application.Interfaces.Users;
+using Tracker.WebAPI.Controllers.Abstractions;
 
 namespace Tracker.WebAPI.Controllers;
 
 [Route("users")]
 [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
-public sealed class UsersController(IUsersService usersService) : ApiControllerBase
+public sealed class UsersController(IUsersService usersService) : TrackerControllerBase
 {
     [HttpGet("me")]
     public Task<ActionResult<UserDetailsResponse>> GetMe()
@@ -22,7 +23,7 @@ public sealed class UsersController(IUsersService usersService) : ApiControllerB
     [HttpGet("{userId:guid}")]
     public async Task<ActionResult<UserDetailsResponse>> GetUser(Guid userId)
     {
-        var result = await usersService.GetDetailsAsync(userId);
+        var result = await usersService.GetAsync(userId);
         return result.ToActionResult();
     }
     
@@ -34,7 +35,7 @@ public sealed class UsersController(IUsersService usersService) : ApiControllerB
     }
     
     [HttpGet]
-    public async Task<ActionResult<UsersListResponse>> GetUsers([FromQuery] PageSelectionRequest request)
+    public async Task<ActionResult<UsersListResponse>> GetUsers([FromQuery] ListSelectionRequest request)
     {
         var result = await usersService.GetListAsync(request.Offset, request.Take);
         return result.ToActionResult();

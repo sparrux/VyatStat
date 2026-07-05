@@ -4,11 +4,13 @@ using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using Tracker.Application.Contracts.Users.Requests;
 using Tracker.Application.Contracts.Users.Responses;
-using Tracker.Application.Services.Users;
+using Tracker.Application.Interfaces.Users;
 using Tracker.Domain;
 using Tracker.Infrastructure.Persistence;
-using Tracker.Infrastructure.Persistence.Specs.Common;
-using Tracker.Infrastructure.Persistence.Specs.Users;
+using Tracker.Infrastructure.Persistence.Specs.Common.Ordering;
+using Tracker.Infrastructure.Persistence.Specs.Common.Search;
+using Tracker.Infrastructure.Persistence.Specs.Common.Selection;
+using Tracker.Infrastructure.Persistence.Specs.Users.Projection;
 
 namespace Tracker.Infrastructure.Services.Users;
 
@@ -30,23 +32,7 @@ public sealed class UsersService(AppDbContext context) : IUsersService
         return Result.Ok(new UsersListResponse(summaryList, await context.Users.CountAsync(ctk)));
     }
 
-    public async Task<Result<UserSummaryResponse>> GetSummaryAsync(Guid userId, CancellationToken ctk = default)
-    {
-        var projection = 
-            new ByIdSpec<User>(userId)
-                .WithProjectionOf(new UserToSummarySpec());
-        
-        var summary = await context.Users
-            .WithSpecification(projection)
-            .FirstOrDefaultAsync(ctk);
-        
-        if (summary is null)
-            return Result.Fail("User not found");
-        
-        return Result.Ok(summary);
-    }
-
-    public async Task<Result<UserDetailsResponse>> GetDetailsAsync(Guid userId, CancellationToken ctk = default)
+    public async Task<Result<UserDetailsResponse>> GetAsync(Guid userId, CancellationToken ctk = default)
     {
         var projection = 
             new ByIdSpec<User>(userId)
