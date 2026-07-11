@@ -1,4 +1,4 @@
-using OpenIddict.Abstractions;
+using Hub.Web.Authentication.OAuth;
 using Scalar.AspNetCore;
 
 namespace Hub.Web.OpenApi;
@@ -9,22 +9,26 @@ static class ScalarApiExtensions
     {
         app.MapScalarApiReference((options, httpContext) =>
         {
-            var authority = app.Configuration["OpenIddict:Authority"]?.TrimEnd('/');
-            var audience = app.Configuration["OpenIddict:Audience"];
+            var authority = app.Configuration["OAuth:Authority"]?.TrimEnd('/');
+            var audience = app.Configuration["OAuth:Audience"];
             var clientId = app.Configuration["Clients:hub-scalar:ClientId"];
 
             if (string.IsNullOrWhiteSpace(authority))
-                throw new InvalidOperationException("OpenIddict:Authority is not configured.");
+                throw new InvalidOperationException("OAuth:Authority is not configured.");
 
             if (string.IsNullOrWhiteSpace(audience))
-                throw new InvalidOperationException("OpenIddict:Audience is not configured.");
+                throw new InvalidOperationException("OAuth:Audience is not configured.");
 
             if (string.IsNullOrWhiteSpace(clientId))
                 throw new InvalidOperationException("Clients:hub-scalar:ClientId is not configured.");
 
-            var scalarBaseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/scalar/v1";
+            var configuredRedirectUri = app.Configuration["Clients:hub-scalar:RedirectUri"];
+            var scalarBaseUrl = !string.IsNullOrWhiteSpace(configuredRedirectUri)
+                ? configuredRedirectUri
+                : $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/scalar/v1";
 
             options
+                .WithTitle("Vyatka Hub API")
                 .AddPreferredSecuritySchemes("oauth2")
                 .AddAuthorizationCodeFlow("oauth2", flow =>
                 {
@@ -33,16 +37,16 @@ static class ScalarApiExtensions
                     flow.RedirectUri = scalarBaseUrl;
                     flow.SelectedScopes =
                     [
-                        OpenIddictConstants.Scopes.OpenId,
-                        OpenIddictConstants.Scopes.Profile,
-                        OpenIddictConstants.Scopes.OfflineAccess
+                        OAuthConstants.Scopes.OpenId,
+                        OAuthConstants.Scopes.Profile,
+                        OAuthConstants.Scopes.OfflineAccess
                     ];
 
                     flow.WithCredentialsLocation(CredentialsLocation.Body);
-                    flow.AddBodyParameter(OpenIddictConstants.Parameters.ClientId, clientId);
-                    flow.AddBodyParameter(OpenIddictConstants.Claims.Audience, audience);
-                    flow.AddQueryParameter(OpenIddictConstants.Parameters.RedirectUri, scalarBaseUrl);
-                    flow.AddQueryParameter(OpenIddictConstants.Claims.Audience, audience);
+                    flow.AddBodyParameter("client_id", clientId);
+                    flow.AddBodyParameter(OAuthConstants.AudienceParameter, audience);
+                    flow.AddQueryParameter("redirect_uri", scalarBaseUrl);
+                    flow.AddQueryParameter(OAuthConstants.AudienceParameter, audience);
                 });
         });
     }

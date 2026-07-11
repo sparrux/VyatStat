@@ -17,9 +17,17 @@ static class EventsEndpoints
             .MapGroup("/api/v{version:apiVersion}/events")
             .RequireAuthorization();
 
-        events.MapPost("/", Create).HasApiVersion(1.0);
-        events.MapGet("/", Get).HasApiVersion(1.0);
-        events.MapGet("/{eventId:guid}", GetById).HasApiVersion(1.0);
+        events.MapPost("/", Create)
+            .HasApiVersion(1.0)
+            .Produces<EventSummaryResponse>(StatusCodes.Status201Created);
+        
+        events.MapGet("/", Get)
+            .HasApiVersion(1.0)
+            .Produces<EventDetailsResponse>();
+        
+        events.MapGet("/{eventId:guid}", GetById)
+            .HasApiVersion(1.0)
+            .Produces<ListResponse<EventSummaryResponse>>();
     }
     
     static async Task<IResult> Create(

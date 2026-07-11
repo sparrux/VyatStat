@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using OpenIddict.Abstractions;
+using OAuthOptions = Hub.Web.Authentication.OAuth.OAuthOptions;
 
 namespace Hub.Web.OpenApi;
 
-sealed class OAuth2SecuritySchemeTransformer(IConfiguration configuration)
-    : IOpenApiDocumentTransformer
+sealed class OAuth2SecuritySchemeTransformer(
+    IConfiguration configuration
+) : IOpenApiDocumentTransformer
 {
     const string SecuritySchemeName = "oauth2";
 
@@ -14,21 +15,15 @@ sealed class OAuth2SecuritySchemeTransformer(IConfiguration configuration)
         OpenApiDocumentTransformerContext context,
         CancellationToken cancellationToken)
     {
-        var authority = configuration["OpenIddict:Authority"]?.TrimEnd('/');
-        var audience = configuration["OpenIddict:Audience"];
+        var oAuthOptions = configuration
+            .GetSection(OAuthOptions.SectionName)
+            .Get<OAuthOptions>()!;
 
-        if (string.IsNullOrWhiteSpace(authority))
-            throw new InvalidOperationException("OpenIddict:Authority is not configured.");
-
-        if (string.IsNullOrWhiteSpace(audience))
-            throw new InvalidOperationException("OpenIddict:Audience is not configured.");
-
-        var scopes = new Dictionary<string, string>
-        {
-            [OpenIddictConstants.Scopes.OpenId] = "Access the OpenID scope.",
-            [OpenIddictConstants.Scopes.Profile] = "Access the profile scope.",
-            [OpenIddictConstants.Scopes.OfflineAccess] = "Request refresh tokens."
-        };
+        oAuthOptions.EnsureValid();
+        
+        var scopes = oAuthOptions.Scopes
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .ToDictionary(x => x, _ => string.Empty);
 
         document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
@@ -39,8 +34,8 @@ sealed class OAuth2SecuritySchemeTransformer(IConfiguration configuration)
             {
                 AuthorizationCode = new OpenApiOAuthFlow
                 {
-                    AuthorizationUrl = new Uri($"{authority}/connect/authorize"),
-                    TokenUrl = new Uri($"{authority}/connect/token"),
+                    AuthorizationUrl = new Uri($"{oAuthOptions.Authority}/connect/authorize"),
+                    TokenUrl = new Uri($"{oAuthOptions.Authority}/connect/token"),
                     Scopes = scopes
                 }
             }
@@ -50,12 +45,7 @@ sealed class OAuth2SecuritySchemeTransformer(IConfiguration configuration)
         [
             new OpenApiSecurityRequirement
             {
-                [new OpenApiSecuritySchemeReference(SecuritySchemeName, document)] =
-                [
-                    OpenIddictConstants.Scopes.OpenId,
-                    OpenIddictConstants.Scopes.Profile,
-                    OpenIddictConstants.Scopes.OfflineAccess
-                ]
+                [new OpenApiSecuritySchemeReference(SecuritySchemeName, document)] = scopes.Keys.ToList()
             }
         ];
 

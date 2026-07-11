@@ -1,11 +1,13 @@
 using Asp.Versioning;
 using Hub.Application.Abstractions;
-using Hub.Web.Auth;
+using Hub.Web.Authentication;
+using Hub.Web.Authentication.OAuth.Events;
+using Hub.Web.Authentication.OAuth.Store;
 using Hub.Web.Endpoints;
 using Hub.Web.OpenApi;
 using Hub.Web.Services.Users;
-using OpenIddict.Validation.AspNetCore;
 using ServiceDefaults;
+using OAuthOptions = Hub.Web.Authentication.OAuth.OAuthOptions;
 
 namespace Hub.Web;
 
@@ -16,11 +18,19 @@ static class DependencyInjection
         public void AddWeb()
         {
             builder.AddServiceDefaults();
-            
+
+            builder.Services.AddMemoryCache(); // TODO: DistributedCache
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IUserContext, CurrentUserContext>();
             builder.Services.AddScoped<IUserProvisioningService, UserProvisioningService>();
-            
+            builder.Services.AddScoped<OpenIdConnectAuthEvents>();
+
+            builder.Services.AddOptions<OAuthOptions>()
+                .Bind(builder.Configuration.GetSection(OAuthOptions.SectionName))
+                .ValidateOnStart();
+
+            builder.Services.AddSingleton<IOAuthTokenStore, MemoryOAuthTokenStore>();
+
             builder.Services.AddApiVersioning(options =>
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -35,7 +45,7 @@ static class DependencyInjection
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
             });
-        
+
             builder.Services.AddOpenApi(options =>
             {
                 options.AddDocumentTransformer<OAuth2SecuritySchemeTransformer>();
@@ -59,34 +69,10 @@ static class DependencyInjection
                 {
                     policy.WithOrigins(origin)
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
             });
-        }
-        
-        void AddAuthentication()
-        {
-            var authority = builder.Configuration["OpenIddict:Authority"];
-            var audience = builder.Configuration["OpenIddict:Audience"];
-
-            if (string.IsNullOrWhiteSpace(authority))
-                throw new InvalidOperationException("OpenIddict:Authority is not configured.");
-
-            if (string.IsNullOrWhiteSpace(audience))
-                throw new InvalidOperationException("OpenIddict:Audience is not configured.");
-
-            builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-
-            builder.Services.AddOpenIddict()
-                .AddValidation(options =>
-                {
-                    options.SetIssuer(authority);
-                    options.AddAudiences(audience);
-                    options.UseSystemNetHttp();
-                    options.UseAspNetCore();
-                });
-
-            builder.Services.AddAuthorization();
         }
     }
 
@@ -94,6 +80,7 @@ static class DependencyInjection
     {
         public void MapEndpoints()
         {
+            app.MapAuthEndpoints();
             app.MapEventEndpoints();
         }
 

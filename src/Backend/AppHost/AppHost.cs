@@ -49,12 +49,15 @@ var hubApiEndpoint = hubApi.GetEndpoint(hubApiIsHttps ? "https" : "http");
 
 identityApi.WithEnvironment("Clients:identity-app:Url", webClientEndpoint);
 identityApi.WithEnvironment("Clients:hub-app:Url", hubAppEndpoint);
+identityApi.WithEnvironment("Clients:hub-bff:Url", hubApiEndpoint);
+identityApi.WithEnvironment("Clients:hub-bff:RedirectUri", $"{hubApiEndpoint}/auth/callback");
 identityApi.WithEnvironment("Clients:hub-scalar:Url", hubApiEndpoint);
 identityApi.WithEnvironment("Clients:hub-scalar:RedirectUri", $"{hubApiEndpoint}/scalar/v1");
 identityApi.WithEnvironment("Idp:Authority", identityApiEndpoint);
 identityApi.WithEnvironment("Idp:LoginPageUrl", $"{webClientEndpoint}/login");
 
-hubApi.WithEnvironment("OpenIddict:Authority", identityApiEndpoint);
+hubApi.WithEnvironment("OAuth:Authority", identityApiEndpoint);
 hubApi.WithEnvironment("Clients:hub-app:Url", hubAppEndpoint);
+hubApi.WithEnvironment("Clients:hub-scalar:RedirectUri", $"{hubApiEndpoint}/scalar/v1");
 
 builder.Build().Run();

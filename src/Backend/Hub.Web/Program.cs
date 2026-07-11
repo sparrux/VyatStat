@@ -1,8 +1,7 @@
 using Hub.Application;
 using Hub.Infrastructure;
 using Hub.Web;
-using Hub.Web.Authentication;
-using Hub.Web.Endpoints;
+using Microsoft.AspNetCore.HttpOverrides;
 using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,9 +19,13 @@ if (app.Environment.IsDevelopment())
     app.MapWebOpenApi();
 }
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.UseCors();
 app.UseAuthentication();
-app.UseUserProvisioning();
 app.UseAuthorization();
 
 app.MapEndpoints();

@@ -19,8 +19,5 @@ sealed class GetEventByQuerySpec : Specification<Event>
         
         if (query.State is { } state)
             Query.Where(e => e.State == state);
-        
-        Query.Skip(query.Skip);
-        Query.Take(query.Take);
     }
 }
