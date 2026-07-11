@@ -1,9 +1,14 @@
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using FluentResults;
+using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
+using FluentValidation;
 using Tracker.Domain.Common;
 using Tracker.Domain.Events;
 using Tracker.Domain.Events.Invitees;
 using Tracker.Domain.Groups;
+using Tracker.Domain.Validators;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
 namespace Tracker.Domain;
@@ -32,36 +37,23 @@ public sealed class User : Auditable
 
     public static Result<User> Create(Guid id, string nickname)
     {
-        if (id == Guid.Empty)
-            return Result.Fail("Invalid user id");
-
-        if (ValidateNickname(nickname) is { IsSuccess: false } validation)
-            return validation;
-
-        return Result.Ok(new User(id, nickname));
-    }
-
-    public Result<GroupMember> CreateMembership(Group group)
-    {
-        var member = GroupMember.Create(this, group);
+        var nickValidation = new NicknameValidator().Validate(nickname);
+        if (!nickValidation.IsValid)
+            return Result.Invalid(nickValidation.AsErrors());
         
-        if (member.IsFailed)
-            return member;
-        
-        _memberships.Add(member.Value);
-        return Result.Ok(member.Value);
+        return Result.Success(new User(id, nickname));
     }
-    
-    public Result RemoveMembership(GroupMember member)
-    {
-        if (!_memberships.Remove(member))
-            return Result.Fail("Member not found");
 
-        return Result.Ok();
-    }
-    
-    static Result ValidateNickname(string nickname)
-    {
-        return Result.FailIf(string.IsNullOrWhiteSpace(nickname), "Invalid nickname");
-    }
+    public Result<GroupMember> CreateMembership(Group group) =>
+        GroupMember.Create(this, group)
+            .Map(x =>
+            {
+                _memberships.Add(x);
+                return x;
+            });
+
+    public Result RemoveMembership(GroupMember member) => 
+        !_memberships.Remove(member) 
+            ? Result.NotFound("Member not found") 
+            : Result.Success();
 }

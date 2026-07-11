@@ -5,8 +5,8 @@ var postgres = builder.AddPostgres("vyatka-db")
     .WithPgAdmin(pgAdmin => 
         pgAdmin.WithHostPort(5050));
 
-var identityDb = postgres.AddDatabase("IdentityDb");
-var trackerDb = postgres.AddDatabase("TrackerDb");
+var identityDb = postgres.AddDatabase("identitydb");
+var hubDb = postgres.AddDatabase("hubdb");
 
 var identityApi = builder.AddProject<Projects.Identity_WebAPI>(
         "identity-api")
@@ -14,11 +14,11 @@ var identityApi = builder.AddProject<Projects.Identity_WebAPI>(
     .WithReference(identityDb)
     .WithHttpHealthCheck("/health");
 
-var trackerApi = builder.AddProject<Projects.Tracker_WebAPI>(
-        "tracker-api")
+var hubApi = builder.AddProject<Projects.Hub_Web>(
+        "hub-api")
     .WithExternalHttpEndpoints()
     .WithReference(identityApi)
-    .WithReference(trackerDb)
+    .WithReference(hubDb)
     .WithHttpHealthCheck("/health");
 
 var frontend = "../../Frontend";
@@ -29,33 +29,32 @@ var identityApp = builder.AddJavaScriptApp("identity-app", frontend)
     .WithHttpEndpoint(port: 4200, env: "PORT")
     .WaitFor(identityApi);
 
-var trackerApp = builder.AddJavaScriptApp("tracker-app", frontend)
-    .WithRunScript("start:tracker")
+var hubApp = builder.AddJavaScriptApp("hub-app", frontend)
+    .WithRunScript("start:tracker") // TODO: rename app project to hub
     .WithReference(identityApi)
-    .WithReference(trackerApi)
+    .WithReference(hubApi)
     .WithHttpEndpoint(port: 4201, env: "PORT")
     .WaitFor(identityApi)
-    .WaitFor(trackerApi);
+    .WaitFor(hubApi);
 
 var identityIsHttps = identityApp.GetEndpoint("https").Exists;
-var trackerIsHttps = trackerApp.GetEndpoint("https").Exists;
+var hubIsHttps = hubApp.GetEndpoint("https").Exists;
 var identityApiIsHttps = identityApi.GetEndpoint("https").Exists;
-var trackerApiIsHttps = trackerApi.GetEndpoint("https").Exists;
+var hubApiIsHttps = hubApi.GetEndpoint("https").Exists;
 
 var webClientEndpoint = identityApp.GetEndpoint(identityIsHttps ? "https" : "http");
-var trackerAppEndpoint = trackerApp.GetEndpoint(trackerIsHttps ? "https" : "http");
+var hubAppEndpoint = hubApp.GetEndpoint(hubIsHttps ? "https" : "http");
 var identityApiEndpoint = identityApi.GetEndpoint(identityApiIsHttps ? "https" : "http");
-var trackerApiEndpoint = trackerApi.GetEndpoint(trackerApiIsHttps ? "https" : "http");
+var hubApiEndpoint = hubApi.GetEndpoint(hubApiIsHttps ? "https" : "http");
 
 identityApi.WithEnvironment("Clients:identity-app:Url", webClientEndpoint);
-identityApi.WithEnvironment("Clients:tracker-app:Url", trackerAppEndpoint);
-identityApi.WithEnvironment("Clients:tracker-scalar:Url", trackerApiEndpoint);
-identityApi.WithEnvironment("Clients:tracker-scalar:RedirectUri", $"{trackerApiEndpoint}/scalar/v1");
+identityApi.WithEnvironment("Clients:hub-app:Url", hubAppEndpoint);
+identityApi.WithEnvironment("Clients:hub-scalar:Url", hubApiEndpoint);
+identityApi.WithEnvironment("Clients:hub-scalar:RedirectUri", $"{hubApiEndpoint}/scalar/v1");
 identityApi.WithEnvironment("Idp:Authority", identityApiEndpoint);
 identityApi.WithEnvironment("Idp:LoginPageUrl", $"{webClientEndpoint}/login");
 
-trackerApi.WithEnvironment("OpenIddict:Authority", identityApiEndpoint);
-trackerApi.WithEnvironment("OpenIddict:Audience", "vyatka-tracker-api");
-trackerApi.WithEnvironment("Clients:tracker-app:Url", trackerAppEndpoint);
+hubApi.WithEnvironment("OpenIddict:Authority", identityApiEndpoint);
+hubApi.WithEnvironment("Clients:hub-app:Url", hubAppEndpoint);
 
 builder.Build().Run();

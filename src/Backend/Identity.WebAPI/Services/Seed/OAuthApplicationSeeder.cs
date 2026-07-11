@@ -51,6 +51,7 @@ static class OAuthApplicationSeeder
                 continue;
             }
 
+            await EnsureRedirectUriAsync(manager, application, redirectUri);
             await EnsureAudiencePermissionAsync(manager, application, client.Audience);
         }
     }
@@ -61,6 +62,21 @@ static class OAuthApplicationSeeder
             return client.RedirectUri;
 
         return $"{client.Url!.TrimEnd('/')}/callback";
+    }
+
+    static async Task EnsureRedirectUriAsync(
+        IOpenIddictApplicationManager manager,
+        object application,
+        string redirectUri)
+    {
+        var uris = await manager.GetRedirectUrisAsync(application);
+        if (uris.Contains(redirectUri, StringComparer.Ordinal))
+            return;
+
+        var descriptor = new OpenIddictApplicationDescriptor();
+        await manager.PopulateAsync(descriptor, application);
+        descriptor.RedirectUris.Add(new Uri(redirectUri));
+        await manager.UpdateAsync(application, descriptor);
     }
 
     static async Task EnsureAudiencePermissionAsync(

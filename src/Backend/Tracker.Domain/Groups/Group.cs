@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
-using FluentResults;
+using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
 using Tracker.Domain.Common;
 using Tracker.Domain.Events;
+using Tracker.Domain.Validators;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -27,64 +29,47 @@ public sealed class Group : Auditable
 
     public static Result<Group> Create(string name)
     {
-        if (ValidateName(name) is { IsSuccess: false } validation)
-            return validation;
-
-        return Result.Ok(new Group(name));
+        var nameValidation = new GroupNameValidator().Validate(name);
+        if (!nameValidation.IsValid)
+            return Result.Invalid(nameValidation.AsErrors());
+        
+        return Result.Success(new Group(name));
     }
 
     public Result UpdateName(string name)
     {
-        if (ValidateName(name) is { IsSuccess: false } validation)
-            return validation;
+        var nameValidation = new GroupNameValidator().Validate(name);
+        if (!nameValidation.IsValid)
+            return Result.Invalid(nameValidation.AsErrors());
 
         Name = name;
-        
-        return Result.Ok();
+        return Result.Success();
     }
     
-    public Result<GroupEvent> CreateEvent(string title, DateTimeOffset start, DateTimeOffset end)
-    {
-        var @event = Event.CreateDraft(title, start, end);
-        
-        if (@event.IsFailed)
-            return @event.ToResult();
+    public Result<GroupEvent> CreateEvent(string title, DateTimeOffset start, DateTimeOffset end) =>
+        Event.CreateDraft(title, start, end)
+            .Bind(ev => GroupEvent.Create(this, ev))
+            .Map(ev =>
+            {
+                _groupEvents.Add(ev);
+                return ev;
+            });
 
-        var groupEvent = GroupEvent.Create(this, @event.Value);
-        
-        _groupEvents.Add(groupEvent.Value);
-        return Result.Ok(groupEvent.Value);
-    }
-    
-    public Result RemoveEvent(GroupEvent groupEvent)
-    {
-        if (!_groupEvents.Remove(groupEvent))
-            return Result.Fail("Group event not found");
-        
-        return Result.Ok();
-    }
-    
-    public Result<GroupMember> AddMember(User user)
-    {
-        var member = GroupMember.Create(user, this);
-        
-        if (member.IsFailed)
-            return member;
-        
-        _members.Add(member.Value);
-        return Result.Ok(member.Value);
-    }
-    
-    public Result RemoveMember(GroupMember member)
-    {
-        if (!_members.Remove(member))
-            return Result.Fail("Member not found");
-        
-        return Result.Ok();
-    }
+    public Result RemoveEvent(GroupEvent groupEvent) => 
+        !_groupEvents.Remove(groupEvent) 
+            ? Result.NotFound("Group event not found") 
+            : Result.Success();
 
-    static Result ValidateName(string? name)
-    {
-        return Result.FailIf(string.IsNullOrWhiteSpace(name), "Group name is required");
-    }
+    public Result<GroupMember> AddMember(User user) =>
+        GroupMember.Create(user, this)
+            .Map(x =>
+            {
+                _members.Add(x);
+                return x;
+            });
+
+    public Result RemoveMember(GroupMember member) => 
+        !_members.Remove(member) 
+            ? Result.NotFound("Group member not found") 
+            : Result.Success();
 }

@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using FluentResults;
+using Ardalis.Result;
 using Tracker.Domain.Common;
 using Tracker.Domain.Events;
 
@@ -26,21 +26,6 @@ public sealed class GroupEvent : Auditable
     public Guid GroupId { get; private set; }
     public Group Group { get; private set; }
     
-    public static Result<GroupEvent> Create(Group group, Event @event)
-    {
-        if (ValidateGroup(group).Bind(() => ValidateEvent(@event)) is { IsSuccess: false } validation)
-            return validation;
-        
-        return new GroupEvent(group, @event);
-    }
-
-    static Result ValidateGroup(Group? group)
-    {
-        return Result.FailIf(group is null, "Group cannot be null");
-    }
-    
-    static Result ValidateEvent(Event? @event)
-    {
-        return Result.FailIf(@event is null, "Event cannot be null");
-    }
+    public static Result<GroupEvent> Create(Group group, Event @event) => 
+        Result.Success(new GroupEvent(group, @event));
 }

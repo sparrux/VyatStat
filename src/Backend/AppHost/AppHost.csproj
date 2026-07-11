@@ -17,6 +17,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Identity.WebAPI\Identity.WebAPI.csproj" />
       <ProjectReference Include="..\Tracker.WebAPI\Tracker.WebAPI.csproj" />
+      <ProjectReference Include="..\Hub.Web\Hub.Web.csproj" />
     </ItemGroup>
 
 </Project>

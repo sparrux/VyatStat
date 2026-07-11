@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using FluentResults;
+using Ardalis.Result;
 using Tracker.Domain.Common;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -25,21 +25,6 @@ public sealed class GroupMember : Auditable
     public Group Group { get; }
     public Guid GroupId { get; }
 
-    public static Result<GroupMember> Create(User user, Group group)
-    {
-        if (ValidateUser(user).Bind(() => ValidateGroup(group)) is { IsSuccess: false } validation)
-            return validation;
-
-        return Result.Ok(new GroupMember(user, group));
-    }
-    
-    static Result ValidateUser(User? user)
-    {
-        return Result.FailIf(user is null, "User is required");
-    }
-
-    static Result ValidateGroup(Group? group)
-    {
-        return Result.FailIf(group is null, "Group is required");
-    }
+    public static Result<GroupMember> Create(User user, Group group) => 
+        Result.Success(new GroupMember(user, group));
 }

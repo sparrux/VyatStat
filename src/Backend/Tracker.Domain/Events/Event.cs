@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Ardalis.Result;
 using FluentResults;
 using Tracker.Domain.Abstractions.Requirements;
 using Tracker.Domain.Abstractions.Text;
@@ -6,6 +7,7 @@ using Tracker.Domain.Common;
 using Tracker.Domain.Events.Invitees;
 using Tracker.Domain.Events.Requirements;
 using Tracker.Domain.Groups;
+using Tracker.Domain.Validators;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -54,6 +56,9 @@ public sealed class Event : Auditable
 
     public static Result<Event> CreateDraft(string title, DateTimeOffset start, DateTimeOffset end)
     {
+        var titleValidation = new EventTitleValidator().Validate(title);
+        var datesValidation = new DatesValidator<Event>(x => start, x => end).Validate(title);
+        
         if (ValidateTitle(title).Bind(() => ValidateDates(start, end)) 
             is { IsSuccess: false } validation)
             return validation;
