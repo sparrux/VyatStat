@@ -13,9 +13,13 @@ sealed class EventToSummarySpec : Specification<Event, EventSummaryResponse>
             .Select(x => new EventSummaryResponse(
                 x.Id,
                 x.Title,
+                x.State,
                 x.DatesRange.EndDate,
                 x.DatesRange.StartDate,
+                x.Location != null,
                 x.Invitees.Count,
-                x.Organizers.Count));
+                x.Organizers.Count,
+                x.Requirements.Count,
+                x.Goals.Count));
     }
 }

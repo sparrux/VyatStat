@@ -9,6 +9,7 @@ using Hub.Application.Features.Events.Commands.DeleteOrganizer;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
+using Hub.Application.Features.Events.Commands.UpdateState;
 using Hub.Application.Features.Events.Commands.UpdateTitle;
 using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Queries.Get;
@@ -54,6 +55,7 @@ public static class DependencyInjection
             services.AddDecoratedHandler<CreateInviteeCommand, EventInviteeSummaryResponse, CreateInviteeCommandHandler>();
             services.AddDecoratedHandler<CreateOrganizerCommand, EventOrganizerSummaryResponse, CreateOrganizerCommandHandler>();
             services.AddDecoratedHandler<DeleteOrganizerCommand, IdResponse, DeleteOrganizerCommandHandler>();
+            services.AddDecoratedHandler<UpdateStateCommand, IdResponse, UpdateStateCommandHandler>();
         }
     }
 }

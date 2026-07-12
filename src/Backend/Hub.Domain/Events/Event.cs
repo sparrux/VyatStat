@@ -64,9 +64,8 @@ public sealed class Event : AggregateRoot
 
     public Result UpdateTitle(string title)
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
         
         var titleValidation = new EventTitleValidator().Validate(title);
         if (!titleValidation.IsValid)
@@ -78,9 +77,8 @@ public sealed class Event : AggregateRoot
     
     public Result UpdateDescription(RichText description)
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
 
         Description = description;
         return Result.Success();
@@ -88,9 +86,8 @@ public sealed class Event : AggregateRoot
     
     public Result RemoveDescription()
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
         
         Description = null;
         return Result.Success();
@@ -98,9 +95,8 @@ public sealed class Event : AggregateRoot
 
     public Result UpdateDates(DatesRange dates)
     {
-        var finishedValidation = new EventIsDraftValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (!IsDraft(State))
+            return Result.Error("Event is not in draft state");
 
         DatesRange = dates;
         return Result.Success();
@@ -108,9 +104,8 @@ public sealed class Event : AggregateRoot
 
     public Result UpdateState(EventState state)
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
         
         var stateValidation = new EventStateUpdateValidator(state).Validate(this);
         if (!stateValidation.IsValid)
@@ -122,9 +117,8 @@ public sealed class Event : AggregateRoot
 
     public Result UpdateLocation(string? name, Coordinates coordinates)
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
 
         var location = EventLocation.Create(name, coordinates);
         if (location is { IsSuccess: false })
@@ -136,9 +130,8 @@ public sealed class Event : AggregateRoot
 
     public Result RemoveLocation()
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
         
         Location = null;
         return Result.Success();
@@ -146,9 +139,8 @@ public sealed class Event : AggregateRoot
 
     public Result AddGoal(EventGoal goal)
     {
-        var draftValidation = new EventIsDraftValidator().Validate(this);
-        if (!draftValidation.IsValid)
-            return Result.Invalid(draftValidation.AsErrors());
+        if (!IsDraft(State))
+            return Result.Error("Event is not in draft state");
         
         _goals.Add(goal);
         return Result.Success();
@@ -156,9 +148,8 @@ public sealed class Event : AggregateRoot
 
     public Result RemoveGoal(EventGoal goal)
     {
-        var draftValidation = new EventIsDraftValidator().Validate(this);
-        if (!draftValidation.IsValid)
-            return Result.Invalid(draftValidation.AsErrors());
+        if (!IsDraft(State))
+            return Result.Error("Event is not in draft state");
         
         return _goals.Remove(goal)
             ? Result.Success()
@@ -167,9 +158,8 @@ public sealed class Event : AggregateRoot
     
     public Result<EventInvitee> AddInvitee(User user)
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (!IsDraft(State))
+            return Result.Error("Event is not in draft state");
         
         if (Invitees.Any(x => x.UserId == user.Id))
             return Result.Error("Invitee already exists");
@@ -184,9 +174,8 @@ public sealed class Event : AggregateRoot
     
     public Result<EventOrganizer> AddOrganizer(User user)
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
         
         if (Organizers.Any(x => x.UserId == user.Id))
             return Result.Error("Organizer already exists");
@@ -201,9 +190,8 @@ public sealed class Event : AggregateRoot
     
     public Result RemoveOrganizer(EventOrganizer organizer)
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
-        if (!finishedValidation.IsValid)
-            return Result.Invalid(finishedValidation.AsErrors());
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
 
         return _organizers.Remove(organizer)
             ? Result.Success()
@@ -212,9 +200,8 @@ public sealed class Event : AggregateRoot
     
     public Result AddRequirement(EventRequirement requirement)
     {
-        var draftValidation = new EventIsDraftValidator().Validate(this);
-        if (!draftValidation.IsValid)
-            return Result.Invalid(draftValidation.AsErrors());
+        if (!IsDraft(State))
+            return Result.Error("Event is not in draft state");
         
         _requirements.Add(requirement);
         return Result.Success();
@@ -227,9 +214,8 @@ public sealed class Event : AggregateRoot
         bool isMandatory,
         ConfirmationMode confirmationMode)
     {
-        var draftValidation = new EventIsDraftValidator().Validate(this);
-        if (!draftValidation.IsValid)
-            return Result.Invalid(draftValidation.AsErrors());
+        if (!IsDraft(State))
+            return Result.Error("Event is not in draft state");
         
         var requirement = Requirements.FirstOrDefault(r => r.Id == requirementId);
         return requirement is null 
@@ -239,9 +225,8 @@ public sealed class Event : AggregateRoot
     
     public Result RemoveRequirement(EventRequirement requirement)
     {
-        var draftValidation = new EventIsDraftValidator().Validate(this);
-        if (!draftValidation.IsValid)
-            return Result.Invalid(draftValidation.AsErrors());
+        if (!IsDraft(State))
+            return Result.Error("Event is not in draft state");
         
         return _requirements.Remove(requirement)
             ? Result.Success()

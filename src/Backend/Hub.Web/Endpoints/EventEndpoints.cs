@@ -10,11 +10,13 @@ using Hub.Application.Features.Events.Commands.DeleteOrganizer;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
+using Hub.Application.Features.Events.Commands.UpdateState;
 using Hub.Application.Features.Events.Commands.UpdateTitle;
 using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Queries.Get;
 using Hub.Application.Features.Events.Queries.GetById;
 using Hub.Application.Pipelines;
+using Hub.Domain.Events;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hub.Web.Endpoints;
@@ -74,6 +76,10 @@ static class EventEndpoints
         events.MapPost("/{eventId:guid}/organizers", CreateOrganizer)
             .HasApiVersion(1.0)
             .Produces<EventOrganizerSummaryResponse>();
+        
+        events.MapPut("/{eventId:guid}/state", UpdateState)
+            .HasApiVersion(1.0)
+            .Produces<IdResponse>();
     }
     
     static async Task<IResult> Create(
@@ -167,4 +173,11 @@ static class EventEndpoints
         var organizerUserId = userId ?? userContext.UserId;
         return (await handler.Handle(new(eventId, organizerUserId), ctk)).ToMinimalApiResult();
     }
+    
+    static async Task<IResult> UpdateState(
+        [FromRoute] Guid eventId,
+        [FromQuery] EventState state,
+        [FromServices] IRequestHandler<UpdateStateCommand, IdResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, state), ctk)).ToMinimalApiResult();
 }

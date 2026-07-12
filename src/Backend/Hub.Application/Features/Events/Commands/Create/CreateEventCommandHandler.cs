@@ -41,10 +41,14 @@ sealed class CreateEventCommandHandler(
         return Result.Created(new EventSummaryResponse(
             ev.Id,
             ev.Title,
+            ev.State,
             ev.DatesRange.EndDate,
             ev.DatesRange.StartDate,
+            ev.Location is not null,
             ev.Invitees.Count,
-            ev.Organizers.Count
+            ev.Organizers.Count,
+            ev.Requirements.Count,
+            ev.Goals.Count
         ));
     }
 }
