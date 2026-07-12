@@ -5,6 +5,7 @@ using Hub.Web.Authentication.OAuth.Events;
 using Hub.Web.Authentication.OAuth.Store;
 using Hub.Web.Endpoints;
 using Hub.Web.OpenApi;
+using Hub.Web.Services.Seeders;
 using Hub.Web.Services.Users;
 using ServiceDefaults;
 using OAuthOptions = Hub.Web.Authentication.OAuth.OAuthOptions;
@@ -24,6 +25,8 @@ static class DependencyInjection
             builder.Services.AddScoped<IUserContext, CurrentUserContext>();
             builder.Services.AddScoped<IUserProvisioningService, UserProvisioningService>();
             builder.Services.AddScoped<OpenIdConnectAuthEvents>();
+            
+            builder.Services.AddScoped<ISeeder, UsersSeeder>();
 
             builder.Services.AddOptions<OAuthOptions>()
                 .Bind(builder.Configuration.GetSection(OAuthOptions.SectionName))
@@ -78,9 +81,22 @@ static class DependencyInjection
 
     extension(WebApplication app)
     {
+        public async Task Seed()
+        {
+            var scope = app.Services.CreateScope();
+            
+            var seeders = scope.ServiceProvider.GetRequiredService<IEnumerable<ISeeder>>();
+
+            foreach (var seeder in seeders)
+            {
+                await seeder.Seed(CancellationToken.None);
+            }
+        }
+        
         public void MapEndpoints()
         {
             app.MapAuthEndpoints();
+            app.MapUserEndpoints();
             app.MapEventEndpoints();
         }
 

@@ -16,6 +16,6 @@ public abstract class Location : Entity
         Coordinates = coordinates;
     }
 
-    public string? Name { get; private set; }
-    public Coordinates Coordinates { get; private set; }
+    public string? Name { get; protected set; }
+    public Coordinates Coordinates { get; protected set; }
 }

@@ -1,4 +1,3 @@
-using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Users.Contracts;
 using Hub.Web.Authentication.OAuth;
 using Hub.Web.Authentication.OAuth.Store;

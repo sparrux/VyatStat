@@ -8,10 +8,10 @@ sealed class CreateEventCommandValidator : AbstractValidator<CreateEventCommand>
 {
     public CreateEventCommandValidator()
     {
-        RuleFor(x => x.Title)
+        RuleFor(x => x.Request.Title)
             .SetValidator(new EventTitleValidator());
         
-        RuleFor(x => x.Dates)
+        RuleFor(x => x.Request.Dates)
             .SetValidator(new DatesRangeModelValidator());
     }
 }

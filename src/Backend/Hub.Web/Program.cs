@@ -16,6 +16,7 @@ app.MapDefaultEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
+    await app.Seed();
     app.MapWebOpenApi();
 }
 

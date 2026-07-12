@@ -170,6 +170,9 @@ public sealed class Event : AggregateRoot
         var finishedValidation = new EventNotFinishedValidator().Validate(this);
         if (!finishedValidation.IsValid)
             return Result.Invalid(finishedValidation.AsErrors());
+        
+        if (Invitees.Any(x => x.UserId == user.Id))
+            return Result.Error("Invitee already exists");
 
         var invitee = EventInvitee.Create(user);
         if (!invitee.IsSuccess)

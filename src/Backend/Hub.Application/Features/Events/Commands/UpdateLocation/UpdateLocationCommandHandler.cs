@@ -2,6 +2,7 @@ using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Common.Specifications;
+using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
 using Hub.Domain.ValueObjects;
@@ -18,6 +19,7 @@ sealed class UpdateLocationCommandHandler(
         UpdateLocationCommand command, CancellationToken cancellationToken)
     {
         var ev = await dbContext.Events
+            .WithSpecification(new EventWithLocationSpec())
             .WithSpecification(new GetByIdSpec<Event>(command.EventId))
             .FirstOrDefaultAsync(cancellationToken);
         

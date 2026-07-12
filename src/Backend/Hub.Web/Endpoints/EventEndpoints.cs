@@ -1,6 +1,8 @@
 using Ardalis.Result.AspNetCore;
+using Hub.Application.Abstractions;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
+using Hub.Application.Features.Events.Commands.CreateInvitee;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
 using Hub.Application.Features.Events.Commands.UpdateDates;
@@ -15,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hub.Web.Endpoints;
 
-static class EventsEndpoints
+static class EventEndpoints
 {
     public static void MapEventEndpoints(this WebApplication app)
     {
@@ -29,11 +31,11 @@ static class EventsEndpoints
         
         events.MapGet("/", Get)
             .HasApiVersion(1.0)
-            .Produces<EventDetailsResponse>();
+            .Produces<ListResponse<EventDetailsResponse>>();
         
         events.MapGet("/{eventId:guid}", GetById)
             .HasApiVersion(1.0)
-            .Produces<ListResponse<EventSummaryResponse>>();
+            .Produces<EventDetailsResponse>();
         
         events.MapPut("/{eventId:guid}/title", UpdateTitle)
             .HasApiVersion(1.0)
@@ -58,13 +60,18 @@ static class EventsEndpoints
         events.MapDelete("/{eventId:guid}/location", DeleteLocation)
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
+        
+        events.MapPost("/{eventId:guid}/invitees", CreateInvitee)
+            .HasApiVersion(1.0)
+            .Produces<EventInviteeSummaryResponse>();
     }
     
     static async Task<IResult> Create(
-        [FromBody] CreateEventCommand request,
+        [FromBody] CreateEventRequest request,
+        [FromServices] IUserContext userContext,
         [FromServices] IRequestHandler<CreateEventCommand, EventSummaryResponse> handler,
         CancellationToken ctk) =>
-        (await handler.Handle(request, ctk)).ToMinimalApiResult();
+        (await handler.Handle(new(userContext.UserId, request), ctk)).ToMinimalApiResult();
     
     static async Task<IResult> Get(
         [AsParameters] GetEventQuery query,
@@ -117,4 +124,15 @@ static class EventsEndpoints
         [FromServices] IRequestHandler<DeleteLocationCommand, IdResponse> handler,
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId), ctk)).ToMinimalApiResult();
+    
+    static async Task<IResult> CreateInvitee(
+        [FromRoute] Guid eventId,
+        [FromQuery] Guid? userId,
+        [FromServices] IUserContext userContext,
+        [FromServices] IRequestHandler<CreateInviteeCommand, EventInviteeSummaryResponse> handler,
+        CancellationToken ctk)
+    {
+        var inviteeUserId = userId ?? userContext.UserId;
+        return (await handler.Handle(new(eventId, inviteeUserId), ctk)).ToMinimalApiResult();
+    }
 }

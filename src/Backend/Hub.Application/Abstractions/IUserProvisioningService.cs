@@ -1,5 +1,4 @@
 using Ardalis.Result;
-using Hub.Domain;
 
 namespace Hub.Application.Abstractions;
 

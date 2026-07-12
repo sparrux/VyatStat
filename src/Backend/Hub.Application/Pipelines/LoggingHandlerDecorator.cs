@@ -10,7 +10,7 @@ sealed class LoggingHandlerDecorator<TRequest, TResponse>(
 {
     public async Task<Result<TResponse>> Handle(TRequest request, CancellationToken cancellationToken)
     {
-        TResponse response;
+        Result<TResponse> response;
         logger.LogInformation("Handling request: {Request}", request);
 
         try

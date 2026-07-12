@@ -1,6 +1,5 @@
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
-using Hub.Application.Abstractions;
 using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Pipelines;
@@ -13,18 +12,19 @@ using Microsoft.EntityFrameworkCore;
 namespace Hub.Application.Features.Events.Commands.Create;
 
 sealed class CreateEventCommandHandler(
-    IUserContext userContext,
     HubDbContext dbContext
 ) : IRequestHandler<CreateEventCommand, EventSummaryResponse>
 {
     public async Task<Result<EventSummaryResponse>> Handle(
-        CreateEventCommand request, CancellationToken cancellationToken)
+        CreateEventCommand command, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
-            .WithSpecification(new GetByIdSpec<User>(userContext.UserId))
+            .WithSpecification(new GetByIdSpec<User>(command.OrganizerUserId))
             .FirstOrDefaultAsync(cancellationToken);
         
         if (user is null) return Result.NotFound("User not found");
+
+        var request = command.Request;
         
         var createEvent = Event.CreateDraft(
             user,
