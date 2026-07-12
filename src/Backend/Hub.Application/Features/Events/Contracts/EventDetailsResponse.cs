@@ -11,7 +11,7 @@ public sealed record EventDetailsResponse(
     DateTimeOffset StartDate,
     EventState State,
     EventLocationResponse? Location,
-    IReadOnlyCollection<EventOrganizerResponse> Organizers,
+    IReadOnlyCollection<EventOrganizerSummaryResponse> Organizers,
     IReadOnlyCollection<EventRequirementResponse> Requirements,
     IReadOnlyCollection<EventInviteeSummaryResponse> Invitees
 );

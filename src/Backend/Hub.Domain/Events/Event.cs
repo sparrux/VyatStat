@@ -187,6 +187,9 @@ public sealed class Event : AggregateRoot
         var finishedValidation = new EventNotFinishedValidator().Validate(this);
         if (!finishedValidation.IsValid)
             return Result.Invalid(finishedValidation.AsErrors());
+        
+        if (Organizers.Any(x => x.UserId == user.Id))
+            return Result.Error("Organizer already exists");
 
         var organizer = EventOrganizer.Create(user);
         if (!organizer.IsSuccess)

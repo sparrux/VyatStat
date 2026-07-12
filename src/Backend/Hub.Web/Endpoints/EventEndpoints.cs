@@ -3,8 +3,10 @@ using Hub.Application.Abstractions;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
 using Hub.Application.Features.Events.Commands.CreateInvitee;
+using Hub.Application.Features.Events.Commands.CreateOrganizer;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
+using Hub.Application.Features.Events.Commands.DeleteOrganizer;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
@@ -64,6 +66,14 @@ static class EventEndpoints
         events.MapPost("/{eventId:guid}/invitees", CreateInvitee)
             .HasApiVersion(1.0)
             .Produces<EventInviteeSummaryResponse>();
+        
+        events.MapDelete("/{eventId:guid}/organizers", DeleteOrganizer)
+            .HasApiVersion(1.0)
+            .Produces<IdResponse>();
+        
+        events.MapPost("/{eventId:guid}/organizers", CreateOrganizer)
+            .HasApiVersion(1.0)
+            .Produces<EventOrganizerSummaryResponse>();
     }
     
     static async Task<IResult> Create(
@@ -134,5 +144,27 @@ static class EventEndpoints
     {
         var inviteeUserId = userId ?? userContext.UserId;
         return (await handler.Handle(new(eventId, inviteeUserId), ctk)).ToMinimalApiResult();
+    }
+    
+    static async Task<IResult> DeleteOrganizer(
+        [FromRoute] Guid eventId,
+        [FromQuery] Guid? userId,
+        [FromServices] IUserContext userContext,
+        [FromServices] IRequestHandler<DeleteOrganizerCommand, IdResponse> handler,
+        CancellationToken ctk)
+    {
+        var organizerUserId = userId ?? userContext.UserId;
+        return (await handler.Handle(new(eventId, organizerUserId), ctk)).ToMinimalApiResult();
+    }
+
+    static async Task<IResult> CreateOrganizer(
+        [FromRoute] Guid eventId,
+        [FromQuery] Guid? userId,
+        [FromServices] IUserContext userContext,
+        [FromServices] IRequestHandler<CreateOrganizerCommand, EventOrganizerSummaryResponse> handler,
+        CancellationToken ctk)
+    {
+        var organizerUserId = userId ?? userContext.UserId;
+        return (await handler.Handle(new(eventId, organizerUserId), ctk)).ToMinimalApiResult();
     }
 }

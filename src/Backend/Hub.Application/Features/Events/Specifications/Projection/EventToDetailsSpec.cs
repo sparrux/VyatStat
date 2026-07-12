@@ -30,7 +30,7 @@ sealed class EventToDetailsSpec : Specification<Event, EventDetailsResponse>
                     : null,
                 x.Organizers
                     .OrderBy(o => o.CreatedAt)
-                    .Select(o => new EventOrganizerResponse(
+                    .Select(o => new EventOrganizerSummaryResponse(
                         o.Id,
                         new UserSummaryResponse(
                             o.User.Id,

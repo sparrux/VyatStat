@@ -2,8 +2,10 @@ using FluentValidation;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
 using Hub.Application.Features.Events.Commands.CreateInvitee;
+using Hub.Application.Features.Events.Commands.CreateOrganizer;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
+using Hub.Application.Features.Events.Commands.DeleteOrganizer;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
@@ -50,6 +52,8 @@ public static class DependencyInjection
             services.AddDecoratedHandler<UpdateLocationCommand, IdResponse, UpdateLocationCommandHandler>();
             services.AddDecoratedHandler<DeleteLocationCommand, IdResponse, DeleteLocationCommandHandler>();
             services.AddDecoratedHandler<CreateInviteeCommand, EventInviteeSummaryResponse, CreateInviteeCommandHandler>();
+            services.AddDecoratedHandler<CreateOrganizerCommand, EventOrganizerSummaryResponse, CreateOrganizerCommandHandler>();
+            services.AddDecoratedHandler<DeleteOrganizerCommand, IdResponse, DeleteOrganizerCommandHandler>();
         }
     }
 }
