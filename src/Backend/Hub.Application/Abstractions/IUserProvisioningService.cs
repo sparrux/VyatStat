@@ -7,7 +7,7 @@ public sealed record UserProvisioningParameters(string Nickname);
 
 public interface IUserProvisioningService
 {
-    Task<Result<User>> EnsureCreatedAsync(
+    Task<Result> EnsureCreatedAsync(
         Guid userId,
         UserProvisioningParameters parameters,
         CancellationToken cancellationToken = default);

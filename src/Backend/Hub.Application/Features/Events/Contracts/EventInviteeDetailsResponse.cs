@@ -1,4 +1,5 @@
 using Hub.Application.Features.Common.Contracts;
+using Hub.Application.Features.Users.Contracts;
 using Hub.Domain.Events.Invitees;
 
 namespace Hub.Application.Features.Events.Contracts;

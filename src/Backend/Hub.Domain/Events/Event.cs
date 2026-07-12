@@ -76,7 +76,7 @@ public sealed class Event : AggregateRoot
         return Result.Success();
     }
     
-    public Result UpdateDescription(RichText? description)
+    public Result UpdateDescription(RichText description)
     {
         var finishedValidation = new EventNotFinishedValidator().Validate(this);
         if (!finishedValidation.IsValid)
@@ -85,10 +85,20 @@ public sealed class Event : AggregateRoot
         Description = description;
         return Result.Success();
     }
+    
+    public Result RemoveDescription()
+    {
+        var finishedValidation = new EventNotFinishedValidator().Validate(this);
+        if (!finishedValidation.IsValid)
+            return Result.Invalid(finishedValidation.AsErrors());
+        
+        Description = null;
+        return Result.Success();
+    }
 
     public Result UpdateDates(DatesRange dates)
     {
-        var finishedValidation = new EventNotFinishedValidator().Validate(this);
+        var finishedValidation = new EventIsDraftValidator().Validate(this);
         if (!finishedValidation.IsValid)
             return Result.Invalid(finishedValidation.AsErrors());
 

@@ -1,6 +1,7 @@
 using Ardalis.Specification;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Contracts;
+using Hub.Application.Features.Users.Contracts;
 using Hub.Domain.Events;
 
 namespace Hub.Application.Features.Events.Specifications.Projection;

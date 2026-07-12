@@ -10,7 +10,8 @@ sealed class OpenIdConnectAuthEvents(
     IOAuthTokenStore tokenStore,
     IUserProvisioningService userProvisioningService,
     IOptions<OAuthOptions> options,
-    ILogger<OpenIdConnectAuthEvents> logger) : OpenIdConnectEvents
+    ILogger<OpenIdConnectAuthEvents> logger
+) : OpenIdConnectEvents
 {
     readonly OAuthOptions _options = options.Value;
 
@@ -48,7 +49,7 @@ sealed class OpenIdConnectAuthEvents(
 
         if (!Guid.TryParse(subject, out var userId))
             return;
-        
+
         var result = await userProvisioningService.EnsureCreatedAsync(
             userId,
             new UserProvisioningParameters(nickname),

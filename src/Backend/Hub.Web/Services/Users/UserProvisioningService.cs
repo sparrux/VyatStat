@@ -10,7 +10,7 @@ namespace Hub.Web.Services.Users;
 
 sealed class UserProvisioningService(HubDbContext dbContext) : IUserProvisioningService
 {
-    public async Task<Result<User>> EnsureCreatedAsync(
+    public async Task<Result> EnsureCreatedAsync(
         Guid userId,
         UserProvisioningParameters parameters,
         CancellationToken cancellationToken = default)
@@ -18,10 +18,10 @@ sealed class UserProvisioningService(HubDbContext dbContext) : IUserProvisioning
         var existing = await dbContext.Users
             .AsNoTracking()
             .WithSpecification(new GetByIdSpec<User>(userId))
-            .FirstOrDefaultAsync(cancellationToken);
+            .AnyAsync(cancellationToken);
         
-        if (existing is not null)
-            return Result.Success(existing);
+        if (existing)
+            return Result.Success();
 
         var nickname = parameters.Nickname;
         if (string.IsNullOrWhiteSpace(nickname))
@@ -34,6 +34,6 @@ sealed class UserProvisioningService(HubDbContext dbContext) : IUserProvisioning
         await dbContext.AddAsync(createResult.Value, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         
-        return createResult;
+        return createResult.Map();
     }
 }
