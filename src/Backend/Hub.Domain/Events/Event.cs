@@ -236,6 +236,29 @@ public sealed class Event : AggregateRoot
             : requirement.UpdateRequirement(title, description, isMandatory, confirmationMode);
     }
     
+    public Result UpdateCompletionStatus(
+        Guid inviteeUserId,
+        Guid requirementId,
+        EventRequirementCompletionStatus completionStatus)
+    {
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
+        
+        var invitee = Invitees.FirstOrDefault(x => x.UserId == inviteeUserId);
+        if (invitee is null)
+            return Result.NotFound("Event invitee is not found");
+        
+        var completion = invitee.RequirementCompletions
+            .FirstOrDefault(x => x.RequirementId == requirementId);
+        
+        if (completion is null)
+            return Result.NotFound("Event requirement completion is not found");
+        
+        var updateStatus = completion.UpdateCompletionStatus(completionStatus);
+
+        return updateStatus.Map();
+    }
+    
     public Result RemoveRequirement(EventRequirement requirement)
     {
         if (!IsDraft(State))

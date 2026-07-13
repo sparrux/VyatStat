@@ -9,6 +9,7 @@ using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
 using Hub.Application.Features.Events.Commands.DeleteOrganizer;
 using Hub.Application.Features.Events.Commands.DeleteRequirement;
+using Hub.Application.Features.Events.Commands.UpdateCompletion;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
@@ -21,6 +22,7 @@ using Hub.Application.Features.Events.Queries.GetById;
 using Hub.Application.Features.Events.Queries.GetInviteeById;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
+using Hub.Domain.Events.Requirements;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hub.Web.Endpoints;
@@ -98,6 +100,10 @@ static class EventEndpoints
             .Produces<EventOrganizerSummaryResponse>();
         
         events.MapPut("/{eventId:guid}/requirements/{reqId:guid}", UpdateRequirement)
+            .HasApiVersion(1.0)
+            .Produces<IdResponse>();
+        
+        events.MapPut("/{eventId:guid}/requirements/{reqId:guid}/completion", UpdateCompletion)
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
     }
@@ -230,4 +236,18 @@ static class EventEndpoints
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId, reqId, request), ctk)).ToMinimalApiResult();
 
+    static async Task<IResult> UpdateCompletion(
+        [FromRoute] Guid eventId,
+        [FromRoute] Guid reqId,
+        [FromQuery] EventRequirementCompletionStatus newStatus,
+        [FromQuery] Guid? userId,
+        [FromServices] IUserContext userContext,
+        [FromServices] IRequestHandler<UpdateCompletionCommand, IdResponse> handler,
+        CancellationToken ctk)
+    {
+        var inviteeUserId = userId ?? userContext.UserId;
+        return (await handler.Handle(
+            new(eventId, inviteeUserId, reqId, newStatus), ctk)
+        ).ToMinimalApiResult();
+    }
 }

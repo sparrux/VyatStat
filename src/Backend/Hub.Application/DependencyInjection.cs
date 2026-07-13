@@ -8,6 +8,7 @@ using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
 using Hub.Application.Features.Events.Commands.DeleteOrganizer;
 using Hub.Application.Features.Events.Commands.DeleteRequirement;
+using Hub.Application.Features.Events.Commands.UpdateCompletion;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
@@ -64,6 +65,7 @@ public static class DependencyInjection
             services.AddDecoratedHandler<CreateRequirementCommand, EventRequirementSummaryResponse, CreateRequirementCommandHandler>();
             services.AddDecoratedHandler<UpdateRequirementCommand, IdResponse, UpdateRequirementCommandHandler>();
             services.AddDecoratedHandler<DeleteRequirementCommand, IdResponse, DeleteRequirementCommandHandler>();
+            services.AddDecoratedHandler<UpdateCompletionCommand, IdResponse, UpdateCompletionCommandHandler>();
         }
     }
 }
