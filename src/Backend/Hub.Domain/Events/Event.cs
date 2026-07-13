@@ -158,18 +158,25 @@ public sealed class Event : AggregateRoot
     
     public Result<EventInvitee> AddInvitee(User user)
     {
-        if (!IsDraft(State))
-            return Result.Error("Event is not in draft state");
+        if (IsDraft(State) || IsFinished(State))
+            return Result.Error("Event is in draft state or finished");
         
         if (Invitees.Any(x => x.UserId == user.Id))
             return Result.Error("Invitee already exists");
 
-        var invitee = EventInvitee.Create(user);
-        if (!invitee.IsSuccess)
-            return Result.Error(new ErrorList(invitee.Errors));
+        var inviteeResult = EventInvitee.Create(user);
+        if (!inviteeResult.IsSuccess)
+            return Result.Error(new ErrorList(inviteeResult.Errors));
 
-        _invitees.Add(invitee.Value);
-        return invitee;
+        var invitee = inviteeResult.Value;
+
+        foreach (var requirement in Requirements)
+        {
+            invitee.AddCompletion(requirement);
+        }
+
+        _invitees.Add(invitee);
+        return inviteeResult;
     }
     
     public Result<EventOrganizer> AddOrganizer(User user)
@@ -198,13 +205,19 @@ public sealed class Event : AggregateRoot
             : Result.NotFound("Event organizer is not found");
     }
     
-    public Result AddRequirement(EventRequirement requirement)
+    public Result<EventRequirement> AddRequirement(
+        string title, string? description, bool isMandatory, ConfirmationMode confirmationMode)
     {
         if (!IsDraft(State))
             return Result.Error("Event is not in draft state");
-        
+
+        var createResult = EventRequirement.Create(title, description, isMandatory, confirmationMode);
+        if (!createResult.IsSuccess) return createResult.Map();
+
+        var requirement = createResult.Value;
+
         _requirements.Add(requirement);
-        return Result.Success();
+        return Result.Success(requirement);
     }
     
     public Result UpdateRequirement(

@@ -37,7 +37,7 @@ sealed class EventToDetailsSpec : Specification<Event, EventDetailsResponse>
                             o.User.Nickname))).ToList(),
                 x.Requirements
                     .OrderByDescending(r => r.CreatedAt)
-                    .Select(r => new EventRequirementResponse(
+                    .Select(r => new EventRequirementSummaryResponse(
                         r.Id,
                         r.Title,
                         r.Description,
