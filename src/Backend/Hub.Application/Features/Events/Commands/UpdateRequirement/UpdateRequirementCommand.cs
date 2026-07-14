@@ -12,5 +12,5 @@ public sealed record UpdateRequirementRequest(
     string Title,
     string? Description,
     bool IsMandatory,
-    ConfirmationMode ConfirmationMode
+    RequirementVerificationMode VerificationMode
 );

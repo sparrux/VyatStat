@@ -13,7 +13,7 @@ public sealed class EventRequirementCompletionConfiguration
 
         builder.ConfigureAuditable();
 
-        builder.Property(c => c.CompletionStatus)
+        builder.Property(c => c.VerificationStatus)
             .HasConversion<string>()
             .HasMaxLength(50)
             .IsRequired();

@@ -11,21 +11,21 @@ public abstract class Requirement : Auditable
 {
     protected Requirement() { }
 
-    protected Requirement(string title, string? description, bool isMandatory, ConfirmationMode confirmationMode)
+    protected Requirement(string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
     {
         Title = title;
         Description = description;
         IsMandatory = isMandatory;
-        ConfirmationMode = confirmationMode;
+        VerificationMode = verificationMode;
     }
     
     public string Title { get; private set; }
     public string? Description { get; private set; }
     public bool IsMandatory { get; private set; }
-    public ConfirmationMode ConfirmationMode { get; private set; }
+    public RequirementVerificationMode VerificationMode { get; private set; }
     
     public Result UpdateRequirement(
-        string title, string? description, bool isMandatory, ConfirmationMode confirmationMode)
+        string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
     {
         var titleValidation = new RequirementTitleValidator().Validate(title);
         if (!titleValidation.IsValid)
@@ -34,7 +34,7 @@ public abstract class Requirement : Auditable
         Title = title;
         Description = description;
         IsMandatory = isMandatory;
-        ConfirmationMode = confirmationMode;
+        VerificationMode = verificationMode;
         
         return Result.Success();
     }

@@ -27,16 +27,24 @@ public sealed class EventRequirementCompletion : Auditable
     public Guid RequirementId { get; private set; }
     public EventRequirement Requirement { get; private set; }
     
-    public EventRequirementCompletionStatus CompletionStatus { get; private set; }
+    public RequirementVerificationStatus VerificationStatus { get; private set; }
     
     internal static Result<EventRequirementCompletion> Create(
         EventInvitee eventInvitee, EventRequirement requirement) =>
         Result.Success(new EventRequirementCompletion(eventInvitee, requirement));
-
-    public Result<EventRequirementCompletion> UpdateCompletionStatus(
-        EventRequirementCompletionStatus completionStatus)
+    
+    Result UpdateVerification(RequirementVerificationStatus verification)
     {
-        CompletionStatus = completionStatus;
+        VerificationStatus = verification;
         return Result.Success();
     }
+    
+    internal Result PendingVerification() => 
+        UpdateVerification(RequirementVerificationStatus.PendingVerification);
+    
+    internal Result Verify() => 
+        UpdateVerification(RequirementVerificationStatus.Verified);
+
+    internal Result Reject() => 
+        UpdateVerification(RequirementVerificationStatus.Rejected);
 }

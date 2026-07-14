@@ -24,8 +24,8 @@ sealed class InviteeToDetailsSpec : Specification<EventInvitee, EventInviteeDeta
                             c.Requirement.Title,
                             c.Requirement.Description,
                             c.Requirement.IsMandatory,
-                            c.Requirement.ConfirmationMode),
-                        c.CompletionStatus)).ToList(),
+                            c.Requirement.VerificationMode),
+                        c.VerificationStatus)).ToList(),
                 x.RsvpStatus,
                 x.AdmissionStatus));
     }

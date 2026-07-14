@@ -7,6 +7,6 @@ sealed class UpdateRequirementCommandValidator : AbstractValidator<UpdateRequire
     public UpdateRequirementCommandValidator()
     {
         RuleFor(x => x.Request.Title).NotNull();
-        RuleFor(x => x.Request.ConfirmationMode).IsInEnum();
+        RuleFor(x => x.Request.VerificationMode).IsInEnum();
     }
 }

@@ -26,12 +26,13 @@ sealed class UpdateCompletionCommandHandler(
 
         if (ev is null) return Result.NotFound("Event not found by id");
 
-        var updateResult = ev.UpdateCompletionStatus(
-            request.UserId,
-            request.RequirementId,
-            request.NewStatus);
-
-        if (!updateResult.IsSuccess) return updateResult.Map();
+        var result = request.ActorId switch
+        {
+            not null => ev.VerifyCompletionByActor(request.UserId, request.RequirementId, request.ActorId.Value),
+            null => ev.VerifyCompletionByAutomatic(request.UserId, request.RequirementId)
+        };
+        
+        if (!result.IsSuccess) return result.Map();
         
         await dbContext.SaveChangesAsync(cancellationToken);
         return Result.Success(new IdResponse(ev.Id));

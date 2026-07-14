@@ -15,16 +15,16 @@ public sealed class RequirementPreset : Requirement
         string title, 
         string? description, 
         bool isMandatory, 
-        ConfirmationMode confirmationMode
-    ) : base(title, description, isMandatory, confirmationMode) { }
+        RequirementVerificationMode verificationMode
+    ) : base(title, description, isMandatory, verificationMode) { }
     
     public static Result<RequirementPreset> Create(
-        string title, string? description, bool isMandatory, ConfirmationMode confirmationMode)
+        string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
     {
         var titleValidation = new RequirementTitleValidator().Validate(title);
         if (!titleValidation.IsValid)
             return Result.Invalid(titleValidation.AsErrors());
         
-        return new RequirementPreset(title, description, isMandatory, confirmationMode);
+        return new RequirementPreset(title, description, isMandatory, verificationMode);
     }
 }

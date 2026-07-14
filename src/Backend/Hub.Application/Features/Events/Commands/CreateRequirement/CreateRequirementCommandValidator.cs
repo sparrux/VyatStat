@@ -7,6 +7,6 @@ sealed class CreateRequirementCommandValidator : AbstractValidator<CreateRequire
     public CreateRequirementCommandValidator()
     {
         RuleFor(x => x.Request.Title).NotEmpty();
-        RuleFor(x => x.Request.ConfirmationMode).IsInEnum();
+        RuleFor(x => x.Request.VerificationMode).IsInEnum();
     }
 }

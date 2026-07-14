@@ -1,6 +1,6 @@
 namespace Hub.Domain.Concepts.Requirements;
 
-public enum ConfirmationMode
+public enum RequirementVerificationMode
 {
     ManualByUser = 1,
     ManualByOrganizer = 2,

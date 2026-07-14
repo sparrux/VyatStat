@@ -75,6 +75,10 @@ static class EventEndpoints
             .HasApiVersion(1.0)
             .Produces<EventInviteeSummaryResponse>();
         
+        events.MapGet("/{eventId:guid}/invitees/me", GetInviteeBySelf)
+            .HasApiVersion(1.0)
+            .Produces<EventInviteeDetailsResponse>();
+        
         events.MapGet("/{eventId:guid}/invitees/{userId:guid}", GetInviteeByUserId)
             .HasApiVersion(1.0)
             .Produces<EventInviteeDetailsResponse>();
@@ -103,7 +107,7 @@ static class EventEndpoints
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
         
-        events.MapPut("/{eventId:guid}/requirements/{reqId:guid}/completion", UpdateCompletion)
+        events.MapPut("/{eventId:guid}/requirements/{reqId:guid}/completion/verify", UpdateCompletion)
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
     }
@@ -178,6 +182,13 @@ static class EventEndpoints
         return (await handler.Handle(new(eventId, inviteeUserId), ctk)).ToMinimalApiResult();
     }
     
+    static async Task<IResult> GetInviteeBySelf(
+        [FromRoute] Guid eventId,
+        [FromServices] IUserContext userContext,
+        [FromServices] IRequestHandler<GetInviteeByIdQuery, EventInviteeDetailsResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, userContext.UserId), ctk)).ToMinimalApiResult();
+    
     static async Task<IResult> GetInviteeByUserId(
         [FromRoute] Guid eventId,
         [FromRoute] Guid userId,
@@ -239,15 +250,15 @@ static class EventEndpoints
     static async Task<IResult> UpdateCompletion(
         [FromRoute] Guid eventId,
         [FromRoute] Guid reqId,
-        [FromQuery] EventRequirementCompletionStatus newStatus,
         [FromQuery] Guid? userId,
         [FromServices] IUserContext userContext,
         [FromServices] IRequestHandler<UpdateCompletionCommand, IdResponse> handler,
         CancellationToken ctk)
     {
+        var actor = userContext.UserId;
         var inviteeUserId = userId ?? userContext.UserId;
         return (await handler.Handle(
-            new(eventId, inviteeUserId, reqId, newStatus), ctk)
+            new(eventId, inviteeUserId, reqId, actor), ctk)
         ).ToMinimalApiResult();
     }
 }

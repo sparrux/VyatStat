@@ -42,7 +42,7 @@ sealed class EventToDetailsSpec : Specification<Event, EventDetailsResponse>
                         r.Title,
                         r.Description,
                         r.IsMandatory,
-                        r.ConfirmationMode)).ToList(),
+                        r.VerificationMode)).ToList(),
                 x.Invitees
                     .OrderBy(o => o.CreatedAt)
                     .Select(i => new EventInviteeSummaryResponse(

@@ -11,5 +11,5 @@ public sealed record CreateRequirementRequest(
     string Title,
     string? Description,
     bool IsMandatory,
-    ConfirmationMode ConfirmationMode
+    RequirementVerificationMode VerificationMode
 );

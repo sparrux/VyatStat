@@ -3,6 +3,7 @@ using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
 using Hub.Domain.Common;
 using Hub.Domain.Concepts.Requirements;
+using Hub.Domain.Events.Handlers;
 using Hub.Domain.Events.Invitees;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Groups;
@@ -206,12 +207,12 @@ public sealed class Event : AggregateRoot
     }
     
     public Result<EventRequirement> AddRequirement(
-        string title, string? description, bool isMandatory, ConfirmationMode confirmationMode)
+        string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
     {
         if (!IsDraft(State))
             return Result.Error("Event is not in draft state");
 
-        var createResult = EventRequirement.Create(title, description, isMandatory, confirmationMode);
+        var createResult = EventRequirement.Create(title, description, isMandatory, verificationMode);
         if (!createResult.IsSuccess) return createResult.Map();
 
         var requirement = createResult.Value;
@@ -225,7 +226,7 @@ public sealed class Event : AggregateRoot
         string title,
         string? description,
         bool isMandatory,
-        ConfirmationMode confirmationMode)
+        RequirementVerificationMode verificationMode)
     {
         if (!IsDraft(State))
             return Result.Error("Event is not in draft state");
@@ -233,32 +234,27 @@ public sealed class Event : AggregateRoot
         var requirement = Requirements.FirstOrDefault(r => r.Id == requirementId);
         return requirement is null 
             ? Result.NotFound("Event requirement is not found") 
-            : requirement.UpdateRequirement(title, description, isMandatory, confirmationMode);
+            : requirement.UpdateRequirement(title, description, isMandatory, verificationMode);
     }
     
-    public Result UpdateCompletionStatus(
-        Guid inviteeUserId,
-        Guid requirementId,
-        EventRequirementCompletionStatus completionStatus)
+    public Result VerifyCompletionByActor(Guid inviteeUser, Guid requirement, Guid actor)
     {
         if (IsFinished(State))
             return Result.Error("Event is finished already");
         
-        var invitee = Invitees.FirstOrDefault(x => x.UserId == inviteeUserId);
-        if (invitee is null)
-            return Result.NotFound("Event invitee is not found");
-        
-        var completion = invitee.RequirementCompletions
-            .FirstOrDefault(x => x.RequirementId == requirementId);
-        
-        if (completion is null)
-            return Result.NotFound("Event requirement completion is not found");
-        
-        var updateStatus = completion.UpdateCompletionStatus(completionStatus);
-
-        return updateStatus.Map();
+        var handler = new RequirementVerificationHandler(this);
+        return handler.SubmitVerification(new VerifyByActor(inviteeUser, requirement, actor));
     }
     
+    public Result VerifyCompletionByAutomatic(Guid inviteeUser, Guid requirement)
+    {
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
+        
+        var handler = new RequirementVerificationHandler(this);
+        return handler.SubmitVerification(new VerifyByAutomatic(inviteeUser, requirement));
+    }
+
     public Result RemoveRequirement(EventRequirement requirement)
     {
         if (!IsDraft(State))

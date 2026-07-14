@@ -7,5 +7,5 @@ public sealed record EventRequirementSummaryResponse(
     string Title,
     string? Description,
     bool IsMandatory,
-    ConfirmationMode ConfirmationMode
+    RequirementVerificationMode VerificationMode
 );

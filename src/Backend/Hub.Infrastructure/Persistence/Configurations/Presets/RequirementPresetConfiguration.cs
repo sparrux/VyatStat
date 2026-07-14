@@ -22,11 +22,11 @@ public sealed class RequirementPresetConfiguration : IEntityTypeConfiguration<Re
         builder.Property(r => r.IsMandatory)
             .IsRequired();
 
-        builder.Property(r => r.ConfirmationMode)
+        builder.Property(r => r.VerificationMode)
             .HasConversion<string>()
             .HasMaxLength(50)
             .IsRequired();
 
-        builder.HasIndex(x => x.ConfirmationMode);
+        builder.HasIndex(x => x.VerificationMode);
     }
 }

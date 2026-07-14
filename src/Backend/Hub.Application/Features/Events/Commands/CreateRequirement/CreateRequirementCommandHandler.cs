@@ -30,7 +30,7 @@ sealed class CreateRequirementCommandHandler(
             request.Title, 
             request.Description, 
             request.IsMandatory, 
-            request.ConfirmationMode);
+            request.VerificationMode);
 
         if (!addRequirement.IsSuccess) return addRequirement.Map();
 
@@ -43,6 +43,6 @@ sealed class CreateRequirementCommandHandler(
             requirement.Title,
             requirement.Description,
             requirement.IsMandatory,
-            requirement.ConfirmationMode));
+            requirement.VerificationMode));
     }
 }

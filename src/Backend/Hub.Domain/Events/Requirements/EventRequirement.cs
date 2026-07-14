@@ -22,8 +22,8 @@ public sealed class EventRequirement : Requirement
         string title, 
         string? description, 
         bool isMandatory, 
-        ConfirmationMode confirmationMode
-    ) : base(title, description, isMandatory, confirmationMode) { }
+        RequirementVerificationMode verificationMode
+    ) : base(title, description, isMandatory, verificationMode) { }
 
     public Guid EventId { get; private set; }
     public Event Event { get; private set; }
@@ -31,12 +31,21 @@ public sealed class EventRequirement : Requirement
     public IReadOnlyCollection<EventRequirementCompletion> Completions => _completions;
     
     internal static Result<EventRequirement> Create(
-        string title, string? description, bool isMandatory, ConfirmationMode confirmationMode)
+        string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
     {
         var titleValidation = new RequirementTitleValidator().Validate(title);
         if (!titleValidation.IsValid)
             return Result.Invalid(titleValidation.AsErrors());
         
-        return new EventRequirement(title, description, isMandatory, confirmationMode);
+        return new EventRequirement(title, description, isMandatory, verificationMode);
     }
+
+    public bool IsManualByUserMode() =>
+        VerificationMode is RequirementVerificationMode.ManualByUser;
+    
+    public bool IsManualByOrganizerMode() =>
+        VerificationMode is RequirementVerificationMode.ManualByOrganizer;
+    
+    public bool IsAutomaticMode() =>
+        VerificationMode is RequirementVerificationMode.Automatic;
 }

@@ -31,7 +31,7 @@ sealed class UpdateRequirementCommandHandler(
             request.Title,
             request.Description,
             request.IsMandatory,
-            request.ConfirmationMode);
+            request.VerificationMode);
 
         if (!updateRequirement.IsSuccess) return updateRequirement.Map();
         
