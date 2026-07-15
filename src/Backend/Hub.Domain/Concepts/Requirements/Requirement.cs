@@ -1,7 +1,5 @@
 using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
 using Hub.Domain.Common;
-using Hub.Domain.Validators;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -24,12 +22,11 @@ public abstract class Requirement : Auditable
     public bool IsMandatory { get; private set; }
     public RequirementVerificationMode VerificationMode { get; private set; }
     
-    public Result UpdateRequirement(
+    internal Result UpdateRequirement(
         string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
     {
-        var titleValidation = new RequirementTitleValidator().Validate(title);
-        if (!titleValidation.IsValid)
-            return Result.Invalid(titleValidation.AsErrors());
+        if (string.IsNullOrWhiteSpace(title))
+            return Result.Invalid(new ValidationError("Title cannot be null or whitespace"));
         
         Title = title;
         Description = description;

@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
 using Hub.Domain.Common;
-using Hub.Domain.Validators;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -28,18 +26,16 @@ public sealed class Group : Auditable
 
     public static Result<Group> Create(string name)
     {
-        var nameValidation = new GroupNameValidator().Validate(name);
-        if (!nameValidation.IsValid)
-            return Result.Invalid(nameValidation.AsErrors());
+        if (string.IsNullOrWhiteSpace(name))
+            return Result.Invalid(new ValidationError("Group name cannot be null or whitespace"));
         
         return Result.Success(new Group(name));
     }
 
     public Result UpdateName(string name)
     {
-        var nameValidation = new GroupNameValidator().Validate(name);
-        if (!nameValidation.IsValid)
-            return Result.Invalid(nameValidation.AsErrors());
+        if (string.IsNullOrWhiteSpace(name))
+            return Result.Invalid(new ValidationError("Group name cannot be null or whitespace"));
 
         Name = name;
         return Result.Success();

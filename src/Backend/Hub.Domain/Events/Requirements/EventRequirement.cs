@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
 using Hub.Domain.Concepts.Requirements;
-using Hub.Domain.Validators;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -33,9 +31,8 @@ public sealed class EventRequirement : Requirement
     internal static Result<EventRequirement> Create(
         string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
     {
-        var titleValidation = new RequirementTitleValidator().Validate(title);
-        if (!titleValidation.IsValid)
-            return Result.Invalid(titleValidation.AsErrors());
+        if (string.IsNullOrWhiteSpace(title))
+            return Result.Invalid(new ValidationError("Title cannot be null or whitespace"));
         
         return new EventRequirement(title, description, isMandatory, verificationMode);
     }

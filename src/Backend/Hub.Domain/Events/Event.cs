@@ -1,13 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
 using Hub.Domain.Common;
 using Hub.Domain.Concepts.Requirements;
 using Hub.Domain.Events.Handlers;
 using Hub.Domain.Events.Invitees;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Groups;
-using Hub.Domain.Validators;
 using Hub.Domain.ValueObjects;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -18,6 +16,7 @@ namespace Hub.Domain.Events;
 [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
 [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Local")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public sealed class Event : AggregateRoot
 {
     readonly List<EventGoal> _goals = [];
@@ -41,7 +40,7 @@ public sealed class Event : AggregateRoot
     public string Title { get; private set; }
     public RichText? Description { get; private set; }
     public DatesRange DatesRange { get; private set; }
-    public EventState State { get; private set; }
+    public EventState State { get; internal set; }
     public EventLocation? Location { get; private set; }
     
     public IReadOnlyCollection<EventGoal> Goals => _goals;
@@ -52,9 +51,8 @@ public sealed class Event : AggregateRoot
 
     public static Result<Event> CreateDraft(User organizer, string title, DatesRange dates)
     {
-        var titleValidation = new EventTitleValidator().Validate(title);
-        if (!titleValidation.IsValid)
-            return Result.Invalid(titleValidation.AsErrors());
+        if (string.IsNullOrWhiteSpace(title))
+            return Result.Invalid(new ValidationError("Event title cannot be null or whitespace"));
 
         var orgResult = EventOrganizer.Create(organizer);
         if (!orgResult.IsSuccess)
@@ -68,9 +66,8 @@ public sealed class Event : AggregateRoot
         if (IsFinished(State))
             return Result.Error("Event is finished already");
         
-        var titleValidation = new EventTitleValidator().Validate(title);
-        if (!titleValidation.IsValid)
-            return Result.Invalid(titleValidation.AsErrors());
+        if (string.IsNullOrWhiteSpace(title))
+            return Result.Invalid(new ValidationError("Event title cannot be null or whitespace"));
 
         Title = title;
         return Result.Success();
@@ -107,13 +104,9 @@ public sealed class Event : AggregateRoot
     {
         if (IsFinished(State))
             return Result.Error("Event is finished already");
-        
-        var stateValidation = new EventStateUpdateValidator(state).Validate(this);
-        if (!stateValidation.IsValid)
-            return Result.Invalid(stateValidation.AsErrors());
-        
-        State = state;
-        return Result.Success();
+
+        var switchHandler = new EventStateSwitch(this);
+        return switchHandler.SwitchState(state);
     }
 
     public Result UpdateLocation(string? name, Coordinates coordinates)
@@ -122,8 +115,8 @@ public sealed class Event : AggregateRoot
             return Result.Error("Event is finished already");
 
         var location = EventLocation.Create(name, coordinates);
-        if (location is { IsSuccess: false })
-            return Result.Error(new ErrorList(location.Errors));
+        if (!location.IsSuccess)
+            return location.Map();
         
         Location = location.Value;
         return Result.Success();
@@ -138,13 +131,17 @@ public sealed class Event : AggregateRoot
         return Result.Success();
     }
 
-    public Result AddGoal(EventGoal goal)
+    public Result<EventGoal> AddGoal(string title, GoalState state)
     {
         if (!IsDraft(State))
             return Result.Error("Event is not in draft state");
         
-        _goals.Add(goal);
-        return Result.Success();
+        var goal = EventGoal.Create(title, state);
+        if (goal is { IsSuccess: false })
+            return Result.Error(new ErrorList(goal.Errors));
+        
+        _goals.Add(goal.Value);
+        return Result.Success(goal.Value);
     }
 
     public Result RemoveGoal(EventGoal goal)
@@ -159,8 +156,8 @@ public sealed class Event : AggregateRoot
     
     public Result<EventInvitee> AddInvitee(User user)
     {
-        if (IsDraft(State) || IsFinished(State))
-            return Result.Error("Event is in draft state or finished");
+        if (!IsRegistrationOpen(State))
+            return Result.Error("Event registration must be open");
         
         if (Invitees.Any(x => x.UserId == user.Id))
             return Result.Error("Invitee already exists");
@@ -239,8 +236,8 @@ public sealed class Event : AggregateRoot
     
     public Result VerifyCompletionByActor(Guid inviteeUser, Guid requirement, Guid actor)
     {
-        if (IsFinished(State))
-            return Result.Error("Event is finished already");
+        if (!IsOngoing(State))
+            return Result.Error("Event must be ongoing");
         
         var handler = new RequirementVerificationHandler(this);
         return handler.SubmitVerification(new VerifyByActor(inviteeUser, requirement, actor));
@@ -248,8 +245,8 @@ public sealed class Event : AggregateRoot
     
     public Result VerifyCompletionByAutomatic(Guid inviteeUser, Guid requirement)
     {
-        if (IsFinished(State))
-            return Result.Error("Event is finished already");
+        if (!IsOngoing(State))
+            return Result.Error("Event must be ongoing");
         
         var handler = new RequirementVerificationHandler(this);
         return handler.SubmitVerification(new VerifyByAutomatic(inviteeUser, requirement));
@@ -273,6 +270,10 @@ public sealed class Event : AggregateRoot
         state 
             is EventState.Completed 
             or EventState.Cancelled;
+    
+    public static bool IsRegistrationOpen(EventState state) =>
+        state
+            is EventState.RegistrationOpen;
 
     public static bool IsOngoing(EventState state) =>
         state

@@ -36,20 +36,26 @@ public sealed class EventInvitee : Auditable
     internal static Result<EventInvitee> Create(User user) => 
         Result.Success(new EventInvitee(user));
 
-    public Result UpdateRsvpStatus(EventInviteeRsvpStatus status)
+    internal Result UpdateRsvpStatus(EventInviteeRsvpStatus status)
     {
         RsvpStatus = status;
         return Result.Success();
     }
     
-    public Result UpdateAdmissionStatus(EventAdmissionStatus status)
+    internal Result UpdateAdmissionStatus(EventAdmissionStatus status)
     {
         AdmissionStatus = status;
         return Result.Success();
     }
 
-    public Result<EventRequirementCompletion> AddCompletion(EventRequirement requirement)
+    internal Result<EventRequirementCompletion> AddCompletion(EventRequirement requirement)
     {
+        var exists = RequirementCompletions
+            .Any(c => c.RequirementId == requirement.Id);
+        
+        if (exists)
+            return Result.Error("Event requirement completion already exists");
+        
         var completion = EventRequirementCompletion
             .Create(this, requirement);
         
@@ -60,7 +66,7 @@ public sealed class EventInvitee : Auditable
         return completion;
     }
     
-    public Result RemoveCompletion(EventRequirementCompletion completion) => 
+    internal Result RemoveCompletion(EventRequirementCompletion completion) => 
         !_requirementCompletions.Remove(completion) 
             ? Result.NotFound("Event requirement completion not found") 
             : Result.Success();

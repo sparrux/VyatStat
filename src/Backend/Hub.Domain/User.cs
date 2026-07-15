@@ -1,11 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
 using Hub.Domain.Common;
 using Hub.Domain.Events;
 using Hub.Domain.Events.Invitees;
 using Hub.Domain.Groups;
-using Hub.Domain.Validators;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -35,23 +33,9 @@ public sealed class User : Auditable
 
     public static Result<User> Create(Guid id, string nickname)
     {
-        var nickValidation = new NicknameValidator().Validate(nickname);
-        if (!nickValidation.IsValid)
-            return Result.Invalid(nickValidation.AsErrors());
+        if (string.IsNullOrWhiteSpace(nickname))
+            return Result.Invalid(new ValidationError("User nickname cannot be null or whitespace"));
         
         return Result.Success(new User(id, nickname));
     }
-
-    public Result<GroupMember> CreateMembership(Group group) =>
-        GroupMember.Create(this, group)
-            .Map(x =>
-            {
-                _memberships.Add(x);
-                return x;
-            });
-
-    public Result RemoveMembership(GroupMember member) => 
-        !_memberships.Remove(member) 
-            ? Result.NotFound("Member not found") 
-            : Result.Success();
 }

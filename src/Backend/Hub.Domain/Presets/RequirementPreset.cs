@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
-using Ardalis.Result.FluentValidation;
 using Hub.Domain.Concepts.Requirements;
-using Hub.Domain.Validators;
 
 namespace Hub.Domain.Presets;
 
@@ -21,9 +19,8 @@ public sealed class RequirementPreset : Requirement
     public static Result<RequirementPreset> Create(
         string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
     {
-        var titleValidation = new RequirementTitleValidator().Validate(title);
-        if (!titleValidation.IsValid)
-            return Result.Invalid(titleValidation.AsErrors());
+        if (string.IsNullOrWhiteSpace(title))
+            return Result.Invalid(new ValidationError("Requirement preset title cannot be null or whitespace"));
         
         return new RequirementPreset(title, description, isMandatory, verificationMode);
     }
