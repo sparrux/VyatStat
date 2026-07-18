@@ -1,5 +1,6 @@
 using Hub.Domain;
 using Hub.Domain.Events;
+using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Invitees;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Groups;
@@ -23,6 +24,7 @@ public sealed class HubDbContext : DbContext
         
         Events = Set<Event>();
         EventGoals = Set<EventGoal>();
+        EventGoalsTasks = Set<EventGoalTask>();
         EventInvitees = Set<EventInvitee>();
         EventOrganizers = Set<EventOrganizer>();
         EventRequirements = Set<EventRequirement>();
@@ -41,6 +43,7 @@ public sealed class HubDbContext : DbContext
     
     public DbSet<Event> Events { get; }
     public DbSet<EventGoal> EventGoals { get; }
+    public DbSet<EventGoalTask> EventGoalsTasks { get; }
     public DbSet<EventInvitee> EventInvitees { get; }
     public DbSet<EventLocation> EventLocations { get; }
     public DbSet<EventOrganizer> EventOrganizers { get; }

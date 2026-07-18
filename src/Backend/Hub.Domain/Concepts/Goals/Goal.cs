@@ -12,30 +12,10 @@ public abstract class Goal : Auditable
 {
     protected Goal() { }
     
-    protected Goal(string title, int currentValue, int targetValue) 
-        : this(title, new GoalState(currentValue, targetValue)) { }
-    
-    protected Goal(string title, GoalState state)
+    protected Goal(string name)
     {
-        Title = title;
-        State = state;
+        Name = name;
     }
     
-    public string Title { get; private set; }
-    public GoalState State { get; private set; }
-
-    internal Result UpdateTitle(string title)
-    {
-        if (string.IsNullOrWhiteSpace(title))
-            return Result.Invalid(new ValidationError("Title cannot be null or whitespace"));
-        
-        Title = title;
-        return Result.Success();
-    }
-
-    internal Result UpdateState(GoalState state)
-    {
-        State = state;
-        return Result.Success();
-    }
+    public string Name { get; protected set; }
 }

@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
 using Hub.Domain.Concepts.Requirements;
+using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Handlers;
 using Hub.Domain.Events.Invitees;
 using Hub.Domain.Events.Requirements;
@@ -55,8 +56,7 @@ public sealed class Event : AggregateRoot
             return Result.Invalid(new ValidationError("Event title cannot be null or whitespace"));
 
         var orgResult = EventOrganizer.Create(organizer);
-        if (!orgResult.IsSuccess)
-            return orgResult.Map();
+        if (!orgResult.IsSuccess) return orgResult.Map();
         
         return Result.Success(new Event(orgResult.Value, title, dates));
     }
@@ -115,8 +115,7 @@ public sealed class Event : AggregateRoot
             return Result.Error("Event is finished already");
 
         var location = EventLocation.Create(name, coordinates);
-        if (!location.IsSuccess)
-            return location.Map();
+        if (!location.IsSuccess) return location.Map();
         
         Location = location.Value;
         return Result.Success();
@@ -131,27 +130,64 @@ public sealed class Event : AggregateRoot
         return Result.Success();
     }
 
-    public Result<EventGoal> AddGoal(string title, GoalState state)
+    public Result<EventGoal> AddGoal(string name)
     {
-        if (!IsDraft(State))
-            return Result.Error("Event is not in draft state");
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
         
-        var goal = EventGoal.Create(title, state);
-        if (goal is { IsSuccess: false })
-            return Result.Error(new ErrorList(goal.Errors));
+        var goal = EventGoal.Create(name);
+        if (!goal.IsSuccess) return goal;
         
         _goals.Add(goal.Value);
         return Result.Success(goal.Value);
     }
+    
+    public Result UpdateGoalName(EventGoal goal, string name)
+    {
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
+        
+        if (_goals.All(x => x.Id != goal.Id))
+            return Result.Error("Event goal is not found");
+
+        return goal.UpdateName(name);
+    }
+
+    public Result<EventGoalTask> CreateGoalTask(EventGoal goal, string taskName)
+    {
+        if (_goals.All(x => x.Id != goal.Id))
+            return Result.Error("Event Goal is not found");
+
+        return goal.CreateTask(taskName);
+    }
+    
+    public Result UpdateGoalTaskName(EventGoal goal, EventGoalTask task, string name)
+    {
+        if (_goals.All(x => x.Id != goal.Id))
+            return Result.Error("Event Goal is not found");
+        
+        if (goal.Tasks.All(x => x.Id != task.Id))
+            return Result.Error("Goal Task is not found");
+
+        return task.UpdateName(name);
+    }
+    
+    public Result RemoveGoalTask(EventGoal goal, EventGoalTask task)
+    {
+        if (_goals.All(x => x.Id != goal.Id))
+            return Result.Error("Event Goal is not found");
+
+        return goal.RemoveTask(task);
+    }
 
     public Result RemoveGoal(EventGoal goal)
     {
-        if (!IsDraft(State))
-            return Result.Error("Event is not in draft state");
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
         
         return _goals.Remove(goal)
             ? Result.Success()
-            : Result.NotFound("Event goal is not found");
+            : Result.NotFound("Event Goal is not found");
     }
     
     public Result<EventInvitee> AddInvitee(User user)
@@ -163,8 +199,7 @@ public sealed class Event : AggregateRoot
             return Result.Error("Invitee already exists");
 
         var inviteeResult = EventInvitee.Create(user);
-        if (!inviteeResult.IsSuccess)
-            return Result.Error(new ErrorList(inviteeResult.Errors));
+        if (!inviteeResult.IsSuccess) return inviteeResult;
 
         var invitee = inviteeResult.Value;
 
@@ -186,8 +221,7 @@ public sealed class Event : AggregateRoot
             return Result.Error("Organizer already exists");
 
         var organizer = EventOrganizer.Create(user);
-        if (!organizer.IsSuccess)
-            return Result.Error(new ErrorList(organizer.Errors));
+        if (!organizer.IsSuccess) return organizer;
         
         _organizers.Add(organizer.Value);
         return organizer;
@@ -210,7 +244,7 @@ public sealed class Event : AggregateRoot
             return Result.Error("Event is not in draft state");
 
         var createResult = EventRequirement.Create(title, description, isMandatory, verificationMode);
-        if (!createResult.IsSuccess) return createResult.Map();
+        if (!createResult.IsSuccess) return createResult;
 
         var requirement = createResult.Value;
 
