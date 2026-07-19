@@ -17,7 +17,7 @@ sealed class EventToSummarySpec : Specification<Event, EventSummaryResponse>
                 x.DatesRange.EndDate,
                 x.DatesRange.StartDate,
                 x.Location != null,
-                x.Invitees.Count,
+                x.Participants.Count,
                 x.Organizers.Count,
                 x.Requirements.Count,
                 x.Goals.Count));

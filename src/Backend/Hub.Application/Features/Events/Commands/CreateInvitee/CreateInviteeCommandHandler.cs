@@ -34,7 +34,7 @@ sealed class CreateInviteeCommandHandler(
 
         if (user is null) return Result.NotFound("User not found by id");
 
-        var inviteeResult = ev.AddInvitee(user);
+        var inviteeResult = ev.AddParticipant(user);
 
         if (!inviteeResult.IsSuccess) return inviteeResult.Map();
 

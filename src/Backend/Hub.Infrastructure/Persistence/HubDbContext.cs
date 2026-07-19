@@ -1,7 +1,7 @@
 using Hub.Domain;
 using Hub.Domain.Events;
 using Hub.Domain.Events.Goals;
-using Hub.Domain.Events.Invitees;
+using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Groups;
 using Hub.Domain.Presets;
@@ -23,9 +23,11 @@ public sealed class HubDbContext : DbContext
         RequirementPresets = Set<RequirementPreset>();
         
         Events = Set<Event>();
+        EventRoles = Set<EventRole>();
         EventGoals = Set<EventGoal>();
         EventGoalsTasks = Set<EventGoalTask>();
-        EventInvitees = Set<EventInvitee>();
+        EventParticipants = Set<EventParticipant>();
+        EventParticipantRoles = Set<EventParticipantRole>();
         EventOrganizers = Set<EventOrganizer>();
         EventRequirements = Set<EventRequirement>();
         EventLocations = Set<EventLocation>();
@@ -42,9 +44,11 @@ public sealed class HubDbContext : DbContext
     public DbSet<RequirementPreset> RequirementPresets { get; }
     
     public DbSet<Event> Events { get; }
+    public DbSet<EventRole> EventRoles { get; }
     public DbSet<EventGoal> EventGoals { get; }
     public DbSet<EventGoalTask> EventGoalsTasks { get; }
-    public DbSet<EventInvitee> EventInvitees { get; }
+    public DbSet<EventParticipant> EventParticipants { get; }
+    public DbSet<EventParticipantRole> EventParticipantRoles { get; }
     public DbSet<EventLocation> EventLocations { get; }
     public DbSet<EventOrganizer> EventOrganizers { get; }
     public DbSet<EventRequirement> EventRequirements { get; }

@@ -1,6 +1,6 @@
 using Ardalis.Result;
 using Hub.Domain.Common.Exceptions;
-using Hub.Domain.Events.Invitees;
+using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
 
 namespace Hub.Domain.Events.Handlers;
@@ -25,7 +25,7 @@ sealed class RequirementVerificationHandler(Event evt)
 {
     public Result SubmitVerification(Verification verification)
     {
-        var invitee = evt.Invitees.FindInvitee(verification.InviteeUser);
+        var invitee = evt.Participants.FindInvitee(verification.InviteeUser);
         if (invitee is null)
             return Result.NotFound("Invitee not found");
         
@@ -78,8 +78,8 @@ sealed class RequirementVerificationHandler(Event evt)
 
 file static class VerificationHelper
 {
-    public static EventInvitee? FindInvitee(
-        this IEnumerable<EventInvitee> invitees, Guid userId) =>
+    public static EventParticipant? FindInvitee(
+        this IEnumerable<EventParticipant> invitees, Guid userId) =>
         invitees.FirstOrDefault(i => i.UserId == userId);
     
     public static EventRequirement? FindRequirement(
@@ -92,12 +92,12 @@ file static class VerificationHelper
 
     public static bool Owns(
         this EventRequirementCompletion completion, Guid actor) =>
-        completion.Invitee.UserId == actor;
+        completion.Participant.UserId == actor;
     
     extension(Event evt)
     {
         public bool IsInvitee(Guid actor) =>
-            evt.Invitees.Any(x => x.UserId == actor);
+            evt.Participants.Any(x => x.UserId == actor);
 
         public bool IsOrganizer(Guid actor) =>
             evt.Organizers.Any(x => x.UserId == actor);

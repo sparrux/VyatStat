@@ -27,6 +27,7 @@ public sealed class EventLocationConfiguration : IEntityTypeConfiguration<EventL
 
         builder.HasOne(x => x.Event)
             .WithOne(x => x.Location)
+            .HasForeignKey<EventLocation>(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(l => l.EventId);

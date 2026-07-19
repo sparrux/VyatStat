@@ -32,11 +32,12 @@ public sealed class EventRequirementConfiguration : IEntityTypeConfiguration<Eve
             .HasForeignKey(r => r.EventId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.ConfigureCollection(r => r.Completions, "_completions");
-        
         builder.HasMany(x => x.Completions)
             .WithOne(x => x.Requirement)
+            .HasForeignKey(x => x.RequirementId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.ConfigureCollection(r => r.Completions, "_completions");
 
         builder.HasIndex(x => x.EventId);
         builder.HasIndex(x => x.VerificationMode);

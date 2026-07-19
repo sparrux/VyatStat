@@ -8,7 +8,7 @@ sealed class EventWithRequirementCompletionsSpec : Specification<Event>
     public EventWithRequirementCompletionsSpec()
     {
         Query
-            .Include(x => x.Invitees)
+            .Include(x => x.Participants)
             .ThenInclude(x => x.RequirementCompletions);
     }
 }

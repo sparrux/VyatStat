@@ -27,6 +27,7 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Domain.Events.
 
         builder.HasOne(x => x.Location)
             .WithOne(x => x.Event)
+            .HasForeignKey<Domain.Events.EventLocation>(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.ComplexProperty(x => x.DatesRange, dates =>
@@ -42,13 +43,18 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Domain.Events.
             .HasConversion<string>()
             .HasMaxLength(50)
             .IsRequired();
+        
+        builder.HasMany(x => x.Roles)
+            .WithOne(x => x.Event)
+            .HasForeignKey(x => x.EventId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(x => x.Goals)
             .WithOne(x => x.Event)
             .HasForeignKey(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        builder.HasMany(x => x.Invitees)
+        builder.HasMany(x => x.Participants)
             .WithOne(x => x.Event)
             .HasForeignKey(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -67,9 +73,10 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Domain.Events.
             .WithOne(x => x.Event)
             .HasForeignKey(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
+        builder.ConfigureCollection(e => e.Roles, "_roles");
         builder.ConfigureCollection(e => e.Goals, "_goals");
-        builder.ConfigureCollection(e => e.Invitees, "_invitees");
+        builder.ConfigureCollection(e => e.Participants, "_participants");
         builder.ConfigureCollection(e => e.GroupEvents, "_groupEvents");
         builder.ConfigureCollection(e => e.Organizers, "_organizers");
         builder.ConfigureCollection(e => e.Requirements, "_requirements");

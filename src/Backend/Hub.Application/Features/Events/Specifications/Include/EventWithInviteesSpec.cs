@@ -7,6 +7,6 @@ sealed class EventWithInviteesSpec : Specification<Event>
 {
     public EventWithInviteesSpec()
     {
-        Query.Include(x => x.Invitees);
+        Query.Include(x => x.Participants);
     }
 }

@@ -5,18 +5,20 @@ using Hub.Domain.Events.Requirements;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
-namespace Hub.Domain.Events.Invitees;
+namespace Hub.Domain.Events.Participants;
 
 [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-public sealed class EventInvitee : Auditable
+[SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
+public sealed class EventParticipant : Auditable
 {
+    readonly List<EventParticipantRole> _roles = [];
     readonly List<EventRequirementCompletion> _requirementCompletions = [];
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    EventInvitee() { }
+    EventParticipant() { }
     
-    EventInvitee(User user)
+    EventParticipant(User user)
     {
         User = user;
     }
@@ -26,27 +28,14 @@ public sealed class EventInvitee : Auditable
     
     public Guid EventId { get; private set; }
     public Event Event { get; private set; }
-    
-    public EventInviteeRsvpStatus RsvpStatus { get; private set; }
-    public EventAdmissionStatus AdmissionStatus { get; private set; }
 
+    public IReadOnlyCollection<EventParticipantRole> Roles => _roles;
+    
     public IReadOnlyCollection<EventRequirementCompletion> RequirementCompletions =>
         _requirementCompletions;
 
-    internal static Result<EventInvitee> Create(User user) => 
-        Result.Success(new EventInvitee(user));
-
-    internal Result UpdateRsvpStatus(EventInviteeRsvpStatus status)
-    {
-        RsvpStatus = status;
-        return Result.Success();
-    }
-    
-    internal Result UpdateAdmissionStatus(EventAdmissionStatus status)
-    {
-        AdmissionStatus = status;
-        return Result.Success();
-    }
+    internal static Result<EventParticipant> Create(User user) => 
+        Result.Success(new EventParticipant(user));
 
     internal Result<EventRequirementCompletion> AddCompletion(EventRequirement requirement)
     {

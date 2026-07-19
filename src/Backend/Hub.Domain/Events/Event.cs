@@ -4,7 +4,7 @@ using Hub.Domain.Common;
 using Hub.Domain.Concepts.Requirements;
 using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Handlers;
-using Hub.Domain.Events.Invitees;
+using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Groups;
 using Hub.Domain.ValueObjects;
@@ -20,22 +20,21 @@ namespace Hub.Domain.Events;
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public sealed class Event : AggregateRoot
 {
+    readonly List<EventRole> _roles = [];
     readonly List<EventGoal> _goals = [];
     readonly List<GroupEvent> _groupEvents = [];
-    readonly List<EventInvitee> _invitees = [];
+    readonly List<EventParticipant> _participants = [];
     readonly List<EventOrganizer> _organizers = [];
     readonly List<EventRequirement> _requirements = [];
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     Event() { }
 
-    Event(EventOrganizer organizer, string title, DatesRange dates)
+    Event(string title, DatesRange dates)
     {
         Title = title;
         DatesRange = dates;
         State = EventState.Draft;
-        
-        _organizers.Add(organizer);
     }
 
     public string Title { get; private set; }
@@ -44,21 +43,31 @@ public sealed class Event : AggregateRoot
     public EventState State { get; internal set; }
     public EventLocation? Location { get; private set; }
     
+    public IReadOnlyCollection<EventRole> Roles => _roles;
     public IReadOnlyCollection<EventGoal> Goals => _goals;
     public IReadOnlyCollection<GroupEvent> GroupEvents => _groupEvents;
-    public IReadOnlyCollection<EventInvitee> Invitees => _invitees;
+    public IReadOnlyCollection<EventParticipant> Participants => _participants;
     public IReadOnlyCollection<EventOrganizer> Organizers => _organizers;
     public IReadOnlyCollection<EventRequirement> Requirements => _requirements;
 
-    public static Result<Event> CreateDraft(User organizer, string title, DatesRange dates)
+    public static Result<Event> CreateDraft(
+        User organizer, string title, DatesRange dates)
     {
         if (string.IsNullOrWhiteSpace(title))
             return Result.Invalid(new ValidationError("Event title cannot be null or whitespace"));
 
-        var orgResult = EventOrganizer.Create(organizer);
-        if (!orgResult.IsSuccess) return orgResult.Map();
+        var evt = new Event(title, dates);
+
+        var role = evt.AddRole(EventRole.Organizer, isSealed: true);
+        if (!role.IsSuccess) return role.Map();
+
+        var participant = evt.AddParticipant(organizer);
+        if (!participant.IsSuccess) return participant.Map();
+
+        var participantRole = role.Value.AddParticipant(participant.Value);
+        if (!participantRole.IsSuccess) return participantRole.Map();
         
-        return Result.Success(new Event(orgResult.Value, title, dates));
+        return Result.Success(evt);
     }
 
     public Result UpdateTitle(string title)
@@ -130,6 +139,47 @@ public sealed class Event : AggregateRoot
         return Result.Success();
     }
 
+    public Result<EventRole> AddRole(string name, bool isSealed)
+    {
+        if (Roles.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)))
+            return Result.Error("Event Role with the same name already exists");
+        
+        var role = EventRole.Create(name, isSealed);
+        if (!role.IsSuccess) return role;
+        
+        _roles.Add(role.Value);
+        return Result.Success(role.Value);
+    }
+    
+    public Result RemoveRole(EventRole role)
+    {
+        if (Roles.Count <= 1)
+            return Result.Error("Event cannot have less than one role");
+        
+        return _roles.Remove(role)
+            ? Result.Success()
+            : Result.Error("Event Role is not found");
+    }
+
+    public Result<EventParticipantRole> AddParticipantRole(EventRole role, EventParticipant participant)
+    {
+        if (!Roles.Contains(role))
+            return Result.NotFound("Event Role is not found");
+
+        var participantRole = role.AddParticipant(participant);
+        return !participantRole.IsSuccess 
+            ? participantRole 
+            : Result.Success(participantRole.Value);
+    }
+    
+    public Result RemoveParticipantRole(EventRole role, EventParticipantRole participantRole)
+    {
+        if (!Roles.Contains(role))
+            return Result.NotFound("Event Role is not found");
+
+        return role.RemoveParticipant(participantRole);
+    }
+
     public Result<EventGoal> AddGoal(string name)
     {
         if (IsFinished(State))
@@ -153,7 +203,7 @@ public sealed class Event : AggregateRoot
         return goal.UpdateName(name);
     }
 
-    public Result<EventGoalTask> CreateGoalTask(EventGoal goal, string taskName)
+    public Result<EventGoalTask> AddGoalTask(EventGoal goal, string taskName)
     {
         if (_goals.All(x => x.Id != goal.Id))
             return Result.Error("Event Goal is not found");
@@ -190,26 +240,24 @@ public sealed class Event : AggregateRoot
             : Result.NotFound("Event Goal is not found");
     }
     
-    public Result<EventInvitee> AddInvitee(User user)
+    public Result<EventParticipant> AddParticipant(User user)
     {
         if (!IsRegistrationOpen(State))
             return Result.Error("Event registration must be open");
         
-        if (Invitees.Any(x => x.UserId == user.Id))
-            return Result.Error("Invitee already exists");
+        if (Participants.Any(x => x.UserId == user.Id))
+            return Result.Error("Participant already exists");
 
-        var inviteeResult = EventInvitee.Create(user);
-        if (!inviteeResult.IsSuccess) return inviteeResult;
-
-        var invitee = inviteeResult.Value;
+        var participant = EventParticipant.Create(user);
+        if (!participant.IsSuccess) return participant;
 
         foreach (var requirement in Requirements)
         {
-            invitee.AddCompletion(requirement);
+            participant.Value.AddCompletion(requirement);
         }
 
-        _invitees.Add(invitee);
-        return inviteeResult;
+        _participants.Add(participant.Value);
+        return participant;
     }
     
     public Result<EventOrganizer> AddOrganizer(User user)

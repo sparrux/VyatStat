@@ -8,6 +8,9 @@ namespace Hub.Domain.Events.Goals;
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
 public sealed class EventGoalTask : Entity
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    EventGoalTask() { }
+    
     EventGoalTask(string name)
     {
         Name = name;

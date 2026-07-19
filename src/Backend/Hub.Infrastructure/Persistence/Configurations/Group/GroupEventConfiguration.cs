@@ -19,7 +19,12 @@ public sealed class GroupEventConfiguration : IEntityTypeConfiguration<GroupEven
         
         builder.HasOne(x => x.Group)
             .WithMany(x => x.GroupEvents)
-            .HasForeignKey(x => x.EventId)
+            .HasForeignKey(x => x.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(x => x.EventId);
+        builder.HasIndex(x => x.GroupId);
+        builder.HasIndex(x => new { x.GroupId, x.EventId })
+            .IsUnique();
     }
 }

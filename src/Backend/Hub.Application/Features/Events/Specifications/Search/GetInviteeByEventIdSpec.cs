@@ -1,9 +1,9 @@
 using Ardalis.Specification;
-using Hub.Domain.Events.Invitees;
+using Hub.Domain.Events.Participants;
 
 namespace Hub.Application.Features.Events.Specifications.Search;
 
-sealed class GetInviteeByEventIdSpec : Specification<EventInvitee>
+sealed class GetInviteeByEventIdSpec : Specification<EventParticipant>
 {
     public GetInviteeByEventIdSpec(Guid eventId)
     {

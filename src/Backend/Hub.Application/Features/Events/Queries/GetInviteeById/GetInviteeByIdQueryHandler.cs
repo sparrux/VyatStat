@@ -18,7 +18,7 @@ sealed class GetInviteeByIdQueryHandler(
     public async Task<Result<EventInviteeDetailsResponse>> Handle(
         GetInviteeByIdQuery request, CancellationToken cancellationToken)
     {
-        var invitee = await dbContext.EventInvitees
+        var invitee = await dbContext.EventParticipants
             .WithSpecification(new GetInviteeByEventIdSpec(request.EventId))
             .WithSpecification(new GetInviteeByUserIdSpec(request.InviteeUserId))
             .WithSpecification(new InviteeToDetailsSpec())

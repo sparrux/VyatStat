@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
-using Hub.Domain.Events.Invitees;
+using Hub.Domain.Events.Participants;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -15,14 +15,14 @@ public sealed class EventRequirementCompletion : Auditable
     EventRequirementCompletion() { }
     
     EventRequirementCompletion(
-        EventInvitee invitee, EventRequirement requirement)
+        EventParticipant participant, EventRequirement requirement)
     {
-        Invitee = invitee;
+        Participant = participant;
         Requirement = requirement;
     }
     
     public Guid InviteeId { get; private set; }
-    public EventInvitee Invitee { get; private set; }
+    public EventParticipant Participant { get; private set; }
     
     public Guid RequirementId { get; private set; }
     public EventRequirement Requirement { get; private set; }
@@ -30,8 +30,8 @@ public sealed class EventRequirementCompletion : Auditable
     public RequirementVerificationStatus VerificationStatus { get; private set; }
     
     internal static Result<EventRequirementCompletion> Create(
-        EventInvitee eventInvitee, EventRequirement requirement) =>
-        Result.Success(new EventRequirementCompletion(eventInvitee, requirement));
+        EventParticipant eventParticipant, EventRequirement requirement) =>
+        Result.Success(new EventRequirementCompletion(eventParticipant, requirement));
     
     Result UpdateVerification(RequirementVerificationStatus verification)
     {

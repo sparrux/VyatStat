@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
 using Hub.Domain.Events;
-using Hub.Domain.Events.Invitees;
+using Hub.Domain.Events.Participants;
 using Hub.Domain.Groups;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -12,7 +12,7 @@ namespace Hub.Domain;
 [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
 public sealed class User : Auditable
 {
-    readonly List<EventInvitee> _invitees = [];
+    readonly List<EventParticipant> _participants = [];
     readonly List<GroupMember> _memberships = [];
     readonly List<EventOrganizer> _organizers = [];
 
@@ -28,7 +28,7 @@ public sealed class User : Auditable
     public string Nickname { get; private set; }
 
     public IReadOnlyCollection<GroupMember> Memberships => _memberships;
-    public IReadOnlyCollection<EventInvitee> Invitees => _invitees;
+    public IReadOnlyCollection<EventParticipant> Participants => _participants;
     public IReadOnlyCollection<EventOrganizer> Organizers => _organizers;
 
     public static Result<User> Create(Guid id, string nickname)

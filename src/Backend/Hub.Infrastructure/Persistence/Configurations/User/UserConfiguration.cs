@@ -18,7 +18,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<Domain.User>
         builder.HasIndex(u => u.Nickname)
             .IsUnique();
         
-        builder.HasMany(x => x.Invitees)
+        builder.HasMany(x => x.Participants)
             .WithOne(x => x.User)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -33,7 +33,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<Domain.User>
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.ConfigureCollection(u => u.Invitees, "_invitees");
+        builder.ConfigureCollection(u => u.Participants, "_participants");
         builder.ConfigureCollection(u => u.Organizers, "_organizers");
         builder.ConfigureCollection(u => u.Memberships, "_memberships");
     }

@@ -18,7 +18,7 @@ public sealed class EventRequirementCompletionConfiguration
             .HasMaxLength(50)
             .IsRequired();
         
-        builder.HasOne(x => x.Invitee)
+        builder.HasOne(x => x.Participant)
             .WithMany(x => x.RequirementCompletions)
             .HasForeignKey(x => x.InviteeId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -29,6 +29,8 @@ public sealed class EventRequirementCompletionConfiguration
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(x => x.InviteeId);
-        builder.HasIndex(x => x.InviteeId);
+        builder.HasIndex(x => x.RequirementId);
+        builder.HasIndex(x => new { x.InviteeId, x.RequirementId })
+            .IsUnique();
     }
 }

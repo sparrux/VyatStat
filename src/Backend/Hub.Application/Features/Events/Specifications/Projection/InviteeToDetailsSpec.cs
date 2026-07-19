@@ -1,11 +1,11 @@
 using Ardalis.Specification;
 using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Users.Contracts;
-using Hub.Domain.Events.Invitees;
+using Hub.Domain.Events.Participants;
 
 namespace Hub.Application.Features.Events.Specifications.Projection;
 
-sealed class InviteeToDetailsSpec : Specification<EventInvitee, EventInviteeDetailsResponse>
+sealed class InviteeToDetailsSpec : Specification<EventParticipant, EventInviteeDetailsResponse>
 {
     public InviteeToDetailsSpec()
     {
@@ -25,8 +25,6 @@ sealed class InviteeToDetailsSpec : Specification<EventInvitee, EventInviteeDeta
                             c.Requirement.Description,
                             c.Requirement.IsMandatory,
                             c.Requirement.VerificationMode),
-                        c.VerificationStatus)).ToList(),
-                x.RsvpStatus,
-                x.AdmissionStatus));
+                        c.VerificationStatus)).ToList()));
     }
 }
