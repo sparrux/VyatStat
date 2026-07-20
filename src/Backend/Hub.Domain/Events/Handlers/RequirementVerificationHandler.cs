@@ -2,6 +2,7 @@ using Ardalis.Result;
 using Hub.Domain.Common.Exceptions;
 using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
+using Hub.Domain.Extensions;
 
 namespace Hub.Domain.Events.Handlers;
 
@@ -98,9 +99,6 @@ file static class VerificationHelper
     {
         public bool IsInvitee(Guid actor) =>
             evt.Participants.Any(x => x.UserId == actor);
-
-        public bool IsOrganizer(Guid actor) =>
-            evt.Organizers.Any(x => x.UserId == actor);
 
         public bool IsParticipant(Guid actor) =>
             evt.IsInvitee(actor) || evt.IsOrganizer(actor);

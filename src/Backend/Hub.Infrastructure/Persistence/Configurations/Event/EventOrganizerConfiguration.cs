@@ -17,11 +17,6 @@ public sealed class EventOrganizerConfiguration : IEntityTypeConfiguration<Event
             .HasForeignKey(o => o.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(o => o.Event)
-            .WithMany(e => e.Organizers)
-            .HasForeignKey(o => o.EventId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => x.EventId);
     }
