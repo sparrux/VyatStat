@@ -10,7 +10,7 @@ namespace Hub.Domain.Events.Goals;
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
 public sealed class EventGoal : Goal
 {
-    readonly List<EventGoalTask> _tasks = new();
+    readonly List<EventGoalTask> _tasks = [];
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     EventGoal() { }

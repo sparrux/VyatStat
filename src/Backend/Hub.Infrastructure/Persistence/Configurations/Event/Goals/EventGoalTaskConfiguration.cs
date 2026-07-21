@@ -2,7 +2,7 @@ using Hub.Domain.Events.Goals;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Hub.Infrastructure.Persistence.Configurations.Event;
+namespace Hub.Infrastructure.Persistence.Configurations.Event.Goals;
 
 sealed class EventGoalTaskConfiguration : IEntityTypeConfiguration<EventGoalTask>
 {

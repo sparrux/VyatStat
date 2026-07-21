@@ -31,8 +31,14 @@ public sealed class EventParticipantConfiguration : IEntityTypeConfiguration<Eve
             .WithOne(x => x.AssignParticipant)
             .HasForeignKey(x => x.AssignParticipantId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(x => x.Tasks)
+            .WithOne(x => x.ParticipantAssignment)
+            .HasForeignKey(x => x.ParticipantAssignmentId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.ConfigureCollection(i => i.Roles, "_roles");
+        builder.ConfigureCollection(i => i.Tasks, "_tasks");
         builder.ConfigureCollection(i => i.Requirements, "_requirements");
 
         builder.HasIndex(x => x.UserId);

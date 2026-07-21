@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
+using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Requirements;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -13,6 +14,7 @@ namespace Hub.Domain.Events.Participants;
 public sealed class EventParticipant : Auditable
 {
     readonly List<EventParticipantRole> _roles = [];
+    readonly List<EventGoalTaskAssignment> _tasks = [];
     readonly List<EventRequirementAssignment> _requirements = [];
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
@@ -30,6 +32,7 @@ public sealed class EventParticipant : Auditable
     public Event Event { get; private set; }
 
     public IReadOnlyCollection<EventParticipantRole> Roles => _roles;
+    public IReadOnlyCollection<EventGoalTaskAssignment> Tasks => _tasks;
     public IReadOnlyCollection<EventRequirementAssignment> Requirements => _requirements;
 
     internal static Result<EventParticipant> Create(User user) => 
