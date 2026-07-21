@@ -1,11 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
+using Hub.Domain.Events.Requirements;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
 namespace Hub.Domain.Events.Participants;
 
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+[SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
 public sealed class EventParticipantRole : Entity
 {
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
@@ -22,9 +25,9 @@ public sealed class EventParticipantRole : Entity
 
     public Guid ParticipantId { get; private set; }
     public EventParticipant Participant { get; private set; }
-    
-    internal static Result<EventParticipantRole> Create(EventRole role, EventParticipant participant)
-    {
-        return new EventParticipantRole(role, participant);
-    }
+
+    internal static Result<EventParticipantRole> Create(
+        EventRole role,
+        EventParticipant participant
+    ) => new EventParticipantRole(role, participant);
 }

@@ -63,6 +63,9 @@ public sealed class EventRole : Entity
     
     internal Result RemoveParticipant(EventParticipantRole participantRole)
     {
+        if (IsSealed)
+            return Result.Error("Participant Role cannot be removed because sealed");
+        
         return !_participants.Remove(participantRole)
             ? Result.NotFound("Participant Role not found")
             : Result.Success();

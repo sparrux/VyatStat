@@ -18,15 +18,5 @@ public sealed class RequirementPresetConfiguration : IEntityTypeConfiguration<Re
 
         builder.Property(r => r.Description)
             .HasMaxLength(2000);
-
-        builder.Property(r => r.IsMandatory)
-            .IsRequired();
-
-        builder.Property(r => r.VerificationMode)
-            .HasConversion<string>()
-            .HasMaxLength(50)
-            .IsRequired();
-
-        builder.HasIndex(x => x.VerificationMode);
     }
 }

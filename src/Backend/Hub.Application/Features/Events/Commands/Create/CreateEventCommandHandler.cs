@@ -46,7 +46,6 @@ sealed class CreateEventCommandHandler(
             ev.DatesRange.StartDate,
             ev.Location is not null,
             ev.Participants.Count,
-            ev.Organizers.Count,
             ev.Requirements.Count,
             ev.Goals.Count
         ));

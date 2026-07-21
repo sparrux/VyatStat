@@ -1,11 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
-using Hub.Domain.Concepts.Requirements;
 using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Handlers;
 using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
+using Hub.Domain.Extensions;
 using Hub.Domain.Groups;
 using Hub.Domain.ValueObjects;
 
@@ -24,7 +24,6 @@ public sealed class Event : AggregateRoot
     readonly List<EventGoal> _goals = [];
     readonly List<GroupEvent> _groupEvents = [];
     readonly List<EventParticipant> _participants = [];
-    readonly List<EventOrganizer> _organizers = [];
     readonly List<EventRequirement> _requirements = [];
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
@@ -47,7 +46,6 @@ public sealed class Event : AggregateRoot
     public IReadOnlyCollection<EventGoal> Goals => _goals;
     public IReadOnlyCollection<GroupEvent> GroupEvents => _groupEvents;
     public IReadOnlyCollection<EventParticipant> Participants => _participants;
-    public IReadOnlyCollection<EventOrganizer> Organizers => _organizers;
     public IReadOnlyCollection<EventRequirement> Requirements => _requirements;
 
     public static Result<Event> CreateDraft(
@@ -165,6 +163,9 @@ public sealed class Event : AggregateRoot
     {
         if (!Roles.Contains(role))
             return Result.NotFound("Event Role is not found");
+        
+        if (Participants.AlreadyInRole(role, participant.UserId))
+            return Result.Error("Participant already has this role");
 
         var participantRole = role.AddParticipant(participant);
         return !participantRole.IsSuccess 
@@ -253,45 +254,19 @@ public sealed class Event : AggregateRoot
 
         foreach (var requirement in Requirements)
         {
-            participant.Value.AddCompletion(requirement);
+            participant.Value.Assign(requirement);
         }
 
         _participants.Add(participant.Value);
         return participant;
     }
     
-    public Result<EventOrganizer> AddOrganizer(User user)
-    {
-        if (IsFinished(State))
-            return Result.Error("Event is finished already");
-        
-        if (Organizers.Any(x => x.UserId == user.Id))
-            return Result.Error("Organizer already exists");
-
-        var organizer = EventOrganizer.Create(user);
-        if (!organizer.IsSuccess) return organizer;
-        
-        _organizers.Add(organizer.Value);
-        return organizer;
-    }
-    
-    public Result RemoveOrganizer(EventOrganizer organizer)
-    {
-        if (IsFinished(State))
-            return Result.Error("Event is finished already");
-
-        return _organizers.Remove(organizer)
-            ? Result.Success()
-            : Result.NotFound("Event organizer is not found");
-    }
-    
-    public Result<EventRequirement> AddRequirement(
-        string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
+    public Result<EventRequirement> AddRequirement(string title, string? description)
     {
         if (!IsDraft(State))
             return Result.Error("Event is not in draft state");
 
-        var createResult = EventRequirement.Create(title, description, isMandatory, verificationMode);
+        var createResult = EventRequirement.Create(title, description);
         if (!createResult.IsSuccess) return createResult;
 
         var requirement = createResult.Value;
@@ -300,12 +275,7 @@ public sealed class Event : AggregateRoot
         return Result.Success(requirement);
     }
     
-    public Result UpdateRequirement(
-        Guid requirementId,
-        string title,
-        string? description,
-        bool isMandatory,
-        RequirementVerificationMode verificationMode)
+    public Result UpdateRequirement(Guid requirementId, string title, string? description)
     {
         if (!IsDraft(State))
             return Result.Error("Event is not in draft state");
@@ -313,7 +283,15 @@ public sealed class Event : AggregateRoot
         var requirement = Requirements.FirstOrDefault(r => r.Id == requirementId);
         return requirement is null 
             ? Result.NotFound("Event requirement is not found") 
-            : requirement.UpdateRequirement(title, description, isMandatory, verificationMode);
+            : requirement.UpdateRequirement(title, description);
+    }
+
+    public Result<EventRequirementRoleVerifier> AddRequirementRoleVerifier(EventRequirement requirement, EventRole role, bool isRequired)
+    {
+        if (IsFinished(State))
+            return Result.Error("Event is finished");
+        
+        return requirement.AddRoleVerifier(role, isRequired);
     }
     
     public Result VerifyCompletionByActor(Guid inviteeUser, Guid requirement, Guid actor)

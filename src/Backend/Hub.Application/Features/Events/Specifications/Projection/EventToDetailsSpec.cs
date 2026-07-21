@@ -28,21 +28,12 @@ sealed class EventToDetailsSpec : Specification<Event, EventDetailsResponse>
                         x.Location.Coordinates.Latitude,
                         x.Location.Coordinates.Longitude)
                     : null,
-                x.Organizers
-                    .OrderBy(o => o.CreatedAt)
-                    .Select(o => new EventOrganizerSummaryResponse(
-                        o.Id,
-                        new UserSummaryResponse(
-                            o.User.Id,
-                            o.User.Nickname))).ToList(),
                 x.Requirements
                     .OrderByDescending(r => r.CreatedAt)
                     .Select(r => new EventRequirementSummaryResponse(
                         r.Id,
                         r.Title,
-                        r.Description,
-                        r.IsMandatory,
-                        r.VerificationMode)).ToList(),
+                        r.Description)).ToList(),
                 x.Participants
                     .OrderBy(o => o.CreatedAt)
                     .Select(i => new EventInviteeSummaryResponse(

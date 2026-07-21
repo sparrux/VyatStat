@@ -12,6 +12,8 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
+await app.Services.MigrateDatabaseAsync();
+
 app.MapDefaultEndpoints();
 
 if (app.Environment.IsDevelopment())
@@ -30,7 +32,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapEndpoints();
-
-await app.Services.MigrateDatabaseAsync();
 
 app.Run();

@@ -9,29 +9,23 @@ public abstract class Requirement : Auditable
 {
     protected Requirement() { }
 
-    protected Requirement(string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
+    protected Requirement(string title, string? description)
     {
         Title = title;
         Description = description;
-        IsMandatory = isMandatory;
-        VerificationMode = verificationMode;
     }
     
     public string Title { get; private set; }
     public string? Description { get; private set; }
-    public bool IsMandatory { get; private set; }
-    public RequirementVerificationMode VerificationMode { get; private set; }
     
     internal Result UpdateRequirement(
-        string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
+        string title, string? description)
     {
         if (string.IsNullOrWhiteSpace(title))
             return Result.Invalid(new ValidationError("Title cannot be null or whitespace"));
         
         Title = title;
         Description = description;
-        IsMandatory = isMandatory;
-        VerificationMode = verificationMode;
         
         return Result.Success();
     }

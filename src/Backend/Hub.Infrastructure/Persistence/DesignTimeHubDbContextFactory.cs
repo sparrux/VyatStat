@@ -8,7 +8,7 @@ public sealed class DesignTimeHubDbContextFactory : IDesignTimeDbContextFactory<
     public HubDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<HubDbContext>()
-            .UseNpgsql("Host=localhost;Database=vt-tracker;Username=postgres;Password=postgres")
+            .UseNpgsql("Host=localhost;Database=vt-tracker;Username=username;Password=password")
             .Options;
 
         return new HubDbContext(options);

@@ -9,6 +9,6 @@ sealed class EventWithRequirementCompletionsSpec : Specification<Event>
     {
         Query
             .Include(x => x.Participants)
-            .ThenInclude(x => x.RequirementCompletions);
+            .ThenInclude(x => x.Requirements);
     }
 }

@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
-using Hub.Domain.Events;
 using Hub.Domain.Events.Participants;
 using Hub.Domain.Groups;
 
@@ -14,7 +13,6 @@ public sealed class User : Auditable
 {
     readonly List<EventParticipant> _participants = [];
     readonly List<GroupMember> _memberships = [];
-    readonly List<EventOrganizer> _organizers = [];
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     User() { }
@@ -29,7 +27,6 @@ public sealed class User : Auditable
 
     public IReadOnlyCollection<GroupMember> Memberships => _memberships;
     public IReadOnlyCollection<EventParticipant> Participants => _participants;
-    public IReadOnlyCollection<EventOrganizer> Organizers => _organizers;
 
     public static Result<User> Create(Guid id, string nickname)
     {

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Concepts.Requirements;
+using Hub.Domain.Events.Participants;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -11,38 +12,56 @@ namespace Hub.Domain.Events.Requirements;
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
 public sealed class EventRequirement : Requirement
 {
-    readonly List<EventRequirementCompletion> _completions = [];
-    
+    readonly List<EventRequirementVerifier> _verifiers = [];
+    readonly List<EventRequirementAssignment> _assignments = [];
+
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     EventRequirement() { }
 
     EventRequirement(
         string title, 
-        string? description, 
-        bool isMandatory, 
-        RequirementVerificationMode verificationMode
-    ) : base(title, description, isMandatory, verificationMode) { }
+        string? description
+    ) : base(title, description) { }
 
     public Guid EventId { get; private set; }
     public Event Event { get; private set; }
 
-    public IReadOnlyCollection<EventRequirementCompletion> Completions => _completions;
+    public IReadOnlyCollection<EventRequirementVerifier> Verifiers => _verifiers;
+    public IReadOnlyCollection<EventRequirementAssignment> Assignments => _assignments;
     
     internal static Result<EventRequirement> Create(
-        string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
+        string title, string? description)
     {
         if (string.IsNullOrWhiteSpace(title))
             return Result.Invalid(new ValidationError("Title cannot be null or whitespace"));
         
-        return new EventRequirement(title, description, isMandatory, verificationMode);
+        return new EventRequirement(title, description);
     }
 
-    public bool IsManualByUserMode() =>
-        VerificationMode is RequirementVerificationMode.ManualByUser;
+    internal Result<EventRequirementRoleVerifier> AddRoleVerifier(EventRole role, bool isRequired)
+    {
+        if (Verifiers.OfType<EventRequirementRoleVerifier>()
+            .Any(x => x.Verifier == role))
+            return Result.Error("Event Role already added to verifiers");
+
+        var verifier = EventRequirementRoleVerifier.Create(isRequired, role);
+        if (!verifier.IsSuccess) return verifier;
+        
+        _verifiers.Add(verifier.Value);
+        return verifier;
+    }
     
-    public bool IsManualByOrganizerMode() =>
-        VerificationMode is RequirementVerificationMode.ManualByOrganizer;
-    
-    public bool IsAutomaticMode() =>
-        VerificationMode is RequirementVerificationMode.Automatic;
+    internal Result<EventRequirementParticipantVerifier> AddParticipantVerifier(
+        EventParticipant participant, bool isRequired)
+    {
+        if (Verifiers.OfType<EventRequirementParticipantVerifier>()
+            .Any(x => x.Verifier == participant))
+            return Result.Error("Participant already added to verifiers");
+
+        var verifier = EventRequirementParticipantVerifier.Create(isRequired, participant);
+        if (!verifier.IsSuccess) return verifier;
+        
+        _verifiers.Add(verifier.Value);
+        return verifier;
+    }
 }

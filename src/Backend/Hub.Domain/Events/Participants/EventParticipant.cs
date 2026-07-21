@@ -13,7 +13,7 @@ namespace Hub.Domain.Events.Participants;
 public sealed class EventParticipant : Auditable
 {
     readonly List<EventParticipantRole> _roles = [];
-    readonly List<EventRequirementCompletion> _requirementCompletions = [];
+    readonly List<EventRequirementAssignment> _requirements = [];
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     EventParticipant() { }
@@ -30,33 +30,31 @@ public sealed class EventParticipant : Auditable
     public Event Event { get; private set; }
 
     public IReadOnlyCollection<EventParticipantRole> Roles => _roles;
-    
-    public IReadOnlyCollection<EventRequirementCompletion> RequirementCompletions =>
-        _requirementCompletions;
+    public IReadOnlyCollection<EventRequirementAssignment> Requirements => _requirements;
 
     internal static Result<EventParticipant> Create(User user) => 
         Result.Success(new EventParticipant(user));
 
-    internal Result<EventRequirementCompletion> AddCompletion(EventRequirement requirement)
+    internal Result<EventRequirementAssignment> Assign(EventRequirement requirement)
     {
-        var exists = RequirementCompletions
-            .Any(c => c.RequirementId == requirement.Id);
+        var exists = Requirements
+            .Any(c => c.Requirement == requirement);
         
         if (exists)
             return Result.Error("Event requirement completion already exists");
         
-        var completion = EventRequirementCompletion
+        var completion = EventRequirementAssignment
             .Create(this, requirement);
         
         if (!completion.IsSuccess)
             return completion;
 
-        _requirementCompletions.Add(completion.Value);
+        _requirements.Add(completion.Value);
         return completion;
     }
     
-    internal Result RemoveCompletion(EventRequirementCompletion completion) => 
-        !_requirementCompletions.Remove(completion) 
+    internal Result RemoveAssignment(EventRequirementAssignment completion) => 
+        !_requirements.Remove(completion) 
             ? Result.NotFound("Event requirement completion not found") 
             : Result.Success();
 }

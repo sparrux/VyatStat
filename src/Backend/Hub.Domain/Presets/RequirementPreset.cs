@@ -11,17 +11,15 @@ public sealed class RequirementPreset : Requirement
 
     RequirementPreset(
         string title, 
-        string? description, 
-        bool isMandatory, 
-        RequirementVerificationMode verificationMode
-    ) : base(title, description, isMandatory, verificationMode) { }
+        string? description
+    ) : base(title, description) { }
     
     public static Result<RequirementPreset> Create(
-        string title, string? description, bool isMandatory, RequirementVerificationMode verificationMode)
+        string title, string? description)
     {
         if (string.IsNullOrWhiteSpace(title))
             return Result.Invalid(new ValidationError("Requirement preset title cannot be null or whitespace"));
         
-        return new RequirementPreset(title, description, isMandatory, verificationMode);
+        return new RequirementPreset(title, description);
     }
 }

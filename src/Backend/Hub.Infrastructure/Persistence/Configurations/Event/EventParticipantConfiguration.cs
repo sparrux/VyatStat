@@ -27,13 +27,13 @@ public sealed class EventParticipantConfiguration : IEntityTypeConfiguration<Eve
             .HasForeignKey(x => x.ParticipantId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(x => x.RequirementCompletions)
-            .WithOne(x => x.Participant)
-            .HasForeignKey(x => x.InviteeId)
+        builder.HasMany(x => x.Requirements)
+            .WithOne(x => x.AssignParticipant)
+            .HasForeignKey(x => x.AssignParticipantId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.ConfigureCollection(i => i.Roles, "_roles");
-        builder.ConfigureCollection(i => i.RequirementCompletions, "_requirementCompletions");
+        builder.ConfigureCollection(i => i.Requirements, "_requirements");
 
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => x.EventId);

@@ -3,17 +3,13 @@ using Hub.Application.Abstractions;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
 using Hub.Application.Features.Events.Commands.CreateInvitee;
-using Hub.Application.Features.Events.Commands.CreateOrganizer;
-using Hub.Application.Features.Events.Commands.CreateRequirement;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
-using Hub.Application.Features.Events.Commands.DeleteOrganizer;
 using Hub.Application.Features.Events.Commands.DeleteRequirement;
 using Hub.Application.Features.Events.Commands.UpdateCompletion;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
-using Hub.Application.Features.Events.Commands.UpdateRequirement;
 using Hub.Application.Features.Events.Commands.UpdateState;
 using Hub.Application.Features.Events.Commands.UpdateTitle;
 using Hub.Application.Features.Events.Contracts;
@@ -22,7 +18,6 @@ using Hub.Application.Features.Events.Queries.GetById;
 using Hub.Application.Features.Events.Queries.GetInviteeById;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Domain.Events.Requirements;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hub.Web.Endpoints;
@@ -83,27 +78,11 @@ static class EventEndpoints
             .HasApiVersion(1.0)
             .Produces<EventInviteeDetailsResponse>();
         
-        events.MapDelete("/{eventId:guid}/organizers", DeleteOrganizer)
-            .HasApiVersion(1.0)
-            .Produces<IdResponse>();
-        
-        events.MapPost("/{eventId:guid}/organizers", CreateOrganizer)
-            .HasApiVersion(1.0)
-            .Produces<EventOrganizerSummaryResponse>();
-        
         events.MapPut("/{eventId:guid}/state", UpdateState)
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
         
         events.MapDelete("/{eventId:guid}/requirements/{reqId:guid}", DeleteRequirement)
-            .HasApiVersion(1.0)
-            .Produces<IdResponse>();
-        
-        events.MapPost("/{eventId:guid}/requirements", CreateRequirement)
-            .HasApiVersion(1.0)
-            .Produces<EventOrganizerSummaryResponse>();
-        
-        events.MapPut("/{eventId:guid}/requirements/{reqId:guid}", UpdateRequirement)
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
         
@@ -196,28 +175,6 @@ static class EventEndpoints
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId, userId), ctk)).ToMinimalApiResult();
 
-    static async Task<IResult> DeleteOrganizer(
-        [FromRoute] Guid eventId,
-        [FromQuery] Guid? userId,
-        [FromServices] IUserContext userContext,
-        [FromServices] IRequestHandler<DeleteOrganizerCommand, IdResponse> handler,
-        CancellationToken ctk)
-    {
-        var organizerUserId = userId ?? userContext.UserId;
-        return (await handler.Handle(new(eventId, organizerUserId), ctk)).ToMinimalApiResult();
-    }
-
-    static async Task<IResult> CreateOrganizer(
-        [FromRoute] Guid eventId,
-        [FromQuery] Guid? userId,
-        [FromServices] IUserContext userContext,
-        [FromServices] IRequestHandler<CreateOrganizerCommand, EventOrganizerSummaryResponse> handler,
-        CancellationToken ctk)
-    {
-        var organizerUserId = userId ?? userContext.UserId;
-        return (await handler.Handle(new(eventId, organizerUserId), ctk)).ToMinimalApiResult();
-    }
-    
     static async Task<IResult> UpdateState(
         [FromRoute] Guid eventId,
         [FromQuery] EventState state,
@@ -232,21 +189,6 @@ static class EventEndpoints
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId, reqId), ctk)).ToMinimalApiResult();
     
-    static async Task<IResult> CreateRequirement(
-        [FromRoute] Guid eventId,
-        [FromBody] CreateRequirementRequest request,
-        [FromServices] IRequestHandler<CreateRequirementCommand, EventRequirementSummaryResponse> handler,
-        CancellationToken ctk) =>
-        (await handler.Handle(new(eventId, request), ctk)).ToMinimalApiResult();
-
-    static async Task<IResult> UpdateRequirement(
-        [FromRoute] Guid eventId,
-        [FromRoute] Guid reqId,
-        [FromBody] UpdateRequirementRequest request,
-        [FromServices] IRequestHandler<UpdateRequirementCommand, IdResponse> handler,
-        CancellationToken ctk) =>
-        (await handler.Handle(new(eventId, reqId, request), ctk)).ToMinimalApiResult();
-
     static async Task<IResult> UpdateCompletion(
         [FromRoute] Guid eventId,
         [FromRoute] Guid reqId,

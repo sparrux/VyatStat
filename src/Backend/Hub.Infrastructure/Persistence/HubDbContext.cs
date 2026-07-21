@@ -28,10 +28,9 @@ public sealed class HubDbContext : DbContext
         EventGoalsTasks = Set<EventGoalTask>();
         EventParticipants = Set<EventParticipant>();
         EventParticipantRoles = Set<EventParticipantRole>();
-        EventOrganizers = Set<EventOrganizer>();
         EventRequirements = Set<EventRequirement>();
         EventLocations = Set<EventLocation>();
-        EventRequirementCompletions = Set<EventRequirementCompletion>();
+        EventRequirementCompletions = Set<EventRequirementAssignment>();
     }
     
     public DbSet<User> Users { get; }
@@ -50,9 +49,8 @@ public sealed class HubDbContext : DbContext
     public DbSet<EventParticipant> EventParticipants { get; }
     public DbSet<EventParticipantRole> EventParticipantRoles { get; }
     public DbSet<EventLocation> EventLocations { get; }
-    public DbSet<EventOrganizer> EventOrganizers { get; }
     public DbSet<EventRequirement> EventRequirements { get; }
-    public DbSet<EventRequirementCompletion> EventRequirementCompletions { get; }
+    public DbSet<EventRequirementAssignment> EventRequirementCompletions { get; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

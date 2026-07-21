@@ -16,15 +16,12 @@ sealed class InviteeToDetailsSpec : Specification<EventParticipant, EventInvitee
                 new UserSummaryResponse(
                     x.User.Id,
                     x.User.Nickname),
-                x.RequirementCompletions.Select(
+                x.Requirements.Select(
                     c => new RequirementCompletionResponse(
                         c.Id,
                         new EventRequirementSummaryResponse(
                             c.Requirement.Id,
                             c.Requirement.Title,
-                            c.Requirement.Description,
-                            c.Requirement.IsMandatory,
-                            c.Requirement.VerificationMode),
-                        c.VerificationStatus)).ToList()));
+                            c.Requirement.Description))).ToList()));
     }
 }

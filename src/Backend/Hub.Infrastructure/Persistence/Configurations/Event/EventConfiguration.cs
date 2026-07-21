@@ -64,11 +64,6 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Domain.Events.
             .HasForeignKey(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        builder.HasMany(x => x.Organizers)
-            .WithOne(x => x.Event)
-            .HasForeignKey(x => x.EventId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
         builder.HasMany(x => x.Requirements)
             .WithOne(x => x.Event)
             .HasForeignKey(x => x.EventId)
@@ -78,7 +73,6 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Domain.Events.
         builder.ConfigureCollection(e => e.Goals, "_goals");
         builder.ConfigureCollection(e => e.Participants, "_participants");
         builder.ConfigureCollection(e => e.GroupEvents, "_groupEvents");
-        builder.ConfigureCollection(e => e.Organizers, "_organizers");
         builder.ConfigureCollection(e => e.Requirements, "_requirements");
 
         builder.HasIndex(x => x.State);
