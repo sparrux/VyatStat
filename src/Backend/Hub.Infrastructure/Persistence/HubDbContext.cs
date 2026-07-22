@@ -4,6 +4,7 @@ using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Groups;
+using Hub.Domain.Groups.Training;
 using Hub.Domain.Presets;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,9 @@ public sealed class HubDbContext : DbContext
     public HubDbContext(DbContextOptions options) : base(options)
     {
         Users = Set<User>();
+        
+        TrainingModules = Set<TrainingModule>();
+        TrainingModuleRatings = Set<TrainingRating>();
         
         Groups = Set<Group>();
         GroupEvent = Set<GroupEvent>();
@@ -30,10 +34,13 @@ public sealed class HubDbContext : DbContext
         EventParticipantRoles = Set<EventParticipantRole>();
         EventRequirements = Set<EventRequirement>();
         EventLocations = Set<EventLocation>();
-        EventRequirementCompletions = Set<EventRequirementAssignment>();
+        EventRequirementAssignments = Set<EventRequirementAssignment>();
     }
     
     public DbSet<User> Users { get; }
+    
+    public DbSet<TrainingModule> TrainingModules { get; }
+    public DbSet<TrainingRating> TrainingModuleRatings { get; }
     
     public DbSet<Group> Groups { get; }
     public DbSet<GroupEvent> GroupEvent { get; }
@@ -45,12 +52,12 @@ public sealed class HubDbContext : DbContext
     public DbSet<Event> Events { get; }
     public DbSet<EventRole> EventRoles { get; }
     public DbSet<EventGoal> EventGoals { get; }
+    public DbSet<EventLocation> EventLocations { get; }
+    public DbSet<EventRequirement> EventRequirements { get; }
     public DbSet<EventGoalTask> EventGoalsTasks { get; }
     public DbSet<EventParticipant> EventParticipants { get; }
     public DbSet<EventParticipantRole> EventParticipantRoles { get; }
-    public DbSet<EventLocation> EventLocations { get; }
-    public DbSet<EventRequirement> EventRequirements { get; }
-    public DbSet<EventRequirementAssignment> EventRequirementCompletions { get; }
+    public DbSet<EventRequirementAssignment> EventRequirementAssignments { get; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

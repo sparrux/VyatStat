@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hub.Infrastructure.Persistence.Configurations.Group;
 
-public sealed class GroupEventConfiguration : IEntityTypeConfiguration<GroupEvent>
+sealed class GroupEventConfiguration : IEntityTypeConfiguration<GroupEvent>
 {
     public void Configure(EntityTypeBuilder<GroupEvent> builder)
     {

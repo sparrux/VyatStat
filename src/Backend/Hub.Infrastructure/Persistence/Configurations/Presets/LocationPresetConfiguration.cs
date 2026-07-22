@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hub.Infrastructure.Persistence.Configurations.Presets;
 
-public sealed class LocationPresetConfiguration : IEntityTypeConfiguration<LocationPreset>
+sealed class LocationPresetConfiguration : IEntityTypeConfiguration<LocationPreset>
 {
     public void Configure(EntityTypeBuilder<LocationPreset> builder)
     {

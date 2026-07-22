@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hub.Infrastructure.Persistence.Configurations.Group;
 
-public sealed class GroupMemberConfiguration : IEntityTypeConfiguration<Domain.Groups.GroupMember>
+sealed class GroupMemberConfiguration : IEntityTypeConfiguration<Domain.Groups.GroupMember>
 {
     public void Configure(EntityTypeBuilder<Domain.Groups.GroupMember> builder)
     {

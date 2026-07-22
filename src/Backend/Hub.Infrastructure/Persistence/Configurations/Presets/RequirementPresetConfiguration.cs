@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hub.Infrastructure.Persistence.Configurations.Presets;
 
-public sealed class RequirementPresetConfiguration : IEntityTypeConfiguration<RequirementPreset>
+sealed class RequirementPresetConfiguration : IEntityTypeConfiguration<RequirementPreset>
 {
     public void Configure(EntityTypeBuilder<RequirementPreset> builder)
     {

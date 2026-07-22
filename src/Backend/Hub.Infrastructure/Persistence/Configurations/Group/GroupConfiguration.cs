@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hub.Infrastructure.Persistence.Configurations.Group;
 
-public sealed class GroupConfiguration : IEntityTypeConfiguration<Domain.Groups.Group>
+sealed class GroupConfiguration : IEntityTypeConfiguration<Domain.Groups.Group>
 {
     public void Configure(EntityTypeBuilder<Domain.Groups.Group> builder)
     {
         builder.ToTable("group");
 
-        builder.ConfigureAuditable();
+        builder.ConfigureEntity();
 
         builder.Property(g => g.Name)
             .HasMaxLength(200)
@@ -24,8 +24,14 @@ public sealed class GroupConfiguration : IEntityTypeConfiguration<Domain.Groups.
             .WithOne(x => x.Group)
             .HasForeignKey(x => x.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(x => x.Modules)
+            .WithOne(x => x.Group)
+            .HasForeignKey(x => x.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.ConfigureCollection(g => g.Members, "_members");
+        builder.ConfigureCollection(g => g.Modules, "_modules");
         builder.ConfigureCollection(g => g.GroupEvents, "_groupEvents");
     }
 }
