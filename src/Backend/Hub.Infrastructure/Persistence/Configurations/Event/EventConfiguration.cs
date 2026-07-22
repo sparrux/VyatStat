@@ -30,6 +30,11 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Domain.Events.
             .HasForeignKey<Domain.Events.EventLocation>(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(x => x.Reports)
+            .WithOne(x => x.Event)
+            .HasForeignKey(x => x.EventId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.ComplexProperty(x => x.DatesRange, dates =>
         {
             dates.Property(x => x.StartDate)
@@ -68,12 +73,25 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Domain.Events.
             .WithOne(x => x.Event)
             .HasForeignKey(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(x => x.SkillsAssessments)
+            .WithOne(x => x.Event)
+            .HasForeignKey(x => x.EventId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(x => x.Rates)
+            .WithOne(x => x.Event)
+            .HasForeignKey(x => x.EventId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.ConfigureCollection(e => e.Roles, "_roles");
         builder.ConfigureCollection(e => e.Goals, "_goals");
+        builder.ConfigureCollection(e => e.Reports, "_reports");
         builder.ConfigureCollection(e => e.Participants, "_participants");
         builder.ConfigureCollection(e => e.GroupEvents, "_groupEvents");
         builder.ConfigureCollection(e => e.Requirements, "_requirements");
+        builder.ConfigureCollection(e => e.SkillsAssessments, "_skillsAssessments");
+        builder.ConfigureCollection(e => e.Rates, "_rates");
 
         builder.HasIndex(x => x.State);
     }

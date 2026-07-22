@@ -22,6 +22,21 @@ public sealed class EventParticipantConfiguration : IEntityTypeConfiguration<Eve
             .HasForeignKey(x => x.EventId)
             .OnDelete(DeleteBehavior.Cascade);
         
+        builder.HasMany(x => x.Assesses)
+            .WithOne(x => x.Assessor)
+            .HasForeignKey(x => x.AssessorId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(x => x.Rates)
+            .WithOne(x => x.Rater)
+            .HasForeignKey(x => x.RaterId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(x => x.Reports)
+            .WithOne(x => x.Author)
+            .HasForeignKey(x => x.AuthorId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder.HasMany(x => x.Roles)
             .WithOne(x => x.Participant)
             .HasForeignKey(x => x.ParticipantId)
@@ -37,6 +52,9 @@ public sealed class EventParticipantConfiguration : IEntityTypeConfiguration<Eve
             .HasForeignKey(x => x.ParticipantAssignmentId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.ConfigureCollection(i => i.Assesses, "_assesses");
+        builder.ConfigureCollection(i => i.Rates, "_rates");
+        builder.ConfigureCollection(i => i.Reports, "_reports");
         builder.ConfigureCollection(i => i.Roles, "_roles");
         builder.ConfigureCollection(i => i.Tasks, "_tasks");
         builder.ConfigureCollection(i => i.Requirements, "_requirements");

@@ -4,7 +4,9 @@ using Hub.Domain.Common;
 using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Handlers;
 using Hub.Domain.Events.Participants;
+using Hub.Domain.Events.Reports;
 using Hub.Domain.Events.Requirements;
+using Hub.Domain.Events.Training;
 using Hub.Domain.Extensions;
 using Hub.Domain.Groups;
 using Hub.Domain.ValueObjects;
@@ -22,9 +24,12 @@ public sealed class Event : AggregateRoot
 {
     readonly List<EventRole> _roles = [];
     readonly List<EventGoal> _goals = [];
+    readonly List<EventReport> _reports = [];
     readonly List<GroupEvent> _groupEvents = [];
     readonly List<EventParticipant> _participants = [];
     readonly List<EventRequirement> _requirements = [];
+    readonly List<EventTrainingSkill> _skillsAssessments = [];
+    readonly List<EventTrainingRating> _rates = [];
 
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     Event() { }
@@ -44,9 +49,12 @@ public sealed class Event : AggregateRoot
     
     public IReadOnlyCollection<EventRole> Roles => _roles;
     public IReadOnlyCollection<EventGoal> Goals => _goals;
+    public IReadOnlyCollection<EventReport> Reports => _reports;
     public IReadOnlyCollection<GroupEvent> GroupEvents => _groupEvents;
     public IReadOnlyCollection<EventParticipant> Participants => _participants;
     public IReadOnlyCollection<EventRequirement> Requirements => _requirements;
+    public IReadOnlyCollection<EventTrainingRating> Rates => _rates;
+    public IReadOnlyCollection<EventTrainingSkill> SkillsAssessments => _skillsAssessments;
 
     public static Result<Event> CreateDraft(
         User organizer, string title, DatesRange dates)
@@ -321,6 +329,20 @@ public sealed class Event : AggregateRoot
             ? Result.Success()
             : Result.NotFound("Event requirement is not found");
     }
+
+    public Result<EventReport> AddReport(string title, RichText body, EventParticipant participant)
+    {
+        var report = EventReport.Create(title, body, participant);
+        if (!report.IsSuccess) return report;
+        
+        _reports.Add(report);
+        return report;
+    }
+    
+    public Result RemoveReport(EventReport report) =>
+        !_reports.Remove(report)
+            ? Result.NotFound("Event Report is not found")
+            : Result.Success();
     
     public static bool IsDraft(EventState state) =>
         state
