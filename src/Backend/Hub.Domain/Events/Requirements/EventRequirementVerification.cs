@@ -42,7 +42,6 @@ public sealed class EventRequirementRoleVerification : EventRequirementVerificat
         VerifiedBy = verifiedBy;
     }
 
-    // TODO: ef core similar naming conflict, manual configuration required
     public Guid VerifiedById { get; private set; }
     public EventParticipantRole VerifiedBy { get; private set; }
     
@@ -67,7 +66,6 @@ public sealed class EventRequirementParticipantVerification : EventRequirementVe
         VerifiedBy = verifiedBy;
     }
 
-    // TODO: ef core similar naming conflict, manual configuration required
     public Guid VerifiedById { get; private set; }
     public EventParticipant VerifiedBy { get; private set; }
     

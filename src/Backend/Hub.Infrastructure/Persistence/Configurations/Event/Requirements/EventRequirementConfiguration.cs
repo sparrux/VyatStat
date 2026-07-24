@@ -19,6 +19,10 @@ public sealed class EventRequirementConfiguration : IEntityTypeConfiguration<Eve
         builder.Property(r => r.Description)
             .HasMaxLength(2000);
 
+        builder.Property(x => x.AssignmentPolicy)
+            .HasConversion<string>()
+            .HasMaxLength(100);
+
         builder.HasOne(r => r.Event)
             .WithMany(e => e.Requirements)
             .HasForeignKey(r => r.EventId)

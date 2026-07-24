@@ -269,12 +269,12 @@ public sealed class Event : AggregateRoot
         return participant;
     }
     
-    public Result<EventRequirement> AddRequirement(string title, string? description)
+    public Result<EventRequirement> AddRequirement(string title, string? description, RequirementAssignmentPolicy assignmentPolicy)
     {
         if (!IsDraft(State))
             return Result.Error("Event is not in draft state");
 
-        var createResult = EventRequirement.Create(title, description);
+        var createResult = EventRequirement.Create(title, description, assignmentPolicy);
         if (!createResult.IsSuccess) return createResult;
 
         var requirement = createResult.Value;

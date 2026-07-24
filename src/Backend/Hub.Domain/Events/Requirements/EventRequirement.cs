@@ -19,23 +19,29 @@ public sealed class EventRequirement : Requirement
     EventRequirement() { }
 
     EventRequirement(
-        string title, 
-        string? description
-    ) : base(title, description) { }
+        string title,
+        string? description,
+        RequirementAssignmentPolicy assignmentPolicy
+    ) : base(title, description)
+    {
+        AssignmentPolicy = assignmentPolicy;
+    }
 
     public Guid EventId { get; private set; }
     public Event Event { get; private set; }
+    
+    public RequirementAssignmentPolicy AssignmentPolicy { get; private set; }
 
     public IReadOnlyCollection<EventRequirementVerifier> Verifiers => _verifiers;
     public IReadOnlyCollection<EventRequirementAssignment> Assignments => _assignments;
     
     internal static Result<EventRequirement> Create(
-        string title, string? description)
+        string title, string? description, RequirementAssignmentPolicy assignmentPolicy)
     {
         if (string.IsNullOrWhiteSpace(title))
             return Result.Invalid(new ValidationError("Title cannot be null or whitespace"));
         
-        return new EventRequirement(title, description);
+        return new EventRequirement(title, description, assignmentPolicy);
     }
 
     internal Result<EventRequirementRoleVerifier> AddRoleVerifier(EventRole role, bool isRequired)

@@ -1,6 +1,8 @@
 using Ardalis.Result;
 using Hub.Domain.Common;
 using Hub.Domain.Events.Participants;
+using Hub.Domain.Events.Requirements.VerificationRules;
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -15,10 +17,8 @@ public abstract class EventRequirementVerifier : Auditable
     
     protected EventRequirementVerifier() { }
 
-    protected EventRequirementVerifier(bool isRequired)
-    {
+    protected EventRequirementVerifier(bool isRequired) => 
         IsRequired = isRequired;
-    }
 
     public bool IsRequired { get; private set; }
 
@@ -32,13 +32,11 @@ public sealed class EventRequirementRoleVerifier : EventRequirementVerifier
 {
     EventRequirementRoleVerifier() { }
     
-    EventRequirementRoleVerifier(bool isRequired, EventRole verifier) 
-        : base(isRequired)
-    {
-        Verifier = verifier;
-    }
+    EventRequirementRoleVerifier(
+        bool isRequired, 
+        EventRole verifier
+    ) : base(isRequired) => Verifier = verifier;
 
-    // TODO: ef core similar naming conflict, manual configuration required
     public Guid VerifierId { get; private set; }
     public EventRole Verifier { get; private set; }
     
@@ -52,13 +50,11 @@ public sealed class EventRequirementParticipantVerifier : EventRequirementVerifi
 {
     EventRequirementParticipantVerifier() { }
     
-    EventRequirementParticipantVerifier(bool isRequired, EventParticipant verifier) 
-        : base(isRequired)
-    {
-        Verifier = verifier;
-    }
+    EventRequirementParticipantVerifier(
+        bool isRequired, 
+        EventParticipant verifier
+    ) : base(isRequired) => Verifier = verifier;
 
-    // TODO: ef core similar naming conflict, manual configuration required
     public Guid VerifierId { get; private set; }
     public EventParticipant Verifier { get; private set; }
     
@@ -66,4 +62,22 @@ public sealed class EventRequirementParticipantVerifier : EventRequirementVerifi
         bool isRequired, 
         EventParticipant verifier
     ) => new EventRequirementParticipantVerifier(isRequired, verifier);
+}
+
+public sealed class EventRequirementRuleVerifier : EventRequirementVerifier
+{
+    EventRequirementRuleVerifier() { }
+
+    EventRequirementRuleVerifier(
+        bool isRequired, 
+        EventRequirementVerificationRule verifier
+    ) : base(isRequired) => Verifier = verifier;
+
+    public Guid VerifierId { get; private set; }
+    public EventRequirementVerificationRule Verifier { get; private set; }
+    
+    public static Result<EventRequirementRuleVerifier> Create(
+        bool isRequired,
+        EventRequirementVerificationRule verifier
+    ) => new EventRequirementRuleVerifier(isRequired, verifier);
 }
