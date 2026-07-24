@@ -5,7 +5,6 @@ using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Groups;
 using Hub.Domain.Groups.Training;
-using Hub.Domain.Presets;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Infrastructure.Persistence;
@@ -22,9 +21,6 @@ public sealed class HubDbContext : DbContext
         Groups = Set<Group>();
         GroupEvent = Set<GroupEvent>();
         GroupMembers = Set<GroupMember>();
-        
-        LocationPresets = Set<LocationPreset>();
-        RequirementPresets = Set<RequirementPreset>();
         
         Events = Set<Event>();
         EventRoles = Set<EventRole>();
@@ -45,9 +41,6 @@ public sealed class HubDbContext : DbContext
     public DbSet<Group> Groups { get; }
     public DbSet<GroupEvent> GroupEvent { get; }
     public DbSet<GroupMember> GroupMembers { get; }
-    
-    public DbSet<LocationPreset> LocationPresets { get; }
-    public DbSet<RequirementPreset> RequirementPresets { get; }
     
     public DbSet<Event> Events { get; }
     public DbSet<EventRole> EventRoles { get; }

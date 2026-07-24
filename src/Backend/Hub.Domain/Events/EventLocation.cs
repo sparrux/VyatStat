@@ -14,7 +14,7 @@ public sealed class EventLocation : Location
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     EventLocation() { }
     
-    EventLocation(string? name, double lat, double lng) : base(name, lat, lng)
+    EventLocation(string? name, double x, double y, int espg) : base(name, x, y, espg)
     {
     }
     

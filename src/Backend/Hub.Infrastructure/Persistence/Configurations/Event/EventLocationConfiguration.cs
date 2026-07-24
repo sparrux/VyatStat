@@ -18,10 +18,16 @@ public sealed class EventLocationConfiguration : IEntityTypeConfiguration<EventL
 
         builder.ComplexProperty(x => x.Coordinates, coordinates =>
         {
-            coordinates.Property(x => x.Latitude)
+            coordinates.Property(x => x.X)
+                .HasColumnName("x")
                 .IsRequired();
             
-            coordinates.Property(x => x.Longitude)
+            coordinates.Property(x => x.Y)
+                .HasColumnName("y")
+                .IsRequired();
+            
+            coordinates.Property(x => x.Epsg)
+                .HasColumnName("epsg")
                 .IsRequired();
         });
 

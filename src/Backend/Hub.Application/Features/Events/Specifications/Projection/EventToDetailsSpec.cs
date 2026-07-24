@@ -25,8 +25,8 @@ sealed class EventToDetailsSpec : Specification<Event, EventDetailsResponse>
                     new EventLocationResponse(
                         x.Location.Id,
                         x.Location.Name,
-                        x.Location.Coordinates.Latitude,
-                        x.Location.Coordinates.Longitude)
+                        x.Location.Coordinates.X,
+                        x.Location.Coordinates.Y)
                     : null,
                 x.Requirements
                     .OrderByDescending(r => r.CreatedAt)

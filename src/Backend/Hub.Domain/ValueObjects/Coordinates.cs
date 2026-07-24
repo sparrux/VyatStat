@@ -9,18 +9,21 @@ public sealed class Coordinates : ValueObject
 {
     Coordinates() { }
     
-    public Coordinates(double lat, double lng)
+    public Coordinates(double x, double y, int epsg)
     {
-        Latitude = lat;
-        Longitude = lng;
+        X = x;
+        Y = y;
+        Epsg = epsg;
     }
 
-    public double Latitude { get; private set; }
-    public double Longitude { get; private set; }
+    public double X { get; private set; }
+    public double Y { get; private set; }
+    public int Epsg { get; private set; }
     
     protected override IEnumerable<object?> GetEqualityComponents()
     {
-        yield return Latitude;
-        yield return Longitude;
+        yield return X;
+        yield return Y;
+        yield return Epsg;
     }
 }
