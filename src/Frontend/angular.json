@@ -82,32 +82,32 @@
         }
       }
     },
-    "tracker-app": {
+    "hub-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"
         }
       },
-      "root": "tracker-app",
-      "sourceRoot": "tracker-app/src",
+      "root": "hub-app",
+      "sourceRoot": "hub-app/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "tracker-app/src/main.ts",
-            "outputPath": "tracker-app/dist/tracker-app",
-            "tsConfig": "tracker-app/tsconfig.app.json",
+            "browser": "hub-app/src/main.ts",
+            "outputPath": "hub-app/dist/hub-app",
+            "tsConfig": "hub-app/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "tracker-app/public"
+                "input": "hub-app/public"
               }
             ],
             "styles": [
-              "tracker-app/src/styles.scss"
+              "hub-app/src/styles.scss"
             ]
           },
           "configurations": {
@@ -141,10 +141,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "tracker-app:build:production"
+              "buildTarget": "hub-app:build:production"
             },
             "development": {
-              "buildTarget": "tracker-app:build:development"
+              "buildTarget": "hub-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -152,7 +152,7 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "tracker-app/tsconfig.spec.json"
+            "tsConfig": "hub-app/tsconfig.spec.json"
           }
         }
       }

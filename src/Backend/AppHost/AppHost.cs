@@ -30,7 +30,7 @@ var identityApp = builder.AddJavaScriptApp("identity-app", frontend)
     .WaitFor(identityApi);
 
 var hubApp = builder.AddJavaScriptApp("hub-app", frontend)
-    .WithRunScript("start:tracker") // TODO: rename app project to hub
+    .WithRunScript("start:hub")
     .WithReference(identityApi)
     .WithReference(hubApi)
     .WithHttpEndpoint(port: 4201, env: "PORT")

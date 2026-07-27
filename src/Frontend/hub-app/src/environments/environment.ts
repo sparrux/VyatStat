@@ -1,7 +1,7 @@
 export const environment = {
   authServerUrl: 'https://localhost:7019',
-  trackerApiUrl: 'https://localhost:7020',
-  clientId: 'tracker-app',
-  apiAudience: 'vyatka-tracker-api',
+  hubApiUrl: 'https://localhost:7020',
+  clientId: 'hub-app',
+  apiAudience: 'vyatka-hub-api',
   identityAppUrl: 'http://localhost:4200',
 };

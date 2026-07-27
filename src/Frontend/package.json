@@ -3,17 +3,17 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "build": "ng build identity-app && ng build tracker-app",
-    "build:all": "ng build auth && ng build ui && ng build identity-app && ng build tracker-app",
+    "build": "ng build identity-app && ng build hub-app",
+    "build:all": "ng build auth && ng build ui && ng build identity-app && ng build hub-app",
     "build:identity": "ng build identity-app",
-    "build:tracker": "ng build tracker-app",
+    "build:hub": "ng build hub-app",
     "build:libs": "ng build auth && ng build ui",
     "start:identity": "ng serve identity-app",
-    "start:tracker": "ng serve tracker-app",
+    "start:hub": "ng serve hub-app",
     "dev:identity": "npm run start:identity",
-    "dev:tracker": "npm run start:tracker",
+    "dev:hub": "npm run start:hub",
     "test:identity": "ng test identity-app",
-    "test:tracker": "ng test tracker-app"
+    "test:hub": "ng test hub-app"
   },
   "packageManager": "npm@11.13.0",
   "dependencies": {

@@ -23,7 +23,7 @@ export const appConfig: ApplicationConfig = {
       authServerUrl: environment.authServerUrl,
       clientId: environment.clientId,
       apiAudience: environment.apiAudience,
-      resourceApiUrl: environment.trackerApiUrl,
+      resourceApiUrl: environment.hubApiUrl,
       postLogoutRedirectUrl: environment.identityAppUrl,
     }),
     provideHttpClient(withInterceptors([resourceApiInterceptor])),
