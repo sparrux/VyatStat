@@ -28,8 +28,8 @@ sealed class UpdateCompletionCommandHandler(
 
         var result = request.ActorId switch
         {
-            not null => ev.VerifyCompletionByActor(request.UserId, request.RequirementId, request.ActorId.Value),
-            null => ev.VerifyCompletionByAutomatic(request.UserId, request.RequirementId)
+            not null => ev.VerifyRequirementByActor(request.UserId, request.RequirementId, request.ActorId.Value),
+            null => ev.VerifyRequirementByAutomatic(request.UserId, request.RequirementId)
         };
         
         if (!result.IsSuccess) return result.Map();

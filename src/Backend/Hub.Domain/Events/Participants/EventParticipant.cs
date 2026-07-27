@@ -48,17 +48,11 @@ public sealed class EventParticipant : Auditable
 
     internal Result<EventRequirementAssignment> Assign(EventRequirement requirement)
     {
-        var exists = Requirements
-            .Any(c => c.Requirement == requirement);
+        var exists = Requirements.Any(c => c.Requirement == requirement);
+        if (exists) return Result.Error("Event Requirement already assigned");
         
-        if (exists)
-            return Result.Error("Event requirement completion already exists");
-        
-        var completion = EventRequirementAssignment
-            .Create(this, requirement);
-        
-        if (!completion.IsSuccess)
-            return completion;
+        var completion = EventRequirementAssignment.Create(this, requirement);
+        if (!completion.IsSuccess) return completion;
 
         _requirements.Add(completion.Value);
         return completion;
@@ -66,6 +60,6 @@ public sealed class EventParticipant : Auditable
     
     internal Result RemoveAssignment(EventRequirementAssignment completion) => 
         !_requirements.Remove(completion) 
-            ? Result.NotFound("Event requirement completion not found") 
+            ? Result.NotFound("Event Requirement assignment not found") 
             : Result.Success();
 }

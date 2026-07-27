@@ -67,7 +67,7 @@ public sealed class Event : AggregateRoot
         var role = evt.AddRole(EventRole.Organizer, isSealed: true);
         if (!role.IsSuccess) return role.Map();
 
-        var participant = evt.AddParticipant(organizer);
+        var participant = evt.AddParticipant(organizer, force: true);
         if (!participant.IsSuccess) return participant.Map();
 
         var participantRole = role.Value.AddParticipant(participant.Value);
@@ -159,6 +159,9 @@ public sealed class Event : AggregateRoot
     
     public Result RemoveRole(EventRole role)
     {
+        if (role.IsSealed)
+            return Result.Error("Event Role cannot be removed because is sealed");
+        
         if (Roles.Count <= 1)
             return Result.Error("Event cannot have less than one role");
         
@@ -172,13 +175,13 @@ public sealed class Event : AggregateRoot
         if (!Roles.Contains(role))
             return Result.NotFound("Event Role is not found");
         
+        if (!Participants.Contains(participant))
+            return Result.NotFound("Event Partipicant is not found");
+        
         if (Participants.AlreadyInRole(role, participant.UserId))
             return Result.Error("Participant already has this role");
 
-        var participantRole = role.AddParticipant(participant);
-        return !participantRole.IsSuccess 
-            ? participantRole 
-            : Result.Success(participantRole.Value);
+        return role.AddParticipant(participant);
     }
     
     public Result RemoveParticipantRole(EventRole role, EventParticipantRole participantRole)
@@ -206,35 +209,35 @@ public sealed class Event : AggregateRoot
         if (IsFinished(State))
             return Result.Error("Event is finished already");
         
-        if (_goals.All(x => x.Id != goal.Id))
-            return Result.Error("Event goal is not found");
+        if (_goals.All(x => x != goal))
+            return Result.NotFound("Event goal is not found");
 
         return goal.UpdateName(name);
     }
 
     public Result<EventGoalTask> AddGoalTask(EventGoal goal, string taskName)
     {
-        if (_goals.All(x => x.Id != goal.Id))
-            return Result.Error("Event Goal is not found");
+        if (_goals.All(x => x != goal))
+            return Result.NotFound("Event Goal is not found");
 
         return goal.CreateTask(taskName);
     }
     
     public Result UpdateGoalTaskName(EventGoal goal, EventGoalTask task, string name)
     {
-        if (_goals.All(x => x.Id != goal.Id))
-            return Result.Error("Event Goal is not found");
+        if (_goals.All(x => x != goal))
+            return Result.NotFound("Event Goal is not found");
         
-        if (goal.Tasks.All(x => x.Id != task.Id))
-            return Result.Error("Goal Task is not found");
+        if (goal.Tasks.All(x => x != task))
+            return Result.NotFound("Goal Task is not found");
 
         return task.UpdateName(name);
     }
     
     public Result RemoveGoalTask(EventGoal goal, EventGoalTask task)
     {
-        if (_goals.All(x => x.Id != goal.Id))
-            return Result.Error("Event Goal is not found");
+        if (_goals.All(x => x != goal))
+            return Result.NotFound("Event Goal is not found");
 
         return goal.RemoveTask(task);
     }
@@ -249,9 +252,9 @@ public sealed class Event : AggregateRoot
             : Result.NotFound("Event Goal is not found");
     }
     
-    public Result<EventParticipant> AddParticipant(User user)
+    public Result<EventParticipant> AddParticipant(User user, bool force = false)
     {
-        if (!IsRegistrationOpen(State))
+        if (!IsRegistrationOpen(State) && !force)
             return Result.Error("Event registration must be open");
         
         if (Participants.Any(x => x.UserId == user.Id))
@@ -260,7 +263,7 @@ public sealed class Event : AggregateRoot
         var participant = EventParticipant.Create(user);
         if (!participant.IsSuccess) return participant;
 
-        foreach (var requirement in Requirements)
+        foreach (var requirement in Requirements.Where(r => r.AssignmentPolicy > RequirementAssignmentPolicy.Manual))
         {
             participant.Value.Assign(requirement);
         }
@@ -271,27 +274,31 @@ public sealed class Event : AggregateRoot
     
     public Result<EventRequirement> AddRequirement(string title, string? description, RequirementAssignmentPolicy assignmentPolicy)
     {
-        if (!IsDraft(State))
-            return Result.Error("Event is not in draft state");
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
 
         var createResult = EventRequirement.Create(title, description, assignmentPolicy);
         if (!createResult.IsSuccess) return createResult;
 
         var requirement = createResult.Value;
 
+        if (assignmentPolicy is RequirementAssignmentPolicy.AutomaticForAllParticipants)
+            foreach (var participant in Participants)
+                participant.Assign(requirement);
+
         _requirements.Add(requirement);
         return Result.Success(requirement);
     }
     
-    public Result UpdateRequirement(Guid requirementId, string title, string? description)
+    public Result UpdateRequirement(EventRequirement requirement, string title, string? description)
     {
-        if (!IsDraft(State))
-            return Result.Error("Event is not in draft state");
+        if (IsFinished(State))
+            return Result.Error("Event is finished already");
         
-        var requirement = Requirements.FirstOrDefault(r => r.Id == requirementId);
-        return requirement is null 
-            ? Result.NotFound("Event requirement is not found") 
-            : requirement.UpdateRequirement(title, description);
+        if (Requirements.All(x => x != requirement))
+            return Result.NotFound("Event requirement is not found");
+        
+        return requirement.UpdateRequirement(title, description);
     }
 
     public Result<EventRequirementRoleVerifier> AddRequirementRoleVerifier(EventRequirement requirement, EventRole role, bool isRequired)
@@ -302,16 +309,16 @@ public sealed class Event : AggregateRoot
         return requirement.AddRoleVerifier(role, isRequired);
     }
     
-    public Result VerifyCompletionByActor(Guid inviteeUser, Guid requirement, Guid actor)
+    public Result VerifyRequirementByActor(Guid participantUser, Guid requirement, Guid actor)
     {
         if (!IsOngoing(State))
             return Result.Error("Event must be ongoing");
         
         var handler = new RequirementVerificationHandler(this);
-        return handler.SubmitVerification(new VerifyByActor(inviteeUser, requirement, actor));
+        return handler.SubmitVerification(new VerifyByActor(participantUser, requirement, actor));
     }
     
-    public Result VerifyCompletionByAutomatic(Guid inviteeUser, Guid requirement)
+    public Result VerifyRequirementByAutomatic(Guid inviteeUser, Guid requirement)
     {
         if (!IsOngoing(State))
             return Result.Error("Event must be ongoing");

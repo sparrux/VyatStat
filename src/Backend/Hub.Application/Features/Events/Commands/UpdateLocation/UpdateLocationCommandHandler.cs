@@ -28,7 +28,7 @@ sealed class UpdateLocationCommandHandler(
         var request = command.Request;
 
         var updateResult = ev.UpdateLocation(
-            request.Name, new Coordinates(request.Longitude, request.Latitude));
+            request.Name, new Coordinates(request.Longitude, request.Latitude, 700000));
 
         if (!updateResult.IsSuccess) return updateResult;
 
