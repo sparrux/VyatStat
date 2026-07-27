@@ -1,0 +1,341 @@
+---
+alwaysApply: true
+---
+
+# macOS Inspired UX Rules
+
+Design the SPA with the interaction quality and polish inspired by macOS applications.
+
+The goal:
+
+The application should feel:
+- smooth
+- responsive
+- calm
+- premium
+- predictable
+
+Reference products:
+
+- macOS System Settings
+- Finder
+- Xcode
+- Safari
+- Apple Music
+- Linear App
+
+Do not copy Apple visuals directly.
+Use Apple-like UX principles.
+
+
+# Motion Design
+
+Animations are mandatory for state changes.
+
+Use smooth transitions:
+
+- opening dialogs
+- expanding panels
+- changing pages
+- showing notifications
+- loading states
+- hover states
+
+
+Animation principles:
+
+- fast response
+- smooth acceleration
+- natural deceleration
+
+
+Preferred timing:
+
+micro interaction:
+100-150ms
+
+normal transition:
+200-300ms
+
+large transition:
+300-450ms
+
+
+Use easing:
+
+cubic-bezier(0.22, 1, 0.36, 1)
+
+Avoid:
+
+linear animations
+bouncing animations
+excessive effects
+
+
+# Interaction Feedback
+
+Every user action must have visual feedback.
+
+Examples:
+
+Button:
+- hover state
+- pressed state
+- disabled state
+
+
+Cards:
+- subtle hover elevation
+- smooth border change
+
+
+Inputs:
+- animated focus state
+- clear validation feedback
+
+
+Do not make UI feel static.
+
+
+# Layout Philosophy
+
+Prefer:
+
+- clean spacing
+- breathing room
+- alignment
+- hierarchy
+
+
+Avoid:
+
+- crowded screens
+- unnecessary borders
+- excessive colors
+
+
+Use:
+
+large whitespace areas
+consistent padding
+clear grouping
+
+
+# Components Behavior
+
+Components should feel like native desktop applications.
+
+
+Dialogs:
+
+- centered
+- smooth opening
+- close animation
+- escape key support
+
+
+Dropdowns:
+
+- appear near trigger
+- animate opacity and transform
+
+
+Sidebars:
+
+Desktop:
+
+persistent sidebar
+
+
+Mobile:
+
+slide-in drawer with animation
+
+
+# Scrolling Experience
+
+Scrolling must feel natural.
+
+Rules:
+
+- avoid jumping content
+- preserve scroll position
+- use smooth transitions
+
+
+Long lists:
+
+Use:
+
+- skeleton loading
+- virtualization
+- incremental loading
+
+
+Avoid:
+
+spinners everywhere
+
+
+# Loading States
+
+Never show empty blank screens.
+
+Use:
+
+- skeleton placeholders
+- progressive rendering
+- smooth content appearance
+
+
+Loading transition:
+
+opacity:
+0 -> 1
+
+transform:
+
+translateY(8px) -> translateY(0)
+
+
+# Colors
+
+Prefer macOS-like neutral palette.
+
+
+Background:
+
+#ffffff
+#f5f5f7
+
+
+Secondary:
+
+#86868b
+
+
+Borders:
+
+rgba(0,0,0,0.08)
+
+
+Use accent colors sparingly.
+
+
+# Shadows
+
+Use subtle shadows.
+
+Good:
+
+soft elevation
+
+Bad:
+
+large dark shadows
+
+
+Example:
+
+box-shadow:
+0 8px 30px rgba(0,0,0,0.08)
+
+
+# Typography
+
+Prefer:
+
+Inter
+SF Pro Display
+SF Pro Text
+-apple-system
+
+
+Hierarchy:
+
+Large:
+32px
+
+Section:
+24px
+
+Title:
+18px
+
+Body:
+15-16px
+
+Secondary:
+13-14px
+
+
+# Accessibility
+
+Follow native application behavior:
+
+- keyboard navigation
+- focus indicators
+- shortcuts
+- reduced motion support
+
+
+Respect:
+
+prefers-reduced-motion
+
+
+# Angular Implementation
+
+Use:
+
+Angular animations
+CSS transitions
+Signals for UI state
+
+
+Prefer:
+
+[class.active]
+[class.open]
+[class.loading]
+
+
+Avoid:
+
+manual DOM manipulation
+
+
+# Performance
+
+Animations must run on GPU.
+
+Prefer:
+
+transform
+opacity
+
+
+Avoid animating:
+
+width
+height
+top
+left
+
+
+Use:
+
+transform: translate()
+transform: scale()
+
+
+# UX Quality Checklist
+
+Before completing UI:
+
+✓ Does every action have feedback?
+✓ Are transitions smooth?
+✓ Does mobile feel native?
+✓ Are states predictable?
+✓ Does the UI feel calm and polished?
+✓ Would this feel acceptable inside a desktop application?
