@@ -3,11 +3,10 @@ import { bffAuthGuard } from '@vyatka-tracker/auth';
 
 export const routes: Routes = [
   {
-    path: 'calendar',
+    path: '',
     loadComponent: () =>
       import('./pages/calendar-page/calendar-page').then((m) => m.CalendarPage),
     canActivate: [bffAuthGuard],
   },
-  { path: '', pathMatch: 'full', redirectTo: 'calendar' },
-  { path: '**', redirectTo: 'calendar' },
+  { path: '**', redirectTo: '' },
 ];
