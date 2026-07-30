@@ -9,7 +9,7 @@ public sealed class EventConfiguration : IEntityTypeConfiguration<Domain.Events.
     {
         builder.ToTable("event");
 
-        builder.ConfigureEntity();
+        builder.ConfigureAuditable();
 
         builder.Property(e => e.Title)
             .HasMaxLength(200)

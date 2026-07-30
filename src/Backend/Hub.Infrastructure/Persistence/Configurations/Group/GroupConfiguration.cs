@@ -9,7 +9,7 @@ sealed class GroupConfiguration : IEntityTypeConfiguration<Domain.Groups.Group>
     {
         builder.ToTable("group");
 
-        builder.ConfigureEntity();
+        builder.ConfigureAuditable();
 
         builder.Property(g => g.Name)
             .HasMaxLength(200)

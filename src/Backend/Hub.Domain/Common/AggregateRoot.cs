@@ -2,7 +2,7 @@ using Hub.Domain.Common.DomainEvents;
 
 namespace Hub.Domain.Common;
 
-public abstract class AggregateRoot : Entity
+public abstract class AggregateRoot : Auditable
 {
     readonly List<IDomainEvent> _domainEvents = [];
 

@@ -3,6 +3,7 @@ using Ardalis.Specification.EntityFrameworkCore;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Groups.Contracts;
+using Hub.Application.Features.Groups.Specifications.Ordering;
 using Hub.Application.Features.Groups.Specifications.Projection;
 using Hub.Application.Features.Groups.Specifications.Search;
 using Hub.Application.Pipelines;
@@ -21,14 +22,17 @@ sealed class GetGroupQueryHandler(
         var spec = new GetGroupByQuerySpec(query);
         
         var groups = await dbContext.Groups
-            .WithSpecification(new ListSelectionSpec<Group>(query.Take, query.Skip))
             .WithSpecification(spec)
+            .WithSpecification(new ListSelectionSpec<Group>(query.Take, query.Skip))
+            .WithSpecification(new GroupOrderingSpec())
             .WithSpecification(new GroupToSummarySpec())
             .ToListAsync(cancellationToken);
         
         return Result.Success(
             new ListResponse<GroupSummaryResponse>(
                 groups,
-                await dbContext.Groups.CountAsync(cancellationToken)));
+                await dbContext.Groups
+                    .WithSpecification(spec)
+                    .CountAsync(cancellationToken)));
     }
 }

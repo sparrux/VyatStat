@@ -69,20 +69,58 @@
           </div>
         </div>
 
-        <a
-          class="hub-header__link"
-          href="#"
-          aria-label="Группы"
-          (click)="$event.preventDefault()"
-        >
-          <svg class="hub-header__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <circle cx="9" cy="8" r="3.25" />
-            <circle cx="17" cy="9.5" r="2.5" />
-            <path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5" />
-            <path d="M14.2 14.7c1.4-.5 3-.4 4.3.6 1 .8 1.6 2 1.8 3.7" />
-          </svg>
-          <span class="hub-header__label">Группы</span>
-        </a>
+        <div class="hub-header__menu">
+          <button
+            type="button"
+            class="hub-header__link hub-header__menu-trigger"
+            aria-label="Группы"
+            aria-haspopup="menu"
+          >
+            <svg class="hub-header__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="9" cy="8" r="3.25" />
+              <circle cx="17" cy="9.5" r="2.5" />
+              <path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5" />
+              <path d="M14.2 14.7c1.4-.5 3-.4 4.3.6 1 .8 1.6 2 1.8 3.7" />
+            </svg>
+            <span class="hub-header__label">Группы</span>
+            <span class="hub-header__chevron-wrap" aria-hidden="true">
+              <span class="hub-header__chevron"></span>
+            </span>
+          </button>
+          <div class="hub-header__menu-panel" role="menu">
+            <button
+              type="button"
+              class="hub-header__menu-item"
+              role="menuitem"
+              (click)="openCreateGroup()"
+            >
+              <svg class="hub-header__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="9" cy="8" r="3.25" />
+                <circle cx="17" cy="9.5" r="2.5" />
+                <path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5" />
+                <path d="M14.2 14.7c1.4-.5 3-.4 4.3.6 1 .8 1.6 2 1.8 3.7" />
+                <path d="M12 13.5v5" />
+                <path d="M9.5 16h5" />
+              </svg>
+              <span>Новая группа</span>
+            </button>
+            <a
+              class="hub-header__menu-item"
+              role="menuitem"
+              routerLink="/groups"
+            >
+              <svg class="hub-header__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="9" cy="8" r="3.25" />
+                <circle cx="17" cy="9.5" r="2.5" />
+                <path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5" />
+                <path d="M14.2 14.7c1.4-.5 3-.4 4.3.6 1 .8 1.6 2 1.8 3.7" />
+                <path d="M7.5 14.5h3" />
+                <path d="M7.5 17h6" />
+              </svg>
+              <span>Мои группы</span>
+            </a>
+          </div>
+        </div>
 
         <a
           class="hub-header__link"
