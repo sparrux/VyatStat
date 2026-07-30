@@ -7,6 +7,10 @@ import {
   GetGroupsQuery,
   GroupSummary,
 } from '../models/group.model';
+import {
+  EventSummary,
+  GetGroupEventsQuery,
+} from '../models/event.model';
 import { ListResult } from '../models/list-result.model';
 
 /**
@@ -27,5 +31,9 @@ export class GroupService {
 
   getList(query: GetGroupsQuery): Observable<ListResult<GroupSummary>> {
     return this.groupApi.getList(query);
+  }
+
+  getEvents(query: GetGroupEventsQuery): Observable<ListResult<EventSummary>> {
+    return this.groupApi.getEvents(query);
   }
 }

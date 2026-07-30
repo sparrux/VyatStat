@@ -6,6 +6,10 @@ import {
   GetGroupsQuery,
   GroupSummary,
 } from '../models/group.model';
+import {
+  EventSummary,
+  GetGroupEventsQuery,
+} from '../models/event.model';
 import { ListResult } from '../models/list-result.model';
 
 /**
@@ -15,6 +19,7 @@ import { ListResult } from '../models/list-result.model';
 export interface IGroupApi {
   create(input: CreateGroupInput): Observable<GroupSummary>;
   getList(query: GetGroupsQuery): Observable<ListResult<GroupSummary>>;
+  getEvents(query: GetGroupEventsQuery): Observable<ListResult<EventSummary>>;
 }
 
 export const GROUP_API = new InjectionToken<IGroupApi>('IGroupApi');

@@ -18,6 +18,7 @@ using Hub.Application.Features.Events.Queries.GetInviteeById;
 using Hub.Application.Features.Groups.Commands.Create;
 using Hub.Application.Features.Groups.Contracts;
 using Hub.Application.Features.Groups.Queries.Get;
+using Hub.Application.Features.Groups.Queries.GetEvents;
 using Hub.Application.Features.Users.Contracts;
 using Hub.Application.Features.Users.Queries.Get;
 using Hub.Application.Features.Users.Queries.GetById;
@@ -68,6 +69,7 @@ public static class DependencyInjection
         {
             services.AddDecoratedHandler<CreateGroupCommand, GroupSummaryResponse, CreateGroupCommandHandler>();
             services.AddDecoratedHandler<GetGroupQuery, ListResponse<GroupSummaryResponse>, GetGroupQueryHandler>();
+            services.AddDecoratedHandler<GetGroupEventsQuery, ListResponse<EventSummaryResponse>, GetGroupEventsQueryHandler>();
         }
     }
 }

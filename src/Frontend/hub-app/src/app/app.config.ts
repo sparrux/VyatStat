@@ -11,6 +11,7 @@ import { DialogModule } from '@angular/cdk/dialog';
 
 import { AuthenticationService } from './application/services/authentication.service';
 import { provideHubAuthInfrastructure } from './infrastructure/auth/provide-auth';
+import { provideHubEventsInfrastructure } from './infrastructure/events/provide-events';
 import { provideHubGroupsInfrastructure } from './infrastructure/groups/provide-groups';
 import { provideHubUsersInfrastructure } from './infrastructure/users/provide-users';
 import { routes } from './presentation/routing/app.routes';
@@ -27,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideHubGroupsInfrastructure(),
     provideHubUsersInfrastructure(),
+    provideHubEventsInfrastructure(),
     provideAppInitializer(() => {
       return inject(AuthenticationService).onAppBootstrap();
     }),

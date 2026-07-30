@@ -1,7 +1,7 @@
 using Ardalis.Specification;
 using Hub.Domain.Common;
 
-namespace Hub.Application.Features.Common.Specifications;
+namespace Hub.Application.Features.Common.Specifications.Search;
 
 public sealed class GetByIdSpec<T> : Specification<T> where T : Entity
 {

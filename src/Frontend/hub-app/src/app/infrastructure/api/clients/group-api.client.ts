@@ -8,17 +8,23 @@ import {
   GetGroupsQuery,
   GroupSummary,
 } from '../../../application/models/group.model';
+import {
+  EventSummary,
+  GetGroupEventsQuery,
+} from '../../../application/models/event.model';
 import { ListResult } from '../../../application/models/list-result.model';
 import { environment } from '../../../../environments/environment';
 import {
   CreateGroupRequestDto,
   GroupSummaryDto,
 } from '../dto/group.dto';
+import { EventSummaryDto } from '../dto/event.dto';
 import { ListResponseDto } from '../dto/list-response.dto';
 import {
   mapGroupListResponseDtoToModel,
   mapGroupSummaryDtoToModel,
 } from '../mappers/group.mapper';
+import { mapEventListResponseDtoToModel } from '../mappers/event.mapper';
 
 /**
  * Infrastructure adapter for Hub Groups REST API.
@@ -48,5 +54,18 @@ export class GroupApiClient implements IGroupApi {
     return this.http
       .get<ListResponseDto<GroupSummaryDto>>(`${this.baseUrl}/`, { params })
       .pipe(map(mapGroupListResponseDtoToModel));
+  }
+
+  getEvents(query: GetGroupEventsQuery): Observable<ListResult<EventSummary>> {
+    const params = new HttpParams()
+      .set('groupId', query.groupId)
+      .set('fromDate', query.fromDate)
+      .set('toDate', query.toDate);
+
+    return this.http
+      .get<ListResponseDto<EventSummaryDto>>(`${this.baseUrl}/events`, {
+        params,
+      })
+      .pipe(map(mapEventListResponseDtoToModel));
   }
 }

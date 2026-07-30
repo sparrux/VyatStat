@@ -1,0 +1,173 @@
+<section class="account-page">
+  <div class="account-page__content">
+    <h1 class="account-page__title">Аккаунт</h1>
+    <p class="account-page__subtitle">События ваших групп</p>
+
+    @if (isLoading()) {
+      <p class="account-page__status" role="status">Загрузка…</p>
+    } @else if (loadError(); as err) {
+      <p class="account-page__error" role="alert">{{ err }}</p>
+      <button
+        type="button"
+        class="vt-btn vt-btn--primary"
+        (click)="reload()"
+      >
+        Повторить
+      </button>
+    } @else if (groups().length === 0) {
+      <p class="account-page__status">Вы пока не состоите ни в одной группе.</p>
+    } @else {
+      <article class="account-card">
+        <div class="account-card__body">
+          <aside class="account-card__events" aria-label="События группы">
+            <div class="account-card__group-bar">
+              <label class="account-card__group">
+                <span class="visually-hidden">Группа</span>
+                <select
+                  class="account-card__group-select"
+                  [ngModel]="selectedGroupId()"
+                  (ngModelChange)="onGroupChange($event)"
+                >
+                  @for (group of groups(); track group.id) {
+                    <option [value]="group.id">{{ group.name }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+
+            <div class="account-card__range">
+              <button
+                type="button"
+                class="account-card__range-btn"
+                aria-label="Сдвинуть диапазон на 30 дней назад"
+                (click)="shiftRangeBack()"
+              >
+                ‹
+              </button>
+              <p class="account-card__range-label">{{ dateRangeLabel() }}</p>
+              <button
+                type="button"
+                class="account-card__range-btn"
+                aria-label="Сдвинуть диапазон на 30 дней вперёд"
+                (click)="shiftRangeForward()"
+              >
+                ›
+              </button>
+            </div>
+
+            <div
+              class="account-card__events-list"
+              [class.account-card__events-list--loading]="isEventsLoading()"
+              [attr.aria-busy]="isEventsLoading()"
+            >
+              @if (eventsError(); as eventsErr) {
+                <p class="account-page__error" role="alert">{{ eventsErr }}</p>
+              } @else if (events().length === 0) {
+                <p class="account-card__empty">В этом диапазоне событий нет.</p>
+              } @else {
+                <ul class="account-card__event-items">
+                  @for (event of events(); track event.id) {
+                    <li>
+                      <button
+                        type="button"
+                        class="account-card__event-item"
+                        [class.account-card__event-item--active]="
+                          selectedEventId() === event.id
+                        "
+                        (click)="selectEvent(event)"
+                      >
+                        <span class="account-card__event-title">{{
+                          event.title
+                        }}</span>
+                        <span class="account-card__event-meta">
+                          {{ formatEventDateTime(event.startDate) }}
+                          ·
+                          {{ eventStateLabel(event.state) }}
+                        </span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </aside>
+
+          <section
+            class="account-card__details"
+            aria-label="Информация о событии"
+            [attr.aria-busy]="isDetailsLoading()"
+          >
+            @if (!selectedEventId()) {
+              <p class="account-card__empty">
+                Выберите событие слева, чтобы увидеть подробности.
+              </p>
+            } @else if (isDetailsLoading()) {
+              <p class="account-page__status" role="status">Загрузка…</p>
+            } @else if (detailsError(); as detailsErr) {
+              <p class="account-page__error" role="alert">{{ detailsErr }}</p>
+            } @else if (selectedEvent(); as details) {
+              <h2 class="account-card__details-title">{{ details.title }}</h2>
+              <p class="account-card__details-state">
+                {{ eventStateLabel(details.state) }}
+              </p>
+
+              <dl class="account-card__facts">
+                <div>
+                  <dt>Начало</dt>
+                  <dd>{{ formatEventDateTime(details.startDate) }}</dd>
+                </div>
+                <div>
+                  <dt>Окончание</dt>
+                  <dd>{{ formatEventDateTime(details.endDate) }}</dd>
+                </div>
+                @if (details.location; as location) {
+                  <div>
+                    <dt>Место</dt>
+                    <dd>
+                      {{ location.name || 'Без названия' }}
+                      ({{ location.latitude }}, {{ location.longitude }})
+                    </dd>
+                  </div>
+                }
+              </dl>
+
+              @if (details.description; as description) {
+                <div class="account-card__section">
+                  <h3>Описание</h3>
+                  <p>{{ description.text }}</p>
+                </div>
+              }
+
+              @if (details.requirements.length > 0) {
+                <div class="account-card__section">
+                  <h3>Требования</h3>
+                  <ul>
+                    @for (req of details.requirements; track req.id) {
+                      <li>
+                        <strong>{{ req.title }}</strong>
+                        @if (req.description) {
+                          <span> — {{ req.description }}</span>
+                        }
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              @if (details.invitees.length > 0) {
+                <div class="account-card__section">
+                  <h3>Участники</h3>
+                  <ul>
+                    @for (invitee of details.invitees; track invitee.id) {
+                      <li>{{ invitee.user.nickname }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+            }
+          </section>
+        </div>
+      </article>
+    }
+  </div>
+</section>
