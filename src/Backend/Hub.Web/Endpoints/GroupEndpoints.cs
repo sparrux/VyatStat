@@ -1,6 +1,7 @@
 using Ardalis.Result.AspNetCore;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Contracts;
+using Hub.Application.Features.Groups.Commands.AttachEvent;
 using Hub.Application.Features.Groups.Commands.Create;
 using Hub.Application.Features.Groups.Contracts;
 using Hub.Application.Features.Groups.Queries.Get;
@@ -29,6 +30,10 @@ static class GroupEndpoints
         groups.MapGet("/events", GetEvents)
             .HasApiVersion(1.0)
             .Produces<ListResponse<EventSummaryResponse>>();
+        
+        groups.MapPost("/{groupId:guid}/events/{eventId:guid}", AttachEvent)
+            .HasApiVersion(1.0)
+            .Produces<IdResponse>();
     }
 
     static async Task<IResult> Create(
@@ -48,4 +53,11 @@ static class GroupEndpoints
         [FromServices] IRequestHandler<GetGroupEventsQuery, ListResponse<EventSummaryResponse>> handler,
         CancellationToken ctk) =>
         (await handler.Handle(query, ctk)).ToMinimalApiResult();
+    
+    static async Task<IResult> AttachEvent(
+        [FromRoute] Guid groupId,
+        [FromRoute] Guid eventId,
+        [FromServices] IRequestHandler<AttachEventCommand, IdResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(groupId, eventId), ctk)).ToMinimalApiResult();
 }

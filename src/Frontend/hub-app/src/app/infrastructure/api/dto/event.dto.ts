@@ -50,3 +50,28 @@ export interface EventDetailsDto {
   requirements: EventRequirementSummaryDto[];
   invitees: EventInviteeSummaryDto[];
 }
+
+export interface CreateEventRequestDto {
+  title: string;
+  dates: {
+    startDate: string;
+    endDate: string;
+  };
+}
+
+export interface UpdateDescriptionRequestDto {
+  newDescription: {
+    text: string;
+    format: TextFormat;
+  };
+}
+
+export interface UpdateLocationRequestDto {
+  name: string | null;
+  latitude: number;
+  longitude: number;
+}
+
+export interface IdResponseDto {
+  id: string;
+}

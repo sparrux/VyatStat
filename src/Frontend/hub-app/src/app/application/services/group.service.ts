@@ -36,4 +36,8 @@ export class GroupService {
   getEvents(query: GetGroupEventsQuery): Observable<ListResult<EventSummary>> {
     return this.groupApi.getEvents(query);
   }
+
+  attachEvent(groupId: string, eventId: string): Observable<void> {
+    return this.groupApi.attachEvent(groupId, eventId);
+  }
 }

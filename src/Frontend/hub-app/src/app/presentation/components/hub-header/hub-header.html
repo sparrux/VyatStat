@@ -34,11 +34,11 @@
             </span>
           </button>
           <div class="hub-header__menu-panel" role="menu">
-            <a
+            <button
+              type="button"
               class="hub-header__menu-item"
               role="menuitem"
-              href="#"
-              (click)="$event.preventDefault()"
+              (click)="openCreateEvent()"
             >
               <svg class="hub-header__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -49,7 +49,7 @@
                 <path d="M9.5 15.5h5" />
               </svg>
               <span>Новое событие</span>
-            </a>
+            </button>
             <a
               class="hub-header__menu-item"
               role="menuitem"

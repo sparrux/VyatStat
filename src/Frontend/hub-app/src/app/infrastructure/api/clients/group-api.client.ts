@@ -18,7 +18,7 @@ import {
   CreateGroupRequestDto,
   GroupSummaryDto,
 } from '../dto/group.dto';
-import { EventSummaryDto } from '../dto/event.dto';
+import { EventSummaryDto, IdResponseDto } from '../dto/event.dto';
 import { ListResponseDto } from '../dto/list-response.dto';
 import {
   mapGroupListResponseDtoToModel,
@@ -67,5 +67,11 @@ export class GroupApiClient implements IGroupApi {
         params,
       })
       .pipe(map(mapEventListResponseDtoToModel));
+  }
+
+  attachEvent(groupId: string, eventId: string): Observable<void> {
+    return this.http
+      .post<IdResponseDto>(`${this.baseUrl}/${groupId}/events/${eventId}`, {})
+      .pipe(map(() => undefined));
   }
 }

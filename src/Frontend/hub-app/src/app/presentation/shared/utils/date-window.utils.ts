@@ -47,3 +47,28 @@ export function formatDateRangeLabel(window: DateWindow): string {
   const to = window.to.toLocaleDateString('ru-RU', options);
   return `${from} — ${to}`;
 }
+
+export function toDateTimeLocalValue(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+
+  return [
+    date.getFullYear(),
+    '-',
+    pad(date.getMonth() + 1),
+    '-',
+    pad(date.getDate()),
+    'T',
+    pad(date.getHours()),
+    ':',
+    pad(date.getMinutes()),
+  ].join('');
+}
+
+export function fromDateTimeLocalValue(value: string): Date | null {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}

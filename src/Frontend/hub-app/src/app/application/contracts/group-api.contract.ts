@@ -20,6 +20,7 @@ export interface IGroupApi {
   create(input: CreateGroupInput): Observable<GroupSummary>;
   getList(query: GetGroupsQuery): Observable<ListResult<GroupSummary>>;
   getEvents(query: GetGroupEventsQuery): Observable<ListResult<EventSummary>>;
+  attachEvent(groupId: string, eventId: string): Observable<void>;
 }
 
 export const GROUP_API = new InjectionToken<IGroupApi>('IGroupApi');

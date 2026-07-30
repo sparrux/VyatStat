@@ -30,4 +30,13 @@ export class HubHeader {
 
     await this.router.navigate(['/groups', group.id]);
   }
+
+  protected async openCreateEvent(): Promise<void> {
+    const result = await this.dialogs.openCreateEvent();
+    if (!result) {
+      return;
+    }
+
+    await this.router.navigate(['/account']);
+  }
 }

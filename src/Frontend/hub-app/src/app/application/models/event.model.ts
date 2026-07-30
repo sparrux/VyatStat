@@ -62,3 +62,22 @@ export interface DatesRange {
   startDate: string;
   endDate: string;
 }
+
+export interface CreateEventLocationInput {
+  name?: string | null;
+  latitude: number;
+  longitude: number;
+}
+
+export interface CreateEventInput {
+  title: string;
+  startDate: string;
+  endDate: string;
+  description?: string | null;
+  location?: CreateEventLocationInput | null;
+}
+
+export interface CreateEventDraftResult {
+  event: EventSummary;
+  groupId: string;
+}

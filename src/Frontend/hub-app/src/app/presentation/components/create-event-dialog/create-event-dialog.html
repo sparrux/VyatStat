@@ -1,0 +1,152 @@
+<app-dialog-shell title="Новое событие" (closed)="onCancel()">
+  <form
+    class="create-event-dialog__form"
+    (submit)="onCreate(); $event.preventDefault()"
+    novalidate
+  >
+    <p class="create-event-dialog__hint">
+      Создаётся черновик события и привязывается к выбранной группе.
+    </p>
+
+    <label class="vt-field">
+      <span class="vt-field__label">Группа</span>
+      <select
+        class="vt-field__input"
+        name="groupId"
+        [ngModel]="groupId()"
+        (ngModelChange)="groupId.set($event)"
+        [disabled]="isSaving() || isLoadingGroups() || groups().length === 0"
+      >
+        @if (groups().length === 0) {
+          <option value="">Нет доступных групп</option>
+        } @else {
+          @for (group of groups(); track group.id) {
+            <option [value]="group.id">{{ group.name }}</option>
+          }
+        }
+      </select>
+    </label>
+
+    <label class="vt-field">
+      <span class="vt-field__label">Название</span>
+      <input
+        class="vt-field__input"
+        type="text"
+        name="title"
+        autocomplete="off"
+        maxlength="200"
+        [ngModel]="title()"
+        (ngModelChange)="title.set($event)"
+        [disabled]="isSaving()"
+        placeholder="Например, Выезд на тренировку"
+      />
+    </label>
+
+    <div class="create-event-dialog__row">
+      <label class="vt-field">
+        <span class="vt-field__label">Начало</span>
+        <input
+          class="vt-field__input"
+          type="datetime-local"
+          name="startDate"
+          [ngModel]="startDate()"
+          (ngModelChange)="startDate.set($event)"
+          [disabled]="isSaving()"
+        />
+      </label>
+
+      <label class="vt-field">
+        <span class="vt-field__label">Окончание</span>
+        <input
+          class="vt-field__input"
+          type="datetime-local"
+          name="endDate"
+          [ngModel]="endDate()"
+          (ngModelChange)="endDate.set($event)"
+          [disabled]="isSaving()"
+        />
+      </label>
+    </div>
+
+    <label class="vt-field">
+      <span class="vt-field__label">Описание</span>
+      <textarea
+        class="vt-field__input create-event-dialog__textarea"
+        name="description"
+        rows="3"
+        [ngModel]="description()"
+        (ngModelChange)="description.set($event)"
+        [disabled]="isSaving()"
+        placeholder="Необязательно"
+      ></textarea>
+    </label>
+
+    <fieldset class="create-event-dialog__location" [disabled]="isSaving()">
+      <legend class="create-event-dialog__legend">Место (необязательно)</legend>
+
+      <label class="vt-field">
+        <span class="vt-field__label">Название места</span>
+        <input
+          class="vt-field__input"
+          type="text"
+          name="locationName"
+          autocomplete="off"
+          [ngModel]="locationName()"
+          (ngModelChange)="locationName.set($event)"
+          placeholder="Например, Парк Победы"
+        />
+      </label>
+
+      <div class="create-event-dialog__row">
+        <label class="vt-field">
+          <span class="vt-field__label">Широта</span>
+          <input
+            class="vt-field__input"
+            type="number"
+            name="latitude"
+            step="any"
+            [ngModel]="latitude()"
+            (ngModelChange)="onCoordinateChange('latitude', $event)"
+            placeholder="58.6035"
+          />
+        </label>
+
+        <label class="vt-field">
+          <span class="vt-field__label">Долгота</span>
+          <input
+            class="vt-field__input"
+            type="number"
+            name="longitude"
+            step="any"
+            [ngModel]="longitude()"
+            (ngModelChange)="onCoordinateChange('longitude', $event)"
+            placeholder="49.6680"
+          />
+        </label>
+      </div>
+    </fieldset>
+
+    @if (saveError(); as saveErr) {
+      <p class="create-event-dialog__error" role="alert">{{ saveErr }}</p>
+    }
+  </form>
+
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn vt-btn--secondary"
+    [disabled]="isSaving()"
+    (click)="onCancel()"
+  >
+    Отмена
+  </button>
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn vt-btn--primary"
+    [disabled]="isSaving() || isLoadingGroups() || groups().length === 0"
+    (click)="onCreate()"
+  >
+    {{ isSaving() ? 'Создание…' : 'Создать' }}
+  </button>
+</app-dialog-shell>

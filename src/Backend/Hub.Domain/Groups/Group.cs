@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
+using Hub.Domain.Events;
 using Hub.Domain.Groups.Members;
 using Hub.Domain.Groups.Training;
 
@@ -124,6 +125,15 @@ public sealed class Group : AggregateRoot
             return Result.NotFound("Training Module not found");
 
         return module.RemoveRating(rating);
+    }
+
+    public Result<GroupEvent> AttachEvent(Event evt)
+    {
+        var attach = GroupEvent.Create(this, evt);
+        if (!attach.IsSuccess) return attach;
+        
+        _groupEvents.Add(attach.Value);
+        return attach;
     }
 
     public Result<GroupMember> AddMember(User user) =>
