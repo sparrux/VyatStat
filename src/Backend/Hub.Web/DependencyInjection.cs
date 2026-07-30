@@ -98,6 +98,7 @@ static class DependencyInjection
             app.MapAuthEndpoints();
             app.MapUserEndpoints();
             app.MapEventEndpoints();
+            app.MapGroupEndpoints();
         }
 
         public void MapWebOpenApi()

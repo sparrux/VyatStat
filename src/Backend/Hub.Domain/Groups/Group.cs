@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
+using Hub.Domain.Groups.Members;
 using Hub.Domain.Groups.Training;
 
 // ReSharper disable CollectionNeverUpdated.Local
@@ -11,6 +12,7 @@ namespace Hub.Domain.Groups;
 
 public sealed class Group : AggregateRoot
 {
+    readonly List<GroupRole> _roles = [];
     readonly List<GroupMember> _members = [];
     readonly List<GroupEvent> _groupEvents = [];
     readonly List<TrainingModule> _modules = [];
@@ -25,25 +27,52 @@ public sealed class Group : AggregateRoot
     
     public string Name { get; private set; }
 
+    public IReadOnlyCollection<GroupRole> Roles => _roles;
     public IReadOnlyCollection<GroupMember> Members => _members;
     public IReadOnlyCollection<GroupEvent> GroupEvents => _groupEvents;
     public IReadOnlyCollection<TrainingModule> Modules => _modules;
 
-    public static Result<Group> Create(string name)
+    public static Result<Group> Create(string name, User creator)
     {
         if (string.IsNullOrWhiteSpace(name))
             return Result.Invalid(new ValidationError("Group name cannot be null or whitespace"));
+
+        var group = new Group(name);
         
-        return Result.Success(new Group(name));
+        var member = group.AddMember(creator);
+        if (!member.IsSuccess) return member.Map();
+
+        var role = group.AddRole(GroupRole.Admin, isSealed: true);
+        if (!role.IsSuccess) return role.Map();
+
+        var roleAdded = group.AddMemberRole(member.Value, role.Value);
+        if (!roleAdded.IsSuccess) return roleAdded.Map();
+        
+        return Result.Success(group);
     }
 
     public Result UpdateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return Result.Invalid(new ValidationError("Group name cannot be null or whitespace"));
+            return Result.Invalid(new ValidationError("Group Name cannot be null or whitespace"));
 
         Name = name;
         return Result.Success();
+    }
+
+    public Result<GroupRole> AddRole(string name, bool isSealed)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return Result.Invalid(new ValidationError("Group Role Name cannot be null or whitespace"));
+
+        if (Roles.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)))
+            return Result.Error("Group Role with the same name already exists");
+
+        var role = GroupRole.Create(name, isSealed);
+        if (!role.IsSuccess) return role;
+
+        _roles.Add(role.Value);
+        return role;
     }
 
     public Result<TrainingModule> AddTraining(string name, string? description)
@@ -104,6 +133,25 @@ public sealed class Group : AggregateRoot
                 _members.Add(x);
                 return x;
             });
+
+    public Result<GroupMemberRole> AddMemberRole(GroupMember member, GroupRole role)
+    {
+        if (_members.All(x => x != member))
+            return Result.NotFound("Group Member not found");
+        
+        if (Roles.All(x => x != role))
+            return Result.NotFound("Group Role not found");
+        
+        return role.AddMember(member);
+    }
+    
+    public Result RemoveMemberRole(GroupMemberRole memberRole, GroupRole role)
+    {
+        if (Roles.All(x => x != role))
+            return Result.NotFound("Group Role not found");
+
+        return role.RemoveMember(memberRole);
+    }
 
     public Result RemoveMember(GroupMember member) => 
         !_members.Remove(member) 

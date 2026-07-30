@@ -1,14 +1,14 @@
-using Hub.Domain.Events;
+using Hub.Domain.Groups;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Hub.Infrastructure.Persistence.Configurations.Event;
+namespace Hub.Infrastructure.Persistence.Configurations.Group;
 
-sealed class EventRoleConfiguration : IEntityTypeConfiguration<EventRole>
+sealed class GroupRoleConfiguration : IEntityTypeConfiguration<GroupRole>
 {
-    public void Configure(EntityTypeBuilder<EventRole> builder)
+    public void Configure(EntityTypeBuilder<GroupRole> builder)
     {
-        builder.ToTable("event_role");
+        builder.ToTable("group_role");
         
         builder.ConfigureAuditable();
 
@@ -19,20 +19,20 @@ sealed class EventRoleConfiguration : IEntityTypeConfiguration<EventRole>
         builder.Property(x => x.IsSealed)
             .IsRequired();
         
-        builder.HasOne(x => x.Event)
+        builder.HasOne(x => x.Group)
             .WithMany(x => x.Roles)
-            .HasForeignKey(x => x.EventId)
+            .HasForeignKey(x => x.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(x => x.Participants)
+        builder.HasMany(x => x.Members)
             .WithOne(x => x.Role)
             .HasForeignKey(x => x.RoleId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        builder.ConfigureCollection(e => e.Participants, "_participants");
+        builder.ConfigureCollection(e => e.Members, "_members");
 
-        builder.HasIndex(x => x.EventId);
-        builder.HasIndex(x => new { x.EventId, x.Name })
+        builder.HasIndex(x => x.GroupId);
+        builder.HasIndex(x => new { x.GroupId, x.Name })
             .IsUnique();
     }
 }

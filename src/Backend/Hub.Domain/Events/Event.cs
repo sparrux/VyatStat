@@ -147,6 +147,9 @@ public sealed class Event : AggregateRoot
 
     public Result<EventRole> AddRole(string name, bool isSealed)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            return Result.Invalid(new ValidationError("Event role name cannot be null or whitespace"));
+        
         if (Roles.Any(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)))
             return Result.Error("Event Role with the same name already exists");
         

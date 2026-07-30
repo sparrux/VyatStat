@@ -1,5 +1,4 @@
 using Ardalis.Result;
-using Hub.Domain.Common.Exceptions;
 using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Extensions;

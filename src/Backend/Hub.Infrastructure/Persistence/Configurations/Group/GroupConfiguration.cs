@@ -15,6 +15,11 @@ sealed class GroupConfiguration : IEntityTypeConfiguration<Domain.Groups.Group>
             .HasMaxLength(200)
             .IsRequired();
         
+        builder.HasMany(x => x.Roles)
+            .WithOne(x => x.Group)
+            .HasForeignKey(x => x.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder.HasMany(x => x.GroupEvents)
             .WithOne(x => x.Group)
             .HasForeignKey(x => x.GroupId)
@@ -30,6 +35,7 @@ sealed class GroupConfiguration : IEntityTypeConfiguration<Domain.Groups.Group>
             .HasForeignKey(x => x.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.ConfigureCollection(g => g.Roles, "_roles");
         builder.ConfigureCollection(g => g.Members, "_members");
         builder.ConfigureCollection(g => g.Modules, "_modules");
         builder.ConfigureCollection(g => g.GroupEvents, "_groupEvents");

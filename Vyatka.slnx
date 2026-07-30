@@ -8,12 +8,6 @@
   <Folder Name="/Identity/">
     <Project Path="src/Backend/Identity.WebAPI/Identity.WebAPI.csproj" />
   </Folder>
-  <Folder Name="/Tracker/">
-    <Project Path="src/Backend/Tracker.Application/Tracker.Application.csproj" />
-    <Project Path="src/Backend/Tracker.Domain/Tracker.Domain.csproj" />
-    <Project Path="src/Backend/Tracker.Infrastructure/Tracker.Infrastructure.csproj" />
-    <Project Path="src/Backend/Tracker.WebAPI/Tracker.WebAPI.csproj" />
-  </Folder>
   <Project Path="src/Backend/AppHost/AppHost.csproj" />
   <Project Path="src/Backend/ServiceDefaults/ServiceDefaults.csproj" />
 </Solution>

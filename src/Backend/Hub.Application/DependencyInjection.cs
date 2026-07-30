@@ -15,6 +15,9 @@ using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Queries.Get;
 using Hub.Application.Features.Events.Queries.GetById;
 using Hub.Application.Features.Events.Queries.GetInviteeById;
+using Hub.Application.Features.Groups.Commands.Create;
+using Hub.Application.Features.Groups.Contracts;
+using Hub.Application.Features.Groups.Queries.Get;
 using Hub.Application.Features.Users.Contracts;
 using Hub.Application.Features.Users.Queries.Get;
 using Hub.Application.Features.Users.Queries.GetById;
@@ -34,6 +37,7 @@ public static class DependencyInjection
         
             services.AddUserHandlers();
             services.AddEventHandlers();
+            services.AddGroupHandlers();
         }
 
         void AddUserHandlers()
@@ -58,6 +62,12 @@ public static class DependencyInjection
             services.AddDecoratedHandler<UpdateStateCommand, IdResponse, UpdateStateCommandHandler>();
             services.AddDecoratedHandler<DeleteRequirementCommand, IdResponse, DeleteRequirementCommandHandler>();
             services.AddDecoratedHandler<UpdateCompletionCommand, IdResponse, UpdateCompletionCommandHandler>();
+        }
+
+        void AddGroupHandlers()
+        {
+            services.AddDecoratedHandler<CreateGroupCommand, GroupSummaryResponse, CreateGroupCommandHandler>();
+            services.AddDecoratedHandler<GetGroupQuery, ListResponse<GroupSummaryResponse>, GetGroupQueryHandler>();
         }
     }
 }

@@ -4,6 +4,7 @@ using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Requirements;
 using Hub.Domain.Groups;
+using Hub.Domain.Groups.Members;
 using Hub.Domain.Groups.Training;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,7 @@ public sealed class HubDbContext : DbContext
         TrainingModuleRatings = Set<TrainingRating>();
         
         Groups = Set<Group>();
+        GroupRoles = Set<GroupRole>();
         GroupEvent = Set<GroupEvent>();
         GroupMembers = Set<GroupMember>();
         
@@ -32,13 +34,14 @@ public sealed class HubDbContext : DbContext
         EventLocations = Set<EventLocation>();
         EventRequirementAssignments = Set<EventRequirementAssignment>();
     }
-    
+
     public DbSet<User> Users { get; }
     
     public DbSet<TrainingModule> TrainingModules { get; }
     public DbSet<TrainingRating> TrainingModuleRatings { get; }
     
     public DbSet<Group> Groups { get; }
+    public DbSet<GroupRole> GroupRoles { get; }
     public DbSet<GroupEvent> GroupEvent { get; }
     public DbSet<GroupMember> GroupMembers { get; }
     

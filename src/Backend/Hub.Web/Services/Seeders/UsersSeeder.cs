@@ -1,6 +1,4 @@
 using Hub.Domain;
-using Hub.Domain.Events;
-using Hub.Domain.ValueObjects;
 using Hub.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
