@@ -3,7 +3,7 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('bold')"
+      [class.rte-toolbar__btn--active]="state().bold"
       [disabled]="disabled()"
       aria-label="Жирный"
       title="Жирный (Ctrl+B)"
@@ -14,7 +14,7 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('italic')"
+      [class.rte-toolbar__btn--active]="state().italic"
       [disabled]="disabled()"
       aria-label="Курсив"
       title="Курсив (Ctrl+I)"
@@ -25,7 +25,7 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('underline')"
+      [class.rte-toolbar__btn--active]="state().underline"
       [disabled]="disabled()"
       aria-label="Подчёркнутый"
       title="Подчёркнутый (Ctrl+U)"
@@ -36,7 +36,7 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('strike')"
+      [class.rte-toolbar__btn--active]="state().strike"
       [disabled]="disabled()"
       aria-label="Зачёркнутый"
       title="Зачёркнутый"
@@ -47,7 +47,7 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('code')"
+      [class.rte-toolbar__btn--active]="state().code"
       [disabled]="disabled()"
       aria-label="Инлайн-код"
       title="Инлайн-код"
@@ -62,9 +62,9 @@
       <span class="visually-hidden">Тип блока</span>
       <select
         class="rte-toolbar__select"
-        [value]="currentHeading()"
+        [value]="state().heading"
         [disabled]="disabled()"
-        (change)="setHeading($any($event.target).value)"
+        (change)="onHeadingChange($event)"
       >
         @for (option of headingOptions; track option.value) {
           <option [value]="option.value">{{ option.label }}</option>
@@ -77,7 +77,7 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('bulletList')"
+      [class.rte-toolbar__btn--active]="state().bulletList"
       [disabled]="disabled()"
       aria-label="Маркированный список"
       title="Маркированный список"
@@ -88,7 +88,7 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('orderedList')"
+      [class.rte-toolbar__btn--active]="state().orderedList"
       [disabled]="disabled()"
       aria-label="Нумерованный список"
       title="Нумерованный список"
@@ -99,7 +99,7 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('blockquote')"
+      [class.rte-toolbar__btn--active]="state().blockquote"
       [disabled]="disabled()"
       aria-label="Цитата"
       title="Цитата"
@@ -110,36 +110,13 @@
     <button
       type="button"
       class="rte-toolbar__btn"
-      [class.rte-toolbar__btn--active]="isActive('link')"
+      [class.rte-toolbar__btn--active]="state().link"
       [disabled]="disabled()"
       aria-label="Ссылка"
       title="Ссылка"
       (click)="toggleLink()"
     >
       URL
-    </button>
-  </div>
-
-  <div class="rte-toolbar__group rte-toolbar__group--end">
-    <button
-      type="button"
-      class="rte-toolbar__btn"
-      [disabled]="disabled() || !canUndo()"
-      aria-label="Отменить"
-      title="Отменить (Ctrl+Z)"
-      (click)="undo()"
-    >
-      ↶
-    </button>
-    <button
-      type="button"
-      class="rte-toolbar__btn"
-      [disabled]="disabled() || !canRedo()"
-      aria-label="Повторить"
-      title="Повторить (Ctrl+Shift+Z)"
-      (click)="redo()"
-    >
-      ↷
     </button>
   </div>
 </div>

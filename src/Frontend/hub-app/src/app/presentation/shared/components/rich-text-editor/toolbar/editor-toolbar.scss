@@ -22,11 +22,6 @@
   }
 }
 
-.rte-toolbar__group--end {
-  margin-left: auto;
-  border-right: none;
-}
-
 .rte-toolbar__btn {
   display: inline-flex;
   align-items: center;
@@ -118,11 +113,5 @@
 @media (prefers-reduced-motion: reduce) {
   .rte-toolbar__btn {
     transition: none;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .rte-toolbar {
-    background: color-mix(in srgb, var(--vt-surface-muted) 85%, #000 15%);
   }
 }

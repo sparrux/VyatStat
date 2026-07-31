@@ -17,7 +17,6 @@ import {
   EventSummary,
 } from '../../../application/models/event.model';
 import { GroupSummary } from '../../../application/models/group.model';
-import { RichText, TextFormat } from '../../../application/models/rich-text.model';
 import {
   DateWindow,
   createDefaultEventWindow,
@@ -29,6 +28,7 @@ import {
   formatEventDateTime,
 } from '../../shared/utils/event-display.utils';
 import { HtmlSanitizerService } from '../../shared/components/rich-text-editor/services/html-sanitizer.service';
+import { richTextToSafeHtmlString } from '../../shared/components/rich-text-editor/utils/rich-text-html.utils';
 
 const RANGE_SHIFT_DAYS = 30;
 
@@ -62,27 +62,16 @@ export class AccountPage implements OnInit {
   protected readonly eventStateLabel = eventStateLabel;
   protected readonly formatEventDateTime = formatEventDateTime;
 
-  protected descriptionHtml(description: RichText): SafeHtml {
-    if (description.format === TextFormat.Html) {
-      const clean = this.htmlSanitizer.sanitize(description.text);
-      return this.domSanitizer.bypassSecurityTrustHtml(clean || '');
-    }
-
-    const escaped = description.text
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#39;');
-
-    return this.domSanitizer.bypassSecurityTrustHtml(
-      escaped ? `<p>${escaped}</p>` : '',
-    );
-  }
-
   protected readonly dateRangeLabel = computed(() =>
     formatDateRangeLabel(this.dateWindow()),
   );
+
+  protected descriptionHtml(description: NonNullable<EventDetails['description']>): SafeHtml {
+    const html = richTextToSafeHtmlString(description, (value) =>
+      this.htmlSanitizer.sanitize(value),
+    );
+    return this.domSanitizer.bypassSecurityTrustHtml(html);
+  }
 
   protected readonly selectedGroup = computed(() => {
     const id = this.selectedGroupId();
