@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthenticationService } from '../../../application/services/authentication.service';
@@ -16,6 +17,7 @@ import {
   EventSummary,
 } from '../../../application/models/event.model';
 import { GroupSummary } from '../../../application/models/group.model';
+import { RichText, TextFormat } from '../../../application/models/rich-text.model';
 import {
   DateWindow,
   createDefaultEventWindow,
@@ -26,6 +28,7 @@ import {
   eventStateLabel,
   formatEventDateTime,
 } from '../../shared/utils/event-display.utils';
+import { HtmlSanitizerService } from '../../shared/components/rich-text-editor/services/html-sanitizer.service';
 
 const RANGE_SHIFT_DAYS = 30;
 
@@ -39,6 +42,8 @@ export class AccountPage implements OnInit {
   private readonly auth = inject(AuthenticationService);
   private readonly groupService = inject(GroupService);
   private readonly eventService = inject(EventService);
+  private readonly htmlSanitizer = inject(HtmlSanitizerService);
+  private readonly domSanitizer = inject(DomSanitizer);
 
   protected readonly groups = signal<GroupSummary[]>([]);
   protected readonly selectedGroupId = signal<string | null>(null);
@@ -56,6 +61,24 @@ export class AccountPage implements OnInit {
 
   protected readonly eventStateLabel = eventStateLabel;
   protected readonly formatEventDateTime = formatEventDateTime;
+
+  protected descriptionHtml(description: RichText): SafeHtml {
+    if (description.format === TextFormat.Html) {
+      const clean = this.htmlSanitizer.sanitize(description.text);
+      return this.domSanitizer.bypassSecurityTrustHtml(clean || '');
+    }
+
+    const escaped = description.text
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+
+    return this.domSanitizer.bypassSecurityTrustHtml(
+      escaped ? `<p>${escaped}</p>` : '',
+    );
+  }
 
   protected readonly dateRangeLabel = computed(() =>
     formatDateRangeLabel(this.dateWindow()),

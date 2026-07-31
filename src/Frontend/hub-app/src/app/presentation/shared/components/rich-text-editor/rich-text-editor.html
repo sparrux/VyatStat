@@ -1,0 +1,14 @@
+<div class="rte__chrome">
+  @if (!readonly()) {
+    <app-editor-toolbar
+      [editor]="editor"
+      [disabled]="isDisabled()"
+    />
+  }
+
+  <tiptap-editor
+    class="rte__surface"
+    [editor]="editor"
+    outputFormat="html"
+  />
+</div>

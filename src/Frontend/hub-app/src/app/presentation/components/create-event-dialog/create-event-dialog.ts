@@ -18,10 +18,11 @@ import {
   toDateTimeLocalValue,
 } from '../../shared/utils/date-window.utils';
 import { DialogShell } from '../../shared/components/dialog-shell/dialog-shell';
+import { RichTextEditor } from '../../shared/components/rich-text-editor/rich-text-editor';
 
 @Component({
   selector: 'app-create-event-dialog',
-  imports: [DialogShell, FormsModule],
+  imports: [DialogShell, FormsModule, RichTextEditor],
   templateUrl: './create-event-dialog.html',
   styleUrl: './create-event-dialog.scss',
 })
@@ -122,7 +123,7 @@ export class CreateEventDialog implements OnInit {
         await firstValueFrom(
           this.eventService.updateDescription(created.id, {
             text: description,
-            format: TextFormat.PlainText,
+            format: TextFormat.Html,
           }),
         );
       }

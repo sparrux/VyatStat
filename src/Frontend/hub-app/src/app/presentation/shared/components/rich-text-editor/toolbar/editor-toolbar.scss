@@ -1,0 +1,128 @@
+.rte-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border-bottom: 1px solid var(--vt-border-subtle);
+  background: var(--vt-surface-muted);
+}
+
+.rte-toolbar__group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.45rem;
+  border-right: 1px solid var(--vt-border-subtle);
+
+  &:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+}
+
+.rte-toolbar__group--end {
+  margin-left: auto;
+  border-right: none;
+}
+
+.rte-toolbar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--vt-corner-default);
+  background: transparent;
+  color: var(--vt-font-color-primary);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover:not(:disabled) {
+    background: var(--vt-surface-card);
+    border-color: var(--vt-border-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--vt-color-gray-green);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.rte-toolbar__btn--active {
+  background: var(--vt-surface-card);
+  border-color: var(--vt-color-gray-green);
+  color: var(--vt-font-color-secondary);
+}
+
+.rte-toolbar__underline {
+  text-decoration: underline;
+}
+
+.rte-toolbar__strike {
+  text-decoration: line-through;
+}
+
+.rte-toolbar__select-wrap {
+  display: inline-flex;
+}
+
+.rte-toolbar__select {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--vt-border-subtle);
+  border-radius: var(--vt-corner-default);
+  background: var(--vt-surface-card);
+  color: var(--vt-font-color-primary);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--vt-color-gray-green);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rte-toolbar__btn {
+    transition: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .rte-toolbar {
+    background: color-mix(in srgb, var(--vt-surface-muted) 85%, #000 15%);
+  }
+}

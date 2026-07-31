@@ -68,18 +68,15 @@
       </label>
     </div>
 
-    <label class="vt-field">
+    <div class="vt-field">
       <span class="vt-field__label">Описание</span>
-      <textarea
-        class="vt-field__input create-event-dialog__textarea"
-        name="description"
-        rows="3"
-        [ngModel]="description()"
-        (ngModelChange)="description.set($event)"
-        [disabled]="isSaving()"
+      <app-rich-text-editor
+        [value]="description()"
+        (valueChange)="description.set($event)"
+        [readonly]="isSaving()"
         placeholder="Необязательно"
-      ></textarea>
-    </label>
+      />
+    </div>
 
     <fieldset class="create-event-dialog__location" [disabled]="isSaving()">
       <legend class="create-event-dialog__legend">Место (необязательно)</legend>

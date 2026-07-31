@@ -134,7 +134,10 @@
               @if (details.description; as description) {
                 <div class="account-card__section">
                   <h3>Описание</h3>
-                  <p>{{ description.text }}</p>
+                  <div
+                    class="account-card__rich-text"
+                    [innerHTML]="descriptionHtml(description)"
+                  ></div>
                 </div>
               }
 

@@ -48,6 +48,7 @@ export class DialogService {
     >(CreateEventDialog, {
       minWidth: '28rem',
       maxWidth: '36rem',
+      maxHeight: '90vh',
     });
 
     return firstValueFrom(dialogRef.closed);
