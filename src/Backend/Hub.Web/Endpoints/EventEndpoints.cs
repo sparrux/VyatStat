@@ -4,6 +4,7 @@ using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
 using Hub.Application.Features.Events.Commands.CreateParticipant;
 using Hub.Application.Features.Events.Commands.CreateParticipantRole;
+using Hub.Application.Features.Events.Commands.CreateRequirement;
 using Hub.Application.Features.Events.Commands.CreateRole;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
@@ -14,6 +15,7 @@ using Hub.Application.Features.Events.Commands.UpdateCompletion;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
+using Hub.Application.Features.Events.Commands.UpdateRequirement;
 using Hub.Application.Features.Events.Commands.UpdateState;
 using Hub.Application.Features.Events.Commands.UpdateTitle;
 using Hub.Application.Features.Events.Contracts;
@@ -91,6 +93,14 @@ static class EventEndpoints
             .Produces<IdResponse>();
         
         events.MapPut("/{eventId:guid}/state", UpdateState)
+            .HasApiVersion(1.0)
+            .Produces<IdResponse>();
+        
+        events.MapPost("/{eventId:guid}/requirements", CreateRequirement)
+            .HasApiVersion(1.0)
+            .Produces<EventRequirementSummaryResponse>(StatusCodes.Status201Created);
+        
+        events.MapPut("/{eventId:guid}/requirements/{reqId:guid}", UpdateRequirement)
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
         
@@ -217,6 +227,21 @@ static class EventEndpoints
         [FromServices] IRequestHandler<UpdateStateCommand, IdResponse> handler,
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId, state), ctk)).ToMinimalApiResult();
+    
+    static async Task<IResult> CreateRequirement(
+        [FromRoute] Guid eventId,
+        [FromBody] CreateRequirementRequest request,
+        [FromServices] IRequestHandler<CreateRequirementCommand, EventRequirementSummaryResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, request), ctk)).ToMinimalApiResult();
+    
+    static async Task<IResult> UpdateRequirement(
+        [FromRoute] Guid eventId,
+        [FromRoute] Guid reqId,
+        [FromBody] UpdateRequirementRequest request,
+        [FromServices] IRequestHandler<UpdateRequirementCommand, IdResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, reqId, request), ctk)).ToMinimalApiResult();
     
     static async Task<IResult> DeleteRequirement(
         [FromRoute] Guid eventId,

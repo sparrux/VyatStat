@@ -6,6 +6,7 @@ using Hub.Domain.Events.Handlers;
 using Hub.Domain.Events.Participants;
 using Hub.Domain.Events.Reports;
 using Hub.Domain.Events.Requirements;
+using Hub.Domain.Events.Requirements.VerificationRules;
 using Hub.Domain.Events.Training;
 using Hub.Domain.Extensions;
 using Hub.Domain.Groups;
@@ -296,7 +297,7 @@ public sealed class Event : AggregateRoot
     public Result UpdateRequirement(EventRequirement requirement, string title, string? description)
     {
         if (IsFinished(State))
-            return Result.Error("Event is finished already");
+            return Result.Error("Event is finished");
         
         if (Requirements.All(x => x != requirement))
             return Result.NotFound("Event requirement is not found");
@@ -304,12 +305,31 @@ public sealed class Event : AggregateRoot
         return requirement.UpdateRequirement(title, description);
     }
 
-    public Result<EventRequirementRoleVerifier> AddRequirementRoleVerifier(EventRequirement requirement, EventRole role, bool isRequired)
+    public Result<EventRequirementRoleVerifier> AddRequirementRoleVerifier(
+        EventRequirement requirement, EventRole role, bool isRequired)
     {
         if (IsFinished(State))
             return Result.Error("Event is finished");
         
         return requirement.AddRoleVerifier(role, isRequired);
+    }
+    
+    public Result<EventRequirementParticipantVerifier> AddRequirementParticipantVerifier(
+        EventRequirement requirement, EventParticipant participant, bool isRequired)
+    {
+        if (IsFinished(State))
+            return Result.Error("Event is finished");
+        
+        return requirement.AddParticipantVerifier(participant, isRequired);
+    }
+    
+    public Result<EventRequirementRuleVerifier> AddRequirementRuleVerifier(
+        EventRequirement requirement, EventRequirementVerificationRule rule, bool isRequired)
+    {
+        if (IsFinished(State))
+            return Result.Error("Event is finished");
+
+        return requirement.AddRuleVerifier(rule, isRequired);
     }
     
     public Result VerifyRequirementByActor(Guid participantUser, Guid requirement, Guid actor)
@@ -332,9 +352,12 @@ public sealed class Event : AggregateRoot
 
     public Result RemoveRequirement(EventRequirement requirement)
     {
-        if (!IsDraft(State))
-            return Result.Error("Event is not in draft state");
-        
+        if (IsFinished(State))
+            return Result.Error("Event is finished");
+
+        if (Requirements.All(x => x != requirement))
+            return Result.NotFound("Event requirement is not found");
+
         return _requirements.Remove(requirement)
             ? Result.Success()
             : Result.NotFound("Event requirement is not found");

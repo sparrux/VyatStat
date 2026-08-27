@@ -23,7 +23,7 @@ sealed class CreateParticipantCommandHandler(
         var ev = await dbContext.Events
             .WithSpecification(new EventWithParticipantsSpec())
             .WithSpecification(new EventWithRequirementsSpec())
-            .WithSpecification(new EventWithRequirementCompletionsSpec())
+            .WithSpecification(new EventWithRequirementAssignmentsSpec())
             .WithSpecification(new GetByIdSpec<Event>(request.EventId))
             .FirstOrDefaultAsync(cancellationToken);
 

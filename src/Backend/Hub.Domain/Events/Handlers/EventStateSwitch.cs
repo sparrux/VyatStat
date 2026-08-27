@@ -18,6 +18,8 @@ sealed class EventStateSwitch(Event evt)
         if (Event.IsFinished(newState) && Event.IsFinished(evt.State))
             return Result.Invalid(new ValidationError("Event state is finished already"));
         
+        evt.State = newState;
+        
         return Result.Success();
     }
 }

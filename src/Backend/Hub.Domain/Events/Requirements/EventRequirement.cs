@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Concepts.Requirements;
 using Hub.Domain.Events.Participants;
+using Hub.Domain.Events.Requirements.VerificationRules;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
@@ -65,6 +66,20 @@ public sealed class EventRequirement : Requirement
             return Result.Error("Participant already added to verifiers");
 
         var verifier = EventRequirementParticipantVerifier.Create(isRequired, participant);
+        if (!verifier.IsSuccess) return verifier;
+        
+        _verifiers.Add(verifier.Value);
+        return verifier;
+    }
+
+    public Result<EventRequirementRuleVerifier> AddRuleVerifier(
+        EventRequirementVerificationRule rule, bool isRequired)
+    {
+        if (Verifiers.OfType<EventRequirementRuleVerifier>()
+            .Any(x => x.Verifier == rule))
+            return Result.Error("Rule already added to verifiers");
+
+        var verifier = EventRequirementRuleVerifier.Create(isRequired, rule);
         if (!verifier.IsSuccess) return verifier;
         
         _verifiers.Add(verifier.Value);
