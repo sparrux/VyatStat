@@ -67,7 +67,7 @@ public sealed class Event : AggregateRoot
         var role = evt.AddRole(EventRole.Organizer, isSealed: true);
         if (!role.IsSuccess) return role.Map();
 
-        var participant = evt.AddParticipant(organizer, force: true);
+        var participant = evt.AddParticipant(organizer, ignoreEventState: true);
         if (!participant.IsSuccess) return participant.Map();
 
         var participantRole = role.Value.AddParticipant(participant.Value);
@@ -255,9 +255,9 @@ public sealed class Event : AggregateRoot
             : Result.NotFound("Event Goal is not found");
     }
     
-    public Result<EventParticipant> AddParticipant(User user, bool force = false)
+    public Result<EventParticipant> AddParticipant(User user, bool ignoreEventState = false)
     {
-        if (!IsRegistrationOpen(State) && !force)
+        if (!IsRegistrationOpen(State) && !ignoreEventState)
             return Result.Error("Event registration must be open");
         
         if (Participants.Any(x => x.UserId == user.Id))
