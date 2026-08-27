@@ -321,13 +321,13 @@ public sealed class Event : AggregateRoot
         return handler.SubmitVerification(new VerifyByActor(participantUser, requirement, actor));
     }
     
-    public Result VerifyRequirementByAutomatic(Guid inviteeUser, Guid requirement)
+    public Result VerifyRequirementByAutomatic(Guid participantUser, Guid requirement)
     {
         if (!IsOngoing(State))
             return Result.Error("Event must be ongoing");
         
         var handler = new RequirementVerificationHandler(this);
-        return handler.SubmitVerification(new VerifyByAutomatic(inviteeUser, requirement));
+        return handler.SubmitVerification(new VerifyByAutomatic(participantUser, requirement));
     }
 
     public Result RemoveRequirement(EventRequirement requirement)

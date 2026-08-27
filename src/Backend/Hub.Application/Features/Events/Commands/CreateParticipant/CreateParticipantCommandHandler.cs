@@ -11,17 +11,17 @@ using Hub.Domain.Events;
 using Hub.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hub.Application.Features.Events.Commands.CreateInvitee;
+namespace Hub.Application.Features.Events.Commands.CreateParticipant;
 
-sealed class CreateInviteeCommandHandler(
+sealed class CreateParticipantCommandHandler(
     HubDbContext dbContext
-) : IRequestHandler<CreateInviteeCommand, EventInviteeSummaryResponse>
+) : IRequestHandler<CreateParticipantCommand, EventParticipantSummaryResponse>
 {
-    public async Task<Result<EventInviteeSummaryResponse>> Handle(
-        CreateInviteeCommand request, CancellationToken cancellationToken)
+    public async Task<Result<EventParticipantSummaryResponse>> Handle(
+        CreateParticipantCommand request, CancellationToken cancellationToken)
     {
         var ev = await dbContext.Events
-            .WithSpecification(new EventWithInviteesSpec())
+            .WithSpecification(new EventWithParticipantsSpec())
             .WithSpecification(new EventWithRequirementsSpec())
             .WithSpecification(new EventWithRequirementCompletionsSpec())
             .WithSpecification(new GetByIdSpec<Event>(request.EventId))
@@ -35,14 +35,14 @@ sealed class CreateInviteeCommandHandler(
 
         if (user is null) return Result.NotFound("User not found by id");
 
-        var inviteeResult = ev.AddParticipant(user);
+        var participantResult = ev.AddParticipant(user);
 
-        if (!inviteeResult.IsSuccess) return inviteeResult.Map();
+        if (!participantResult.IsSuccess) return participantResult.Map();
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(new EventInviteeSummaryResponse(
-            inviteeResult.Value.Id,
+        return Result.Success(new EventParticipantSummaryResponse(
+            participantResult.Value.Id,
             new UserSummaryResponse(
                 user.Id,
                 user.Nickname)));

@@ -5,13 +5,13 @@ using Hub.Domain.Events.Participants;
 
 namespace Hub.Application.Features.Events.Specifications.Projection;
 
-sealed class InviteeToDetailsSpec : Specification<EventParticipant, EventInviteeDetailsResponse>
+sealed class ParticipantToDetailsSpec : Specification<EventParticipant, EventParticipantDetailsResponse>
 {
-    public InviteeToDetailsSpec()
+    public ParticipantToDetailsSpec()
     {
         Query
             .AsNoTracking()
-            .Select(x => new EventInviteeDetailsResponse(
+            .Select(x => new EventParticipantDetailsResponse(
                 x.Id,
                 new UserSummaryResponse(
                     x.User.Id,

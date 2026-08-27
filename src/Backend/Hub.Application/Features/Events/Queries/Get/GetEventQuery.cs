@@ -6,7 +6,7 @@ namespace Hub.Application.Features.Events.Queries.Get;
 public sealed record GetEventQuery(
     Guid? OrganizerUserId,
     Guid? GroupId,
-    Guid? InviteeUserId,
+    Guid? ParticipantUserId,
     EventState? State,
     int Take = 0,
     int Skip = 0

@@ -19,7 +19,7 @@ sealed class UpdateCompletionCommandHandler(
         UpdateCompletionCommand request, CancellationToken cancellationToken)
     {
         var ev = await dbContext.Events
-            .WithSpecification(new EventWithInviteesSpec())
+            .WithSpecification(new EventWithParticipantsSpec())
             .WithSpecification(new EventWithRequirementsSpec())
             .WithSpecification(new EventWithRequirementCompletionsSpec())
             .WithSpecification(new GetByIdSpec<Event>(request.EventId))

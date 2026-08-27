@@ -2,7 +2,7 @@ using Ardalis.Result.AspNetCore;
 using Hub.Application.Abstractions;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
-using Hub.Application.Features.Events.Commands.CreateInvitee;
+using Hub.Application.Features.Events.Commands.CreateParticipant;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
 using Hub.Application.Features.Events.Commands.DeleteRequirement;
@@ -15,7 +15,7 @@ using Hub.Application.Features.Events.Commands.UpdateTitle;
 using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Queries.Get;
 using Hub.Application.Features.Events.Queries.GetById;
-using Hub.Application.Features.Events.Queries.GetInviteeById;
+using Hub.Application.Features.Events.Queries.GetParticipantById;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
 using Microsoft.AspNetCore.Mvc;
@@ -66,17 +66,17 @@ static class EventEndpoints
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
         
-        events.MapPost("/{eventId:guid}/invitees", CreateInvitee)
+        events.MapPost("/{eventId:guid}/participants", CreateParticipant)
             .HasApiVersion(1.0)
-            .Produces<EventInviteeSummaryResponse>();
+            .Produces<EventParticipantSummaryResponse>();
         
-        events.MapGet("/{eventId:guid}/invitees/me", GetInviteeBySelf)
+        events.MapGet("/{eventId:guid}/participants/me", GetParticipantBySelf)
             .HasApiVersion(1.0)
-            .Produces<EventInviteeDetailsResponse>();
+            .Produces<EventParticipantDetailsResponse>();
         
-        events.MapGet("/{eventId:guid}/invitees/{userId:guid}", GetInviteeByUserId)
+        events.MapGet("/{eventId:guid}/participants/{userId:guid}", GetParticipantByUserId)
             .HasApiVersion(1.0)
-            .Produces<EventInviteeDetailsResponse>();
+            .Produces<EventParticipantDetailsResponse>();
         
         events.MapPut("/{eventId:guid}/state", UpdateState)
             .HasApiVersion(1.0)
@@ -150,28 +150,28 @@ static class EventEndpoints
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId), ctk)).ToMinimalApiResult();
     
-    static async Task<IResult> CreateInvitee(
+    static async Task<IResult> CreateParticipant(
         [FromRoute] Guid eventId,
         [FromQuery] Guid? userId,
         [FromServices] IUserContext userContext,
-        [FromServices] IRequestHandler<CreateInviteeCommand, EventInviteeSummaryResponse> handler,
+        [FromServices] IRequestHandler<CreateParticipantCommand, EventParticipantSummaryResponse> handler,
         CancellationToken ctk)
     {
-        var inviteeUserId = userId ?? userContext.UserId;
-        return (await handler.Handle(new(eventId, inviteeUserId), ctk)).ToMinimalApiResult();
+        var participantUserId = userId ?? userContext.UserId;
+        return (await handler.Handle(new(eventId, participantUserId), ctk)).ToMinimalApiResult();
     }
     
-    static async Task<IResult> GetInviteeBySelf(
+    static async Task<IResult> GetParticipantBySelf(
         [FromRoute] Guid eventId,
         [FromServices] IUserContext userContext,
-        [FromServices] IRequestHandler<GetInviteeByIdQuery, EventInviteeDetailsResponse> handler,
+        [FromServices] IRequestHandler<GetParticipantByIdQuery, EventParticipantDetailsResponse> handler,
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId, userContext.UserId), ctk)).ToMinimalApiResult();
     
-    static async Task<IResult> GetInviteeByUserId(
+    static async Task<IResult> GetParticipantByUserId(
         [FromRoute] Guid eventId,
         [FromRoute] Guid userId,
-        [FromServices] IRequestHandler<GetInviteeByIdQuery, EventInviteeDetailsResponse> handler,
+        [FromServices] IRequestHandler<GetParticipantByIdQuery, EventParticipantDetailsResponse> handler,
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId, userId), ctk)).ToMinimalApiResult();
 
@@ -198,9 +198,9 @@ static class EventEndpoints
         CancellationToken ctk)
     {
         var actor = userContext.UserId;
-        var inviteeUserId = userId ?? userContext.UserId;
+        var participantUserId = userId ?? userContext.UserId;
         return (await handler.Handle(
-            new(eventId, inviteeUserId, reqId, actor), ctk)
+            new(eventId, participantUserId, reqId, actor), ctk)
         ).ToMinimalApiResult();
     }
 }

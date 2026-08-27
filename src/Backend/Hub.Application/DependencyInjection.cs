@@ -1,7 +1,7 @@
 using FluentValidation;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
-using Hub.Application.Features.Events.Commands.CreateInvitee;
+using Hub.Application.Features.Events.Commands.CreateParticipant;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
 using Hub.Application.Features.Events.Commands.DeleteRequirement;
@@ -14,7 +14,7 @@ using Hub.Application.Features.Events.Commands.UpdateTitle;
 using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Queries.Get;
 using Hub.Application.Features.Events.Queries.GetById;
-using Hub.Application.Features.Events.Queries.GetInviteeById;
+using Hub.Application.Features.Events.Queries.GetParticipantById;
 using Hub.Application.Features.Groups.Commands.AttachEvent;
 using Hub.Application.Features.Groups.Commands.Create;
 using Hub.Application.Features.Groups.Contracts;
@@ -59,8 +59,8 @@ public static class DependencyInjection
             services.AddDecoratedHandler<UpdateDatesCommand, IdResponse, UpdateDatesCommandHandler>();
             services.AddDecoratedHandler<UpdateLocationCommand, IdResponse, UpdateLocationCommandHandler>();
             services.AddDecoratedHandler<DeleteLocationCommand, IdResponse, DeleteLocationCommandHandler>();
-            services.AddDecoratedHandler<CreateInviteeCommand, EventInviteeSummaryResponse, CreateInviteeCommandHandler>();
-            services.AddDecoratedHandler<GetInviteeByIdQuery, EventInviteeDetailsResponse, GetInviteeByIdQueryHandler>();
+            services.AddDecoratedHandler<CreateParticipantCommand, EventParticipantSummaryResponse, CreateParticipantCommandHandler>();
+            services.AddDecoratedHandler<GetParticipantByIdQuery, EventParticipantDetailsResponse, GetParticipantByIdQueryHandler>();
             services.AddDecoratedHandler<UpdateStateCommand, IdResponse, UpdateStateCommandHandler>();
             services.AddDecoratedHandler<DeleteRequirementCommand, IdResponse, DeleteRequirementCommandHandler>();
             services.AddDecoratedHandler<UpdateCompletionCommand, IdResponse, UpdateCompletionCommandHandler>();

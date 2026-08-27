@@ -11,8 +11,8 @@ sealed class GetEventByQuerySpec : Specification<Event>
         if (query.GroupId is { } groupId)
             Query.Where(e => e.GroupEvents.Any(x => x.GroupId == groupId));
         
-        if (query.InviteeUserId is { } inviteeUserId)
-            Query.Where(e => e.Participants.Any(x => x.UserId == inviteeUserId));
+        if (query.ParticipantUserId is { } participantUserId)
+            Query.Where(e => e.Participants.Any(x => x.UserId == participantUserId));
         
         if (query.State is { } state)
             Query.Where(e => e.State == state);

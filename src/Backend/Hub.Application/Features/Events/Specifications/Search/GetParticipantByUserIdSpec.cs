@@ -3,9 +3,9 @@ using Hub.Domain.Events.Participants;
 
 namespace Hub.Application.Features.Events.Specifications.Search;
 
-sealed class GetInviteeByUserIdSpec : Specification<EventParticipant>
+sealed class GetParticipantByUserIdSpec : Specification<EventParticipant>
 {
-    public GetInviteeByUserIdSpec(Guid userId)
+    public GetParticipantByUserIdSpec(Guid userId)
     {
         Query.Where(x => x.UserId == userId);
     }

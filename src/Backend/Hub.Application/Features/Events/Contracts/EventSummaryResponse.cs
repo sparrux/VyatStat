@@ -9,7 +9,7 @@ public sealed record EventSummaryResponse(
     DateTimeOffset EndDate,
     DateTimeOffset StartDate,
     bool HasLocation,
-    int InviteesCount,
+    int ParticipantsCount,
     int RequirementsCount,
     int GoalsCount
 );

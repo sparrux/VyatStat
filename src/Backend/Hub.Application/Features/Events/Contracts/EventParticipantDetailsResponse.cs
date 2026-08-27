@@ -2,7 +2,7 @@ using Hub.Application.Features.Users.Contracts;
 
 namespace Hub.Application.Features.Events.Contracts;
 
-public sealed record EventInviteeDetailsResponse(
+public sealed record EventParticipantDetailsResponse(
     Guid Id,
     UserSummaryResponse User,
     IReadOnlyCollection<RequirementCompletionResponse> Requirements

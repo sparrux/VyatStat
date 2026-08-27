@@ -3,9 +3,9 @@ using Hub.Domain.Events;
 
 namespace Hub.Application.Features.Events.Specifications.Include;
 
-sealed class EventWithInviteesSpec : Specification<Event>
+sealed class EventWithParticipantsSpec : Specification<Event>
 {
-    public EventWithInviteesSpec()
+    public EventWithParticipantsSpec()
     {
         Query.Include(x => x.Participants);
     }
