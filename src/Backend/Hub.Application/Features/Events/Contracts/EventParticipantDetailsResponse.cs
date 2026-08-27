@@ -5,5 +5,6 @@ namespace Hub.Application.Features.Events.Contracts;
 public sealed record EventParticipantDetailsResponse(
     Guid Id,
     UserSummaryResponse User,
-    IReadOnlyCollection<RequirementCompletionResponse> Requirements
+    IReadOnlyCollection<RequirementCompletionResponse> Requirements,
+    IReadOnlyCollection<EventParticipantRoleResponse> Roles
 );

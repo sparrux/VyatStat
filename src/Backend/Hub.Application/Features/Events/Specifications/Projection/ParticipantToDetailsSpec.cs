@@ -22,6 +22,14 @@ sealed class ParticipantToDetailsSpec : Specification<EventParticipant, EventPar
                         new EventRequirementSummaryResponse(
                             c.Requirement.Id,
                             c.Requirement.Title,
-                            c.Requirement.Description))).ToList()));
+                            c.Requirement.Description))).ToList(),
+                x.Roles
+                    .OrderBy(r => r.Role.CreatedAt)
+                    .Select(r => new EventParticipantRoleResponse(
+                        r.Id,
+                        new EventRoleSummaryResponse(
+                            r.Role.Id,
+                            r.Role.Name,
+                            r.Role.IsSealed))).ToList()));
     }
 }

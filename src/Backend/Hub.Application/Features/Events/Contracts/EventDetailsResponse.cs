@@ -12,5 +12,6 @@ public sealed record EventDetailsResponse(
     EventState State,
     EventLocationResponse? Location,
     IReadOnlyCollection<EventRequirementSummaryResponse> Requirements,
-    IReadOnlyCollection<EventParticipantSummaryResponse> Participants
+    IReadOnlyCollection<EventParticipantSummaryResponse> Participants,
+    IReadOnlyCollection<EventRoleSummaryResponse> Roles
 );

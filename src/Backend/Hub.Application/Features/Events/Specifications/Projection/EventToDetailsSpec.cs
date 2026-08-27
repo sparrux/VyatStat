@@ -40,7 +40,13 @@ sealed class EventToDetailsSpec : Specification<Event, EventDetailsResponse>
                         i.Id,
                         new UserSummaryResponse(
                             i.User.Id,
-                            i.User.Nickname))).ToList()
+                            i.User.Nickname))).ToList(),
+                x.Roles
+                    .OrderBy(r => r.CreatedAt)
+                    .Select(r => new EventRoleSummaryResponse(
+                        r.Id,
+                        r.Name,
+                        r.IsSealed)).ToList()
             ));
     }
 }

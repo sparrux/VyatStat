@@ -48,7 +48,8 @@ sealed class CreateEventCommandHandler(
             ev.Location is not null,
             ev.Participants.Count,
             ev.Requirements.Count,
-            ev.Goals.Count
+            ev.Goals.Count,
+            ev.Roles.Count
         ));
     }
 }

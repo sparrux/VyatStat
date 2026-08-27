@@ -2,9 +2,13 @@ using FluentValidation;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
 using Hub.Application.Features.Events.Commands.CreateParticipant;
+using Hub.Application.Features.Events.Commands.CreateParticipantRole;
+using Hub.Application.Features.Events.Commands.CreateRole;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
+using Hub.Application.Features.Events.Commands.DeleteParticipantRole;
 using Hub.Application.Features.Events.Commands.DeleteRequirement;
+using Hub.Application.Features.Events.Commands.DeleteRole;
 using Hub.Application.Features.Events.Commands.UpdateCompletion;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
@@ -60,9 +64,13 @@ public static class DependencyInjection
             services.AddDecoratedHandler<UpdateLocationCommand, IdResponse, UpdateLocationCommandHandler>();
             services.AddDecoratedHandler<DeleteLocationCommand, IdResponse, DeleteLocationCommandHandler>();
             services.AddDecoratedHandler<CreateParticipantCommand, EventParticipantSummaryResponse, CreateParticipantCommandHandler>();
+            services.AddDecoratedHandler<CreateParticipantRoleCommand, EventParticipantRoleResponse, CreateParticipantRoleCommandHandler>();
+            services.AddDecoratedHandler<CreateRoleCommand, EventRoleSummaryResponse, CreateRoleCommandHandler>();
             services.AddDecoratedHandler<GetParticipantByIdQuery, EventParticipantDetailsResponse, GetParticipantByIdQueryHandler>();
             services.AddDecoratedHandler<UpdateStateCommand, IdResponse, UpdateStateCommandHandler>();
             services.AddDecoratedHandler<DeleteRequirementCommand, IdResponse, DeleteRequirementCommandHandler>();
+            services.AddDecoratedHandler<DeleteRoleCommand, IdResponse, DeleteRoleCommandHandler>();
+            services.AddDecoratedHandler<DeleteParticipantRoleCommand, IdResponse, DeleteParticipantRoleCommandHandler>();
             services.AddDecoratedHandler<UpdateCompletionCommand, IdResponse, UpdateCompletionCommandHandler>();
         }
 

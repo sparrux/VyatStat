@@ -179,7 +179,7 @@ public sealed class Event : AggregateRoot
             return Result.NotFound("Event Role is not found");
         
         if (!Participants.Contains(participant))
-            return Result.NotFound("Event Partipicant is not found");
+            return Result.NotFound("Event Participant is not found");
         
         if (Participants.AlreadyInRole(role, participant.UserId))
             return Result.Error("Participant already has this role");

@@ -19,6 +19,7 @@ sealed class EventToSummarySpec : Specification<Event, EventSummaryResponse>
                 x.Location != null,
                 x.Participants.Count,
                 x.Requirements.Count,
-                x.Goals.Count));
+                x.Goals.Count,
+                x.Roles.Count));
     }
 }

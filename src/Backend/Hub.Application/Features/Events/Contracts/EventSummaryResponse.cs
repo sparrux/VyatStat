@@ -11,5 +11,6 @@ public sealed record EventSummaryResponse(
     bool HasLocation,
     int ParticipantsCount,
     int RequirementsCount,
-    int GoalsCount
+    int GoalsCount,
+    int RolesCount
 );
