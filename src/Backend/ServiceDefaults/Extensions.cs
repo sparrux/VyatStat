@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,9 @@ public static class Extensions
             // Turn on service discovery by default
             http.AddServiceDiscovery();
         });
+        
+        builder.Services.ConfigureHttpJsonOptions(options => 
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         // Uncomment the following to restrict the allowed schemes for service discovery.
         // builder.Services.Configure<ServiceDiscoveryOptions>(options =>
