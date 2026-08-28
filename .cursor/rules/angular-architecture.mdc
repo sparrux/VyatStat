@@ -1,0 +1,69 @@
+---
+alwaysApply: true
+---
+
+# Angular SPA Architecture Rules
+
+You are building a production Angular SPA.
+
+Follow these rules:
+
+## Architecture
+
+- Use standalone Angular components.
+- Avoid NgModules unless required.
+- Use feature-based folder structure.
+
+Structure:
+
+src/
+ ├── app/
+ │   ├── core/
+ │   │   ├── services/
+ │   │   ├── guards/
+ │   │   └── interceptors/
+ │   │
+ │   ├── shared/
+ │   │   ├── ui/
+ │   │   ├── components/
+ │   │   └── directives/
+ │   │
+ │   └── features/
+ │       └── feature-name/
+ │           ├── pages/
+ │           ├── components/
+ │           ├── services/
+ │           └── models/
+
+
+## Angular Style
+
+Use:
+
+- Signals instead of BehaviorSubject for local state.
+- inject() instead of constructor injection.
+- Typed reactive forms.
+- Lazy loading routes.
+- OnPush change detection.
+
+Prefer:
+
+signal()
+computed()
+effect()
+
+Avoid:
+
+any
+large components
+business logic inside templates
+
+
+## Components
+
+Every component must:
+
+- have one responsibility
+- have separated html/scss/ts files
+- use semantic HTML
+- support mobile layout

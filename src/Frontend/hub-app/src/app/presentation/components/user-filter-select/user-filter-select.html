@@ -1,0 +1,99 @@
+<div class="user-filter">
+  <span class="user-filter__label">Пользователь</span>
+
+  <div class="user-filter__control">
+    <button
+      type="button"
+      class="user-filter__trigger"
+      [attr.aria-expanded]="isOpen()"
+      aria-haspopup="listbox"
+      (click)="toggleOpen()"
+    >
+      <span>{{ selectedLabel() }}</span>
+      <span class="user-filter__chevron" aria-hidden="true"></span>
+    </button>
+
+    @if (isOpen()) {
+      <div class="user-filter__panel" role="listbox" aria-label="Выбор пользователя">
+        <label class="vt-field user-filter__search">
+          <span class="vt-field__label">Поиск</span>
+          <input
+            class="vt-field__input"
+            type="search"
+            name="userSearch"
+            [ngModel]="searchStub()"
+            (ngModelChange)="searchStub.set($event)"
+            placeholder="Скоро появится"
+            disabled
+          />
+        </label>
+
+        @if (isLoading()) {
+          <p class="user-filter__status" role="status">Загрузка…</p>
+        } @else if (loadError(); as err) {
+          <p class="user-filter__error" role="alert">{{ err }}</p>
+        } @else {
+          <ul class="user-filter__list">
+            <li>
+              <button
+                type="button"
+                class="user-filter__option"
+                role="option"
+                [class.user-filter__option--selected]="
+                  selectedUserId() === currentUserId()
+                "
+                [attr.aria-selected]="selectedUserId() === currentUserId()"
+                (click)="selectCurrentUser()"
+              >
+                Вы
+              </button>
+            </li>
+
+            @for (user of users(); track user.id) {
+              @if (user.id !== currentUserId()) {
+                <li>
+                  <button
+                    type="button"
+                    class="user-filter__option"
+                    role="option"
+                    [class.user-filter__option--selected]="
+                      selectedUserId() === user.id
+                    "
+                    [attr.aria-selected]="selectedUserId() === user.id"
+                    (click)="selectUser(user)"
+                  >
+                    {{ displayNickname(user) }}
+                  </button>
+                </li>
+              }
+            }
+          </ul>
+
+          @if (total() > 0) {
+            <div class="user-filter__pagination">
+              <span>{{ rangeLabel() }}</span>
+              <div class="user-filter__pagination-controls">
+                <button
+                  type="button"
+                  class="vt-btn vt-btn--secondary"
+                  [disabled]="!hasPreviousPage()"
+                  (click)="onPreviousPage()"
+                >
+                  Назад
+                </button>
+                <button
+                  type="button"
+                  class="vt-btn vt-btn--secondary"
+                  [disabled]="!hasNextPage()"
+                  (click)="onNextPage()"
+                >
+                  Далее
+                </button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+</div>

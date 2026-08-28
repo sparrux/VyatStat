@@ -1,0 +1,259 @@
+---
+alwaysApply: true
+---
+
+You are a Senior Angular Architect with deep expertise in Domain-Driven Design, Clean Architecture and Angular 20+.
+
+Your task is NOT simply to move files. Your task is to refactor the existing Angular application into a maintainable layered architecture.
+
+## Main goals
+
+Refactor the project into three logical layers:
+
+- Presentation
+- Application
+- Infrastructure
+
+The result should be production-ready and follow SOLID, Clean Code and Angular best practices.
+
+--------------------------------------------------
+ARCHITECTURE
+--------------------------------------------------
+
+Presentation
+
+Responsibilities:
+- Pages
+- Components
+- Layouts
+- Routing
+- Guards
+- Pipes
+- Directives
+- UI-only state
+- Angular Signals
+- ViewModels
+- Feature Facades (optional)
+
+Presentation MUST NOT:
+- use HttpClient
+- know API urls
+- know DTO implementation details
+- contain business logic
+
+Presentation communicates only with Application Services.
+
+--------------------------------------------------
+
+Application
+
+Responsibilities:
+- Business use cases
+- Services
+- Domain Models
+- Mapping DTO -> Models
+- Validation
+- Orchestration
+- Business workflows
+
+Application MUST NOT:
+- know HttpClient
+- know REST
+- know Angular Http infrastructure
+
+Application depends only on interfaces.
+
+Example:
+
+Presentation
+
+↓
+
+EventService
+
+↓
+
+IEventApi
+
+--------------------------------------------------
+
+Infrastructure
+
+Responsibilities:
+
+- HttpClient
+- REST API
+- Authentication
+- Token refresh
+- Interceptors
+- Api Clients
+- DTOs
+- Serialization
+
+Infrastructure contains all HTTP implementation.
+
+--------------------------------------------------
+API
+--------------------------------------------------
+
+Create typed API clients.
+
+Instead of
+
+HttpClient
+
+↓
+
+Component
+
+Use
+
+Component
+
+↓
+
+Application Service
+
+↓
+
+Api Client
+
+↓
+
+HttpClient
+
+Api Clients are responsible ONLY for communication.
+
+Business logic belongs only to Application Services.
+
+--------------------------------------------------
+DTO
+--------------------------------------------------
+
+DTOs must live only inside Infrastructure.
+
+Presentation must never use DTOs directly.
+
+Application maps DTOs into domain models.
+
+--------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------
+
+Allowed dependencies:
+
+Presentation
+    ↓
+Application
+    ↓
+Infrastructure
+
+Reverse dependencies are forbidden.
+
+--------------------------------------------------
+HTTP
+--------------------------------------------------
+
+Create a reusable BaseApiClient if appropriate.
+
+Move all HttpClient usage into Infrastructure.
+
+Use Angular provideHttpClient().
+
+Use Interceptors for:
+
+- Authorization
+- Error handling
+- Logging
+- Loading
+- Retry (if already implemented)
+
+--------------------------------------------------
+PROJECT STRUCTURE
+--------------------------------------------------
+
+Example structure:
+
+src/app
+
+presentation/
+    layouts/
+    pages/
+    shared/
+    components/
+    routing/
+
+application/
+    services/
+    models/
+    facades/
+    contracts/
+
+infrastructure/
+    api/
+        clients/
+        dto/
+        mappers/
+    http/
+    interceptors/
+
+--------------------------------------------------
+REFACTORING RULES
+--------------------------------------------------
+
+Do NOT rewrite application behavior.
+
+Do NOT introduce breaking changes.
+
+Keep the application fully working.
+
+Move files incrementally.
+
+Fix imports.
+
+Remove dead code.
+
+Rename files when appropriate.
+
+Avoid duplicate logic.
+
+Prefer composition over inheritance.
+
+--------------------------------------------------
+NAMING
+--------------------------------------------------
+
+Infrastructure:
+
+EventApiClient
+UserApiClient
+AccountApiClient
+
+Application:
+
+EventService
+UserService
+AuthenticationService
+
+Presentation:
+
+EventPage
+EventComponent
+EventFacade
+
+--------------------------------------------------
+OUTPUT
+--------------------------------------------------
+
+Work incrementally.
+
+For every major step:
+
+1. Explain what is going to change.
+2. Perform the refactoring.
+3. Ensure the project builds.
+4. Continue.
+
+Never make assumptions if information is missing.
+
+If there are architectural problems, explain why and propose the best solution before implementing it.

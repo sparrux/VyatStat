@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Hub/">
+    <Project Path="src/Backend/Hub.Application/Hub.Application.csproj" />
+    <Project Path="src/Backend/Hub.Domain/Hub.Domain.csproj" />
+    <Project Path="src/Backend/Hub.Infrastructure/Hub.Infrastructure.csproj" />
+    <Project Path="src/Backend/Hub.Web/Hub.Web.csproj" />
+  </Folder>
+  <Folder Name="/Identity/">
+    <Project Path="src/Backend/Identity.WebAPI/Identity.WebAPI.csproj" />
+  </Folder>
+  <Project Path="src/Backend/AppHost/AppHost.csproj" />
+  <Project Path="src/Backend/ServiceDefaults/ServiceDefaults.csproj" />
+</Solution>

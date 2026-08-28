@@ -2,13 +2,15 @@
 
 ## Description
 
-Angular SPA (`Identity.Web`) for the Identity service: registration, OAuth login, personal account, and users administration dashboard.
+Angular SPA (`Identity.Web`) for the Identity service: registration, OAuth login, personal account, and users administration dashboard. Acts as the IdP login UI for all OAuth clients (including tracker-app).
 
 **Project root:** `src/Frontend/identity-app`
 
 **Auth server URL (dev):** `https://localhost:7019` — configured in `src/environments/environment.ts`
 
-**OAuth client:** `angular-client` (public, PKCE S256)
+**OAuth client:** `identity-app` (public, PKCE S256)
+
+**API audience:** `vyatka-identity-api`
 
 **Scopes:** `openid profile offline_access`
 
@@ -17,7 +19,7 @@ Angular SPA (`Identity.Web`) for the Identity service: registration, OAuth login
 ```
 src/
 ├── environments/
-│   └── environment.ts          # authServerUrl, clientId
+│   └── environment.ts          # authServerUrl, clientId, apiAudience
 └── app/
     ├── app.component.ts        # Root shell (header + outlet + footer)
     ├── app.config.ts
@@ -38,15 +40,16 @@ src/
 ### Implemented
 
 - User registration via `POST /register`, redirect to login on success
-- Login via HTML form POST to `/connect/authorize` (Authorization Code + PKCE)
-- OAuth callback at `/callback`: exchange `code` for tokens, store in `localStorage`, redirect to `/account`
-  - Redirects to `/login` when `code` is missing or token exchange fails
+- Login via `POST /account/login` (IdP cookie) followed by `GET /connect/authorize` (Authorization Code + PKCE + `state`)
+- External OAuth support: when opened with `?returnUrl=` (authorize URL from another client), checks IdP cookie via `GET /account/session` before showing login form
+- OAuth callback at `/callback`: validates `state`, exchanges `code` for tokens, stores in `localStorage`, redirect to `/account`
+  - Restarts authorization flow when `code` or `state` is missing/invalid or provider returns `error`
 - Automatic access token refresh:
   - Proactive refresh ~50 s before JWT expiry
   - Refresh on tab visibility when token is near expiry or missing
   - HTTP interceptor retries API calls once after `401` with refreshed token
-  - Redirect to `/login` when refresh fails
-- Client-side logout (clears tokens from `localStorage`)
+  - Restarts OAuth flow when refresh fails
+- Logout: clears local tokens and IdP cookie via `POST /account/logout`
 - Protected routes with `authGuard` and permission-based `readUsersGuard`
 - Account page: profile, role, permissions summary, change password dialog
 - Users dashboard: paginated table, permission editing dialog, block/unblock actions with confirm dialog
@@ -67,6 +70,7 @@ src/
 - Angular CDK Dialog for modals
 - Shared design tokens and styles from `@vyatka-tracker/ui`
 - Tokens in `localStorage`: `access_token`, `refresh_token`, `code_verifier`
+- OAuth `state` in `sessionStorage` (one-time use, CSRF protection on callback)
 - Page size for users list: 10 (backend allows up to 30 per request)
 - Domain types in `models/`; runtime config in `environment.ts`
 
@@ -77,7 +81,7 @@ All page components are lazy-loaded. Guards and interceptors are eager.
 | Path | Component | Guards | Description |
 |------|-----------|--------|-------------|
 | `/` | — | — | Redirects to `/account` |
-| `/login` | `LoginPageComponent` | — | Sign in |
+| `/login` | `LoginPageComponent` | — | Sign in (IdP UI; also serves external OAuth clients via `returnUrl`) |
 | `/register` | `RegisterPageComponent` | — | Create account |
 | `/callback` | `CallbackPageComponent` | — | OAuth redirect handler |
 | `/account` | `AccountPageComponent` | `authGuard` | Personal account |
@@ -91,7 +95,9 @@ All page components are lazy-loaded. Guards and interceptors are eager.
 Design: `docs/design/login/login-page.png`
 
 - Form: login, password
-- Submits credentials through OAuth authorize endpoint (form POST with PKCE)
+- Submits via `POST /account/login`, then redirects to OAuth authorize URL (own flow or external `returnUrl`)
+- When `?returnUrl=` is present: probes IdP cookie with `GET /account/session`; if valid, redirects to `returnUrl` (SSO for tracker-app and other clients)
+- Does not redirect to `/account` based on local tokens when `returnUrl` is present (local tokens ≠ IdP cookie)
 - Link to registration page
 - Validation and error messages for empty fields / failed login
 
@@ -105,9 +111,10 @@ Design: `docs/design/register/register-page.png`
 
 ### OAuth Callback Page
 
-- Reads `code` from query params
+- Reads `code` and `state` from query params
+- Validates and consumes `state` before token exchange
 - Exchanges code via `AuthService.exchangeCodeForToken`, persists tokens, redirects to `/account`
-- Redirects to `/login` when `code` is absent or exchange fails
+- Restarts authorization flow when `error`, missing `code`, or invalid `state`
 
 ### Account Page
 
@@ -135,7 +142,7 @@ Design: `docs/design/dashboard/dashaboard-page.png`
 | `AppComponent` | Root shell: header, router outlet, footer |
 | `AppShellHeaderComponent` | Header with avatar, account/dashboard links, logout (visible on `/account`, `/dashboard`) |
 | `AppFooterComponent` | Site footer with brand, nav placeholders, social links |
-| `CallbackPageComponent` | OAuth callback: code exchange and redirect |
+| `CallbackPageComponent` | OAuth callback: state validation, code exchange and redirect |
 | `UsersTableComponent` | Paginated users table with action buttons |
 | `ChangePasswordDialogComponent` | Current + new password; min length 6 |
 | `UserPermissionsDialogComponent` | Toggle `readUsers`, `updateUserPermissions`, `lockOutUsers` (with dependency rules in UI) |
@@ -162,23 +169,28 @@ Design: `docs/design/dashboard/dashaboard-page.png`
 
 ### `AuthService` (`auth.service.ts`)
 
-Reads `authServerUrl` and `clientId` from `environment`.
+Reads `authServerUrl`, `clientId`, and `apiAudience` from `environment`.
 
 | Method | Backend / behavior |
 |--------|---------------------|
 | `register` | `POST /register` |
-| `login` | Form POST `/connect/authorize` |
+| `login` | `POST /account/login` (cookie), then redirect to authorize URL |
+| `hasIdpCookieSession` | `GET /account/session` |
+| `isValidAuthorizeReturnUrl` | Client-side check that `returnUrl` targets `/connect/authorize` on auth server |
+| `startAuthorizationFlow` | `GET /connect/authorize` with PKCE + `state` |
+| `buildAuthorizeReturnUrl` | Builds authorize URL; stores `code_verifier` and `state` |
+| `validateAndConsumeOAuthState` | One-time `state` validation on callback |
 | `exchangeCodeForToken` | `POST /connect/token` (authorization_code) |
 | `refreshAccessTokenSilently` | `POST /connect/token` (refresh_token) |
 | `getProfile` | `GET /me` |
 | `getUserPermissions` | `GET /users/{id}/permissions` |
 | `updatePassword` | `PUT /me/password` |
-| `logout` | Clears local tokens only |
+| `logout` | Clears local tokens; `POST /account/logout` (IdP cookie) |
 | `isAuthenticated` | Checks `access_token` or `refresh_token` in storage |
 | `ensureAccessTokenIfNeeded` | Refreshes access token when missing but refresh token exists |
 | `getAuthServerUrl` | Returns configured auth server base URL |
 | `applyOAuthTokens` | Persists tokens and schedules proactive refresh |
-| `invalidateSessionAndRedirectToLogin` | Clears tokens and navigates to `/login` |
+| `invalidateSessionAndRedirectToLogin` | Clears tokens and restarts OAuth flow |
 | `onAppBootstrap` | Starts proactive refresh and visibility listener |
 
 ### `UsersService` (`users.service.ts`)
@@ -203,6 +215,6 @@ Uses `AuthService.ensureAccessTokenIfNeeded()` before authenticated requests.
 
 ## Guards and interceptors
 
-- **`authGuard`:** allows route if `isAuthenticated()`, otherwise returns `UrlTree` to `/login`
-- **`readUsersGuard`:** loads current user permissions; allows `/dashboard` only if `readUsers`, otherwise redirects to `/account` or `/login`
-- **`authInterceptor`:** on `401` from Identity API (except OAuth and register), refreshes token and retries once; on failure calls `invalidateSessionAndRedirectToLogin()`
+- **`authGuard`:** allows route if `isAuthenticated()`, otherwise starts OAuth authorization flow
+- **`readUsersGuard`:** loads current user permissions; allows `/dashboard` only if `readUsers`, otherwise redirects to `/account` or starts OAuth flow
+- **`authInterceptor`:** on `401` from Identity API (except OAuth, register, account login/logout/session), refreshes token and retries once; on failure restarts OAuth flow

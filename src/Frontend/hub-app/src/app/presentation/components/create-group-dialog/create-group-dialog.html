@@ -1,0 +1,45 @@
+<app-dialog-shell title="Новая группа" (closed)="onCancel()">
+  <form
+    class="create-group-dialog__form"
+    (submit)="onCreate(); $event.preventDefault()"
+    novalidate
+  >
+    <label class="vt-field">
+      <span class="vt-field__label">Название</span>
+      <input
+        class="vt-field__input"
+        type="text"
+        name="groupName"
+        autocomplete="off"
+        maxlength="200"
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+        [disabled]="isSaving()"
+        placeholder="Например, Походники"
+      />
+    </label>
+
+    @if (saveError(); as saveErr) {
+      <p class="create-group-dialog__error" role="alert">{{ saveErr }}</p>
+    }
+  </form>
+
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn vt-btn--secondary"
+    [disabled]="isSaving()"
+    (click)="onCancel()"
+  >
+    Отмена
+  </button>
+  <button
+    dialogActions
+    type="button"
+    class="vt-btn vt-btn--primary"
+    [disabled]="isSaving()"
+    (click)="onCreate()"
+  >
+    {{ isSaving() ? 'Создание…' : 'Создать' }}
+  </button>
+</app-dialog-shell>

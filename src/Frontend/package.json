@@ -1,0 +1,52 @@
+{
+  "name": "vyatka-frontend",
+  "private": true,
+  "scripts": {
+    "ng": "ng",
+    "build": "ng build identity-app && ng build hub-app",
+    "build:all": "ng build auth && ng build ui && ng build identity-app && ng build hub-app",
+    "build:identity": "ng build identity-app",
+    "build:hub": "ng build hub-app",
+    "build:libs": "ng build auth && ng build ui",
+    "start:identity": "ng serve identity-app",
+    "start:hub": "ng serve hub-app",
+    "dev:identity": "npm run start:identity",
+    "dev:hub": "npm run start:hub",
+    "test:identity": "ng test identity-app",
+    "test:hub": "ng test hub-app"
+  },
+  "packageManager": "npm@11.13.0",
+  "dependencies": {
+    "@angular/animations": "^22.0.2",
+    "@angular/cdk": "^22.0.2",
+    "@angular/common": "^22.0.0",
+    "@angular/compiler": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "@floating-ui/dom": "^1.8.0",
+    "@tiptap/core": "^3.29.2",
+    "@tiptap/extension-bubble-menu": "^3.29.2",
+    "@tiptap/extension-floating-menu": "^3.29.2",
+    "@tiptap/extension-link": "^3.29.2",
+    "@tiptap/extension-placeholder": "^3.29.2",
+    "@tiptap/extension-underline": "^3.29.2",
+    "@tiptap/pm": "^3.29.2",
+    "@tiptap/starter-kit": "^3.29.2",
+    "@vyatka-tracker/ui": "file:libs/shared-ui",
+    "ngx-tiptap": "^14.0.1",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.0.4",
+    "@angular/cli": "^22.0.2",
+    "@angular/compiler-cli": "^22.0.0",
+    "jsdom": "^28.0.0",
+    "ng-packagr": "^22.0.0",
+    "prettier": "^3.8.1",
+    "typescript": "~6.0.2",
+    "vitest": "^4.0.8"
+  }
+}

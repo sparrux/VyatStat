@@ -1,0 +1,51 @@
+using Ardalis.Specification;
+using Hub.Application.Features.Common.Contracts;
+using Hub.Application.Features.Events.Contracts;
+using Hub.Application.Features.Users.Contracts;
+using Hub.Domain.Events;
+
+namespace Hub.Application.Features.Events.Specifications.Projection;
+
+sealed class EventToDetailsSpec : Specification<Event, EventDetailsResponse>
+{
+    public EventToDetailsSpec()
+    {
+        Query
+            .AsNoTracking()
+            .Select(x => new EventDetailsResponse(
+                x.Id,
+                x.Title,
+                x.Description != null ?
+                    new RichTextModel(x.Description.Text, x.Description.Format)
+                    : null,
+                x.DatesRange.EndDate,
+                x.DatesRange.StartDate,
+                x.State,
+                x.Location != null ?
+                    new EventLocationResponse(
+                        x.Location.Id,
+                        x.Location.Name,
+                        x.Location.Coordinates.X,
+                        x.Location.Coordinates.Y)
+                    : null,
+                x.Requirements
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Select(r => new EventRequirementSummaryResponse(
+                        r.Id,
+                        r.Title,
+                        r.Description)).ToList(),
+                x.Participants
+                    .OrderBy(o => o.CreatedAt)
+                    .Select(i => new EventParticipantSummaryResponse(
+                        new UserSummaryResponse(
+                            i.User.Id,
+                            i.User.Nickname))).ToList(),
+                x.Roles
+                    .OrderBy(r => r.CreatedAt)
+                    .Select(r => new EventRoleSummaryResponse(
+                        r.Id,
+                        r.Name,
+                        r.IsSealed)).ToList()
+            ));
+    }
+}

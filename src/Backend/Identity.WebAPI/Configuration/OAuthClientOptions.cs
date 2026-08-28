@@ -6,5 +6,7 @@ public sealed class OAuthClientOptions
 
     public string? Url { get; init; }
 
+    public string? RedirectUri { get; init; }
+
     public string Audience { get; init; } = "";
 }

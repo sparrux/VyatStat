@@ -1,0 +1,11 @@
+.create-group-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.create-group-dialog__error {
+  margin: 0;
+  color: var(--vt-color-danger, #b42318);
+  font-size: 0.9rem;
+}

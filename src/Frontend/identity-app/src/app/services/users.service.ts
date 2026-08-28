@@ -1,13 +1,13 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, defer, switchMap, throwError } from 'rxjs';
-import { UserClaims } from '../models/auth.model';
+import { UserClaims } from '@vyatka-tracker/auth';
 import {
   DashboardUser,
   UpdateUserPermissionsRequest,
   UsersListResponse,
 } from '../models/user.model';
-import { AuthService } from './auth.service';
+import { AuthService } from '@vyatka-tracker/auth';
 
 const PAGE_SIZE = 10;
 

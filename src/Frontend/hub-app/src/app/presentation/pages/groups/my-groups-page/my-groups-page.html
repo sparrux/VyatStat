@@ -1,0 +1,40 @@
+<section class="groups-page">
+  <div class="groups-page__content">
+    <h1 class="groups-page__title">Мои группы</h1>
+    <p class="groups-page__subtitle">Группы выбранного пользователя</p>
+
+    @if (isLoading()) {
+      <p class="groups-page__status" role="status">Загрузка…</p>
+    } @else if (loadError(); as err) {
+      <p class="groups-page__error" role="alert">{{ err }}</p>
+      <button
+        type="button"
+        class="vt-btn vt-btn--primary groups-page__retry"
+        (click)="reload()"
+      >
+        Повторить
+      </button>
+    } @else if (selectedMember(); as member) {
+      @if (currentUser; as me) {
+        <div
+          class="groups-page__table"
+          [class.groups-page__table--loading]="isGroupsLoading()"
+          [attr.aria-busy]="isGroupsLoading()"
+        >
+          <app-groups-table
+            [groups]="groups()"
+            [total]="total()"
+            [skip]="skip()"
+            [pageSize]="pageSize"
+            [selectedUserId]="member.id"
+            [selectedUserNickname]="member.nickname"
+            [currentUserId]="me.id"
+            [currentUserNickname]="me.nickname"
+            (pageChange)="onPageChange($event)"
+            (memberFilterChange)="onMemberFilterChange($event)"
+          />
+        </div>
+      }
+    }
+  </div>
+</section>

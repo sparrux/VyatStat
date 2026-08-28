@@ -1,14 +1,15 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '@vyatka-tracker/auth';
 
 export const readUsersGuard: CanActivateFn = async () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
   if (!auth.isAuthenticated()) {
-    return router.createUrlTree(['/login']);
+    void auth.startAuthorizationFlow();
+    return false;
   }
 
   try {
@@ -21,6 +22,7 @@ export const readUsersGuard: CanActivateFn = async () => {
 
     return router.createUrlTree(['/account']);
   } catch {
-    return router.createUrlTree(['/login']);
+    void auth.startAuthorizationFlow();
+    return false;
   }
 };

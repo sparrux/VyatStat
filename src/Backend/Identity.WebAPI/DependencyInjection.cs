@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
+using Scalar.AspNetCore;
 
 namespace Identity.WebAPI;
 
@@ -20,8 +21,21 @@ static class DependencyInjection
         builder.Services.Configure<OpenIddictOptions>(
             builder.Configuration.GetSection(OpenIddictOptions.SectionName));
 
+        builder.Services.Configure<IdpOptions>(options =>
+        {
+            builder.Configuration.GetSection(IdpOptions.SectionName).Bind(options);
+
+            if (string.IsNullOrWhiteSpace(options.LoginPageUrl))
+            {
+                var webClientUrl = builder.Configuration["Clients:identity-app:Url"];
+                if (!string.IsNullOrWhiteSpace(webClientUrl))
+                    options.LoginPageUrl = $"{webClientUrl.TrimEnd('/')}/login";
+            }
+        });
+
         builder.Services.AddSingleton<IOAuthClientRegistry, OAuthClientRegistry>();
         builder.Services.AddSingleton<IAudienceResolver, AudienceResolver>();
+        builder.Services.AddSingleton<IReturnUrlValidator, ReturnUrlValidator>();
 
         ValidateAudienceConfiguration(builder.Configuration);
 
@@ -37,6 +51,7 @@ static class DependencyInjection
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
         });
         
         builder.Services.AddAuthorization(options =>
@@ -62,14 +77,19 @@ static class DependencyInjection
 
     static void AddCors(this WebApplicationBuilder builder)
     {
-        var clientUrl = builder.Configuration.GetSection("Clients:WebClient:Url").Value;
+        var origins = new OAuthClientRegistry(builder.Configuration).Clients
+            .Select(client => client.Url)
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .Cast<string>()
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
-        if (string.IsNullOrWhiteSpace(clientUrl))
-            throw new InvalidOperationException("Web client CORS not configured. Web client URL is missed in config");
-        
+        if (origins.Length == 0)
+            throw new InvalidOperationException("OAuth client URLs are not configured for CORS.");
+
         builder.Services.AddCors(options => {
             options.AddDefaultPolicy(policy => {
-                policy.WithOrigins(clientUrl)
+                policy.WithOrigins(origins)
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -96,6 +116,26 @@ static class DependencyInjection
                 options.Password.RequireNonAlphanumeric = false;
             })
             .AddEntityFrameworkStores<ApplicationDbContext>();
+
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.Name = "Vyatka.IdP.Session";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.SlidingExpiration = true;
+            options.ExpireTimeSpan = TimeSpan.FromDays(14);
+            options.Events.OnRedirectToLogin = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            };
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            };
+        });
     }
 
     static void AddOpenIddict(this WebApplicationBuilder builder)
@@ -146,6 +186,8 @@ static class DependencyInjection
                     options.AddEncryptionCertificate(encryptionCertificate)
                         .AddSigningCertificate(signingCertificate);
                 }
+
+                options.DisableAccessTokenEncryption();
                 
                 options.UseAspNetCore()
                     .EnableTokenEndpointPassthrough()
@@ -185,5 +227,14 @@ static class DependencyInjection
                 throw new InvalidOperationException(
                     $"Client '{client.ClientId}' uses audience '{client.Audience}' that is not listed in OpenIddict:Audiences");
         }
+    }
+
+    public static void MapApiDocs(this WebApplication app)
+    {
+        if (!app.Environment.IsDevelopment())
+            return;
+
+        app.MapOpenApi();
+        app.MapScalarApiReference();
     }
 }

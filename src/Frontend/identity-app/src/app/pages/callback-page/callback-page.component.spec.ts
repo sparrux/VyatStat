@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '@vyatka-tracker/auth';
 import { CallbackPageComponent } from './callback-page.component';
 
 describe('CallbackPageComponent', () => {

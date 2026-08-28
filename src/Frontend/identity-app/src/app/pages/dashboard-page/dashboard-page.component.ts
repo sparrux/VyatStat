@@ -6,9 +6,8 @@ import {
 } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { UsersTableComponent } from '../../components/users-table/users-table.component';
-import { UserClaims } from '../../models/auth.model';
+import { UserClaims, AuthService } from '@vyatka-tracker/auth';
 import { DashboardUser } from '../../models/user.model';
-import { AuthService } from '../../services/auth.service';
 import { DialogService } from '../../services/dialog.service';
 import { UsersService } from '../../services/users.service';
 

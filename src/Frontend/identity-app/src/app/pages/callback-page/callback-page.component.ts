@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, handleOAuthCallback } from '@vyatka-tracker/auth';
 
 @Component({
   selector: 'app-callback-page',
@@ -17,20 +17,8 @@ export class CallbackPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
-      const code = params['code'];
-      if (!code) {
-        void this.router.navigate(['/login']);
-        return;
-      }
-
-      this.authService.exchangeCodeForToken(code).subscribe({
-        next: (tokens) => {
-          this.authService.applyOAuthTokens(tokens);
-          void this.router.navigate(['/account']);
-        },
-        error: () => {
-          void this.router.navigate(['/login']);
-        },
+      handleOAuthCallback(this.authService, params, () => {
+        void this.router.navigate(['/account']);
       });
     });
   }

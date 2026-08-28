@@ -71,25 +71,3 @@
     text-decoration: underline;
   }
 }
-
-.app-footer__socials {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.app-footer__social {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  line-height: 0;
-  text-decoration: none;
-}
-
-.app-footer__social-icon {
-  display: block;
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}

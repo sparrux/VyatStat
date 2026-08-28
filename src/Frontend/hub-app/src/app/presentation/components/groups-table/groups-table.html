@@ -1,0 +1,66 @@
+<div class="groups-table">
+  <div class="groups-table__filters">
+    <app-user-filter-select
+      [selectedUserId]="selectedUserId()"
+      [selectedUserNickname]="selectedUserNickname()"
+      [currentUserId]="currentUserId()"
+      [currentUserNickname]="currentUserNickname()"
+      (selectionChange)="memberFilterChange.emit($event)"
+    />
+  </div>
+
+  <div class="vt-table-wrap">
+    <table class="vt-table" aria-label="Группы">
+      <thead>
+        <tr>
+          <th scope="col">Название</th>
+          <th scope="col">Участники</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (groups().length === 0) {
+          <tr>
+            <td colspan="2">
+              <p class="vt-table__empty">Группы не найдены.</p>
+            </td>
+          </tr>
+        } @else {
+          @for (group of groups(); track group.id) {
+            <tr>
+              <td>
+                <a class="groups-table__link" [routerLink]="['/groups', group.id]">
+                  {{ group.name }}
+                </a>
+              </td>
+              <td>{{ group.membersCount }}</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    @if (total() > 0) {
+      <div class="vt-table__pagination">
+        <span>{{ rangeLabel() }}</span>
+        <div class="vt-table__pagination-controls">
+          <button
+            type="button"
+            class="vt-btn vt-btn--secondary"
+            [disabled]="!hasPreviousPage()"
+            (click)="onPreviousPage()"
+          >
+            Назад
+          </button>
+          <button
+            type="button"
+            class="vt-btn vt-btn--secondary"
+            [disabled]="!hasNextPage()"
+            (click)="onNextPage()"
+          >
+            Далее
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

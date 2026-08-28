@@ -1,0 +1,122 @@
+<div class="rte-toolbar" role="toolbar" aria-label="Форматирование текста">
+  <div class="rte-toolbar__group">
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().bold"
+      [disabled]="disabled()"
+      aria-label="Жирный"
+      title="Жирный (Ctrl+B)"
+      (click)="toggleBold()"
+    >
+      <strong>B</strong>
+    </button>
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().italic"
+      [disabled]="disabled()"
+      aria-label="Курсив"
+      title="Курсив (Ctrl+I)"
+      (click)="toggleItalic()"
+    >
+      <em>I</em>
+    </button>
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().underline"
+      [disabled]="disabled()"
+      aria-label="Подчёркнутый"
+      title="Подчёркнутый (Ctrl+U)"
+      (click)="toggleUnderline()"
+    >
+      <span class="rte-toolbar__underline">U</span>
+    </button>
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().strike"
+      [disabled]="disabled()"
+      aria-label="Зачёркнутый"
+      title="Зачёркнутый"
+      (click)="toggleStrike()"
+    >
+      <span class="rte-toolbar__strike">S</span>
+    </button>
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().code"
+      [disabled]="disabled()"
+      aria-label="Инлайн-код"
+      title="Инлайн-код"
+      (click)="toggleCode()"
+    >
+      {{ codeLabel }}
+    </button>
+  </div>
+
+  <div class="rte-toolbar__group">
+    <label class="rte-toolbar__select-wrap">
+      <span class="visually-hidden">Тип блока</span>
+      <select
+        class="rte-toolbar__select"
+        [value]="state().heading"
+        [disabled]="disabled()"
+        (change)="onHeadingChange($event)"
+      >
+        @for (option of headingOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <div class="rte-toolbar__group">
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().bulletList"
+      [disabled]="disabled()"
+      aria-label="Маркированный список"
+      title="Маркированный список"
+      (click)="toggleBulletList()"
+    >
+      •
+    </button>
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().orderedList"
+      [disabled]="disabled()"
+      aria-label="Нумерованный список"
+      title="Нумерованный список"
+      (click)="toggleOrderedList()"
+    >
+      1.
+    </button>
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().blockquote"
+      [disabled]="disabled()"
+      aria-label="Цитата"
+      title="Цитата"
+      (click)="toggleBlockquote()"
+    >
+      «»
+    </button>
+    <button
+      type="button"
+      class="rte-toolbar__btn"
+      [class.rte-toolbar__btn--active]="state().link"
+      [disabled]="disabled()"
+      aria-label="Ссылка"
+      title="Ссылка"
+      (click)="toggleLink()"
+    >
+      URL
+    </button>
+  </div>
+</div>

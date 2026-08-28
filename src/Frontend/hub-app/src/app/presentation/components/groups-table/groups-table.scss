@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.groups-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.groups-table__filters {
+  position: relative;
+  z-index: 2;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--vt-border-subtle);
+  border-radius: calc(var(--vt-corner-default) + 3px);
+  background: var(--vt-surface-muted);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+}
+
+.groups-table__link {
+  color: var(--vt-font-color-secondary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--vt-color-gray-green);
+    outline-offset: 2px;
+  }
+}

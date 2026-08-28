@@ -1,0 +1,13 @@
+using Ardalis.Result;
+
+namespace Hub.Application.Abstractions;
+
+public sealed record UserProvisioningParameters(string Nickname);
+
+public interface IUserProvisioningService
+{
+    Task<Result> EnsureCreatedAsync(
+        Guid userId,
+        UserProvisioningParameters parameters,
+        CancellationToken cancellationToken = default);
+}
