@@ -4,8 +4,8 @@ using Hub.Web.Authentication;
 using Hub.Web.Authentication.OAuth.Events;
 using Hub.Web.Authentication.OAuth.Store;
 using Hub.Web.Endpoints;
+using Hub.Web.Hangfire;
 using Hub.Web.OpenApi;
-using Hub.Web.Services.Background;
 using Hub.Web.Services.Seeders;
 using Hub.Web.Services.Users;
 using ServiceDefaults;
@@ -28,8 +28,8 @@ static class DependencyInjection
             builder.Services.AddScoped<OpenIdConnectAuthEvents>();
             
             builder.Services.AddScoped<ISeeder, UsersSeeder>();
-            
-            builder.Services.AddHostedService<EventStateTransitionJob>();
+
+            builder.AddHangfire();
 
             builder.Services.AddOptions<OAuthOptions>()
                 .Bind(builder.Configuration.GetSection(OAuthOptions.SectionName))

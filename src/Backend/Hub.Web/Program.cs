@@ -1,6 +1,7 @@
 using Hub.Application;
 using Hub.Infrastructure;
 using Hub.Web;
+using Hub.Web.Hangfire;
 using Microsoft.AspNetCore.HttpOverrides;
 using ServiceDefaults;
 
@@ -31,6 +32,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHangfireUi();
 app.MapEndpoints();
 
 app.Run();

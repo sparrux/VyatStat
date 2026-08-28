@@ -1,5 +1,6 @@
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
+using Hub.Application.Abstractions;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Common.Specifications.Search;
@@ -11,7 +12,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Hub.Application.Features.Events.Commands.UpdateState;
 
 sealed class UpdateStateCommandHandler(
-    HubDbContext dbContext
+    HubDbContext dbContext,
+    IEventScheduler eventScheduler
 ) : IRequestHandler<UpdateStateCommand, IdResponse>
 {
     public async Task<Result<IdResponse>> Handle(
@@ -27,6 +29,14 @@ sealed class UpdateStateCommandHandler(
         if (!updateResult.IsSuccess) return updateResult.Map();
 
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        if (Event.IsFinished(ev.State))
+            await eventScheduler.DeleteAsync(ev, cancellationToken);
+        
+        else if (ev.State is EventState.RegistrationOpen
+                 or EventState.RegistrationClosed
+                 or EventState.InProgress)
+            await eventScheduler.ScheduleAsync(ev, cancellationToken);
         
         return Result.Success(new IdResponse(ev.Id));
     }
