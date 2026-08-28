@@ -12,7 +12,6 @@ sealed class ParticipantToDetailsSpec : Specification<EventParticipant, EventPar
         Query
             .AsNoTracking()
             .Select(x => new EventParticipantDetailsResponse(
-                x.Id,
                 new UserSummaryResponse(
                     x.User.Id,
                     x.User.Nickname),
@@ -26,9 +25,8 @@ sealed class ParticipantToDetailsSpec : Specification<EventParticipant, EventPar
                 x.Roles
                     .OrderBy(r => r.Role.CreatedAt)
                     .Select(r => new EventParticipantRoleResponse(
-                        r.Id,
                         new EventRoleSummaryResponse(
-                            r.Role.Id,
+                            r.Id,
                             r.Role.Name,
                             r.Role.IsSealed))).ToList()));
     }

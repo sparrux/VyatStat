@@ -35,9 +35,7 @@ sealed class CreateParticipantRoleCommandHandler(
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var participantRole = addResult.Value;
         return Result.Created(new EventParticipantRoleResponse(
-            participantRole.Id,
             new EventRoleSummaryResponse(
                 role.Id,
                 role.Name,

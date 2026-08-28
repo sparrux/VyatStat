@@ -5,11 +5,13 @@ using Hub.Application.Features.Events.Commands.Create;
 using Hub.Application.Features.Events.Commands.CreateParticipant;
 using Hub.Application.Features.Events.Commands.CreateParticipantRole;
 using Hub.Application.Features.Events.Commands.CreateRequirement;
+using Hub.Application.Features.Events.Commands.CreateRequirementVerifier;
 using Hub.Application.Features.Events.Commands.CreateRole;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
 using Hub.Application.Features.Events.Commands.DeleteParticipantRole;
 using Hub.Application.Features.Events.Commands.DeleteRequirement;
+using Hub.Application.Features.Events.Commands.DeleteRequirementVerifier;
 using Hub.Application.Features.Events.Commands.DeleteRole;
 using Hub.Application.Features.Events.Commands.UpdateCompletion;
 using Hub.Application.Features.Events.Commands.UpdateDates;
@@ -22,8 +24,10 @@ using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Queries.Get;
 using Hub.Application.Features.Events.Queries.GetById;
 using Hub.Application.Features.Events.Queries.GetParticipantById;
+using Hub.Application.Features.Events.Queries.GetRequirementById;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
+using Hub.Domain.Events.Requirements;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hub.Web.Endpoints;
@@ -100,7 +104,27 @@ static class EventEndpoints
             .HasApiVersion(1.0)
             .Produces<EventRequirementSummaryResponse>(StatusCodes.Status201Created);
         
+        events.MapGet("/{eventId:guid}/requirements/{reqId:guid}", GetRequirementById)
+            .HasApiVersion(1.0)
+            .Produces<EventRequirementDetailsResponse>();
+        
         events.MapPut("/{eventId:guid}/requirements/{reqId:guid}", UpdateRequirement)
+            .HasApiVersion(1.0)
+            .Produces<IdResponse>();
+        
+        events.MapPost("/{eventId:guid}/requirements/{reqId:guid}/verifiers/role", CreateRequirementRoleVerifier)
+            .HasApiVersion(1.0)
+            .Produces<EventRequirementVerifierDetailsResponse>();
+        
+        events.MapPost("/{eventId:guid}/requirements/{reqId:guid}/verifiers/participant", CreateRequirementParticipantVerifier)
+            .HasApiVersion(1.0)
+            .Produces<EventRequirementVerifierDetailsResponse>();
+        
+        events.MapPost("/{eventId:guid}/requirements/{reqId:guid}/verifiers/rule", CreateRequirementRuleVerifier)
+            .HasApiVersion(1.0)
+            .Produces<EventRequirementVerifierDetailsResponse>();
+        
+        events.MapDelete("/{eventId:guid}/requirements/{reqId:guid}/verifiers/{verifierId:guid}", DeleteRequirementVerifier)
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
         
@@ -120,7 +144,7 @@ static class EventEndpoints
             .HasApiVersion(1.0)
             .Produces<IdResponse>();
     }
-    
+
     static async Task<IResult> Create(
         [FromBody] CreateEventRequest request,
         [FromServices] IUserContext userContext,
@@ -235,6 +259,13 @@ static class EventEndpoints
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId, request), ctk)).ToMinimalApiResult();
     
+    static async Task<IResult> GetRequirementById(
+        [FromRoute] Guid eventId,
+        [FromRoute] Guid reqId,
+        [FromServices] IRequestHandler<GetRequirementQuery, EventRequirementDetailsResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, reqId), ctk)).ToMinimalApiResult();
+    
     static async Task<IResult> UpdateRequirement(
         [FromRoute] Guid eventId,
         [FromRoute] Guid reqId,
@@ -249,6 +280,38 @@ static class EventEndpoints
         [FromServices] IRequestHandler<DeleteRequirementCommand, IdResponse> handler,
         CancellationToken ctk) =>
         (await handler.Handle(new(eventId, reqId), ctk)).ToMinimalApiResult();
+    
+    static async Task<IResult> CreateRequirementRoleVerifier(
+        [FromRoute] Guid eventId,
+        [FromRoute] Guid reqId,
+        [FromBody] CreateRequirementRoleVerifierRequest request,
+        [FromServices] IRequestHandler<CreateRequirementVerifierCommand, EventRequirementVerifierDetailsResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, reqId, request), ctk)).ToMinimalApiResult();
+    
+    static async Task<IResult> CreateRequirementParticipantVerifier(
+        [FromRoute] Guid eventId,
+        [FromRoute] Guid reqId,
+        [FromBody] CreateRequirementParticipantVerifierRequest request,
+        [FromServices] IRequestHandler<CreateRequirementVerifierCommand, EventRequirementVerifierDetailsResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, reqId, request), ctk)).ToMinimalApiResult();
+    
+    static async Task<IResult> CreateRequirementRuleVerifier(
+        [FromRoute] Guid eventId,
+        [FromRoute] Guid reqId,
+        [FromBody] CreateRequirementRuleVerifierRequest request,
+        [FromServices] IRequestHandler<CreateRequirementVerifierCommand, EventRequirementVerifierDetailsResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, reqId, request), ctk)).ToMinimalApiResult();
+    
+    static async Task<IResult> DeleteRequirementVerifier(
+        [FromRoute] Guid eventId,
+        [FromRoute] Guid reqId,
+        [FromRoute] Guid verifierId,
+        [FromServices] IRequestHandler<DeleteRequirementVerifierCommand, IdResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(eventId, reqId, verifierId), ctk)).ToMinimalApiResult();
     
     static async Task<IResult> CreateRole(
         [FromRoute] Guid eventId,

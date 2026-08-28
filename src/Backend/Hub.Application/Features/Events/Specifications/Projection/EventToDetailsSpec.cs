@@ -37,7 +37,6 @@ sealed class EventToDetailsSpec : Specification<Event, EventDetailsResponse>
                 x.Participants
                     .OrderBy(o => o.CreatedAt)
                     .Select(i => new EventParticipantSummaryResponse(
-                        i.Id,
                         new UserSummaryResponse(
                             i.User.Id,
                             i.User.Nickname))).ToList(),

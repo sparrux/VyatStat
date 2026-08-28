@@ -42,7 +42,6 @@ sealed class CreateParticipantCommandHandler(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new EventParticipantSummaryResponse(
-            participantResult.Value.Id,
             new UserSummaryResponse(
                 user.Id,
                 user.Nickname)));

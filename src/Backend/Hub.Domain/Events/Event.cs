@@ -311,6 +311,9 @@ public sealed class Event : AggregateRoot
         if (IsFinished(State))
             return Result.Error("Event is finished");
         
+        if (Roles.All(x => x != role))
+            return Result.NotFound("Event Role not found");
+        
         return requirement.AddRoleVerifier(role, isRequired);
     }
     
@@ -319,6 +322,9 @@ public sealed class Event : AggregateRoot
     {
         if (IsFinished(State))
             return Result.Error("Event is finished");
+        
+        if (Participants.All(x => x != participant))
+            return Result.NotFound("Event Participant not found");
         
         return requirement.AddParticipantVerifier(participant, isRequired);
     }
@@ -348,6 +354,18 @@ public sealed class Event : AggregateRoot
         
         var handler = new RequirementVerificationHandler(this);
         return handler.SubmitVerification(new VerifyByAutomatic(participantUser, requirement));
+    }
+
+    public Result RemoveRequirementVerifier(
+        EventRequirement requirement, EventRequirementVerifier verifier)
+    {
+        if (IsFinished(State))
+            return Result.Error("Event is finished");
+
+        if (Requirements.All(x => x != requirement))
+            return Result.NotFound("Event requirement is not found");
+
+        return requirement.RemoveVerifier(verifier);
     }
 
     public Result RemoveRequirement(EventRequirement requirement)

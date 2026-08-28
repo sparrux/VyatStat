@@ -4,11 +4,14 @@ using Hub.Application.Features.Events.Commands.Create;
 using Hub.Application.Features.Events.Commands.CreateParticipant;
 using Hub.Application.Features.Events.Commands.CreateParticipantRole;
 using Hub.Application.Features.Events.Commands.CreateRequirement;
+using Hub.Application.Features.Events.Commands.CreateRequirementVerifier;
+using Hub.Application.Features.Events.Commands.CreateRequirementVerifier.Appliers;
 using Hub.Application.Features.Events.Commands.CreateRole;
 using Hub.Application.Features.Events.Commands.DeleteDescription;
 using Hub.Application.Features.Events.Commands.DeleteLocation;
 using Hub.Application.Features.Events.Commands.DeleteParticipantRole;
 using Hub.Application.Features.Events.Commands.DeleteRequirement;
+using Hub.Application.Features.Events.Commands.DeleteRequirementVerifier;
 using Hub.Application.Features.Events.Commands.DeleteRole;
 using Hub.Application.Features.Events.Commands.UpdateCompletion;
 using Hub.Application.Features.Events.Commands.UpdateDates;
@@ -21,6 +24,7 @@ using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Queries.Get;
 using Hub.Application.Features.Events.Queries.GetById;
 using Hub.Application.Features.Events.Queries.GetParticipantById;
+using Hub.Application.Features.Events.Queries.GetRequirementById;
 using Hub.Application.Features.Groups.Commands.AttachEvent;
 using Hub.Application.Features.Groups.Commands.Create;
 using Hub.Application.Features.Groups.Contracts;
@@ -70,12 +74,19 @@ public static class DependencyInjection
             services.AddDecoratedHandler<CreateRoleCommand, EventRoleSummaryResponse, CreateRoleCommandHandler>();
             services.AddDecoratedHandler<CreateRequirementCommand, EventRequirementSummaryResponse, CreateRequirementCommandHandler>();
             services.AddDecoratedHandler<GetParticipantByIdQuery, EventParticipantDetailsResponse, GetParticipantByIdQueryHandler>();
+            services.AddDecoratedHandler<GetRequirementQuery, EventRequirementDetailsResponse, GetRequirementByIdQueryHandler>();
             services.AddDecoratedHandler<UpdateStateCommand, IdResponse, UpdateStateCommandHandler>();
             services.AddDecoratedHandler<UpdateRequirementCommand, IdResponse, UpdateRequirementCommandHandler>();
             services.AddDecoratedHandler<DeleteRequirementCommand, IdResponse, DeleteRequirementCommandHandler>();
+            services.AddDecoratedHandler<CreateRequirementVerifierCommand, EventRequirementVerifierSummaryResponse, CreateRequirementVerifierCommandHandler>();
+            services.AddDecoratedHandler<DeleteRequirementVerifierCommand, IdResponse, DeleteRequirementVerifierCommandHandler>();
             services.AddDecoratedHandler<DeleteRoleCommand, IdResponse, DeleteRoleCommandHandler>();
             services.AddDecoratedHandler<DeleteParticipantRoleCommand, IdResponse, DeleteParticipantRoleCommandHandler>();
             services.AddDecoratedHandler<UpdateCompletionCommand, IdResponse, UpdateCompletionCommandHandler>();
+            
+            services.AddScoped<IRequirementVerifierApplier, RequirementRoleVerifierApplier>();
+            services.AddScoped<IRequirementVerifierApplier, RequirementParticipantVerifierApplier>();
+            services.AddScoped<IRequirementVerifierApplier, RequirementRuleVerifierApplier>();
         }
 
         void AddGroupHandlers()

@@ -85,4 +85,14 @@ public sealed class EventRequirement : Requirement
         _verifiers.Add(verifier.Value);
         return verifier;
     }
+
+    internal Result RemoveVerifier(EventRequirementVerifier verifier)
+    {
+        if (Verifiers.All(x => x != verifier))
+            return Result.NotFound("Requirement verifier is not found");
+
+        return _verifiers.Remove(verifier)
+            ? Result.Success()
+            : Result.NotFound("Requirement verifier is not found");
+    }
 }
