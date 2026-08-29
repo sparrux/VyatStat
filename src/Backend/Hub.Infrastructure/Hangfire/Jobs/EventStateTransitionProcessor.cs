@@ -1,14 +1,13 @@
 using Hangfire;
-using Hub.Application.Abstractions;
-using Hub.Domain.Events;
-using Microsoft.EntityFrameworkCore;
+using Hub.Application.Features.Common.Contracts;
+using Hub.Application.Features.Events.Commands.ReconcileState;
+using Hub.Application.Pipelines;
 using Microsoft.Extensions.Logging;
 
 namespace Hub.Infrastructure.Hangfire.Jobs;
 
 public sealed class EventStateTransitionProcessor(
-    IHubDbContext dbContext,
-    TimeProvider time,
+    IRequestHandler<ReconcileStateCommand, IdResponse> handler,
     ILogger<EventStateTransitionProcessor> logger
 ) : IEventStateJobs
 {
@@ -26,38 +25,13 @@ public sealed class EventStateTransitionProcessor(
 
     async Task ReconcileAsync(Guid eventId)
     {
-        var ev = await dbContext.Events.FirstOrDefaultAsync(x => x.Id == eventId);
-        if (ev is null || Event.IsFinished(ev.State))
+        var result = await handler.Handle(new ReconcileStateCommand(eventId), CancellationToken.None);
+        if (result.IsSuccess)
             return;
 
-        var utcNow = time.GetUtcNow();
-        EventState? next = null;
-
-        if (ev.DatesRange.EndDate <= utcNow && Event.IsOngoing(ev.State))
-            next = EventState.Completed;
-        else if (ev.DatesRange.StartDate <= utcNow &&
-                 ev.State is EventState.RegistrationOpen or EventState.RegistrationClosed)
-            next = EventState.InProgress;
-
-        if (next is null)
-            return;
-
-        var update = ev.UpdateState(next.Value);
-        if (!update.IsSuccess)
-        {
-            logger.LogError(
-                "Failed to reconcile event {EventTitle} ({EventId}): {@Errors}",
-                ev.Title,
-                eventId,
-                update.Errors);
-            return;
-        }
-
-        await dbContext.SaveChangesAsync();
-        logger.LogInformation(
-            "Event {EventTitle} ({EventId}) transitioned to {State}",
-            ev.Title,
+        logger.LogError(
+            "Failed to reconcile event {EventId}: {@Errors}",
             eventId,
-            next.Value);
+            result.Errors);
     }
 }
