@@ -1,6 +1,6 @@
 using Hangfire;
 
-namespace Hub.Infrastructure.Hangfire;
+namespace Hub.Infrastructure.Hangfire.Jobs;
 
 public interface IEventStateJobs
 {

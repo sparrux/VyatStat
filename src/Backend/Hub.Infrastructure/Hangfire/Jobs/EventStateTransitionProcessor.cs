@@ -4,7 +4,7 @@ using Hub.Domain.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Hub.Infrastructure.Hangfire;
+namespace Hub.Infrastructure.Hangfire.Jobs;
 
 public sealed class EventStateTransitionProcessor(
     IHubDbContext dbContext,

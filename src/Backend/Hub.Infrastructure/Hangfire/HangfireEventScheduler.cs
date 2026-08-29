@@ -2,6 +2,7 @@ using Hangfire;
 using Hangfire.States;
 using Hub.Application.Abstractions;
 using Hub.Domain.Events;
+using Hub.Infrastructure.Hangfire.Jobs;
 
 namespace Hub.Infrastructure.Hangfire;
 
