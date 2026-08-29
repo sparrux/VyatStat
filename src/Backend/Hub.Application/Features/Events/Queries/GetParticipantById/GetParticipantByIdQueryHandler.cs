@@ -4,13 +4,13 @@ using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Specifications.Projection;
 using Hub.Application.Features.Events.Specifications.Search;
 using Hub.Application.Pipelines;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Queries.GetParticipantById;
 
 sealed class GetParticipantByIdQueryHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<GetParticipantByIdQuery, EventParticipantDetailsResponse>
 {
     public async Task<Result<EventParticipantDetailsResponse>> Handle(

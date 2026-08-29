@@ -29,8 +29,6 @@ static class DependencyInjection
             
             builder.Services.AddScoped<ISeeder, UsersSeeder>();
 
-            builder.AddHangfire();
-
             builder.Services.AddOptions<OAuthOptions>()
                 .Bind(builder.Configuration.GetSection(OAuthOptions.SectionName))
                 .ValidateOnStart();
@@ -60,6 +58,8 @@ static class DependencyInjection
             builder.AddAuthentication();
             builder.AddCors();
             builder.Services.AddAuthorization();
+            
+            builder.AddHangfireHost();
         }
 
         void AddCors()

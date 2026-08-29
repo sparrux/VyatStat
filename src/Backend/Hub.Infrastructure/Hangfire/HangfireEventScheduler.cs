@@ -3,9 +3,9 @@ using Hangfire.States;
 using Hub.Application.Abstractions;
 using Hub.Domain.Events;
 
-namespace Hub.Web.Hangfire;
+namespace Hub.Infrastructure.Hangfire;
 
-sealed class HangfireEventScheduler(
+public sealed class HangfireEventScheduler(
     IBackgroundJobClient jobs,
     JobStorage storage
 ) : IEventScheduler
@@ -17,12 +17,12 @@ sealed class HangfireEventScheduler(
     {
         DeleteJobs(evt.Id);
 
-        var startJobId = jobs.Schedule<EventStateTransitionProcessor>(
-            processor => processor.TransitionToInProgressAsync(evt.Id, evt.Title),
+        var startJobId = jobs.Schedule<IEventStateJobs>(
+            processor => processor.TransitionToInProgressAsync(evt.Id),
             evt.DatesRange.StartDate);
 
-        var endJobId = jobs.Schedule<EventStateTransitionProcessor>(
-            processor => processor.TransitionToCompletedAsync(evt.Id, evt.Title),
+        var endJobId = jobs.Schedule<IEventStateJobs>(
+            processor => processor.TransitionToCompletedAsync(evt.Id),
             evt.DatesRange.EndDate);
 
         using var connection = storage.GetConnection();

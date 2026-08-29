@@ -6,13 +6,13 @@ using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.CreateRequirementVerifier;
 
 sealed class CreateRequirementVerifierCommandHandler(
-    HubDbContext context,
+    IHubDbContext context,
     IEnumerable<IRequirementVerifierApplier> appliers
 ) : IRequestHandler<CreateRequirementVerifierCommand, EventRequirementVerifierSummaryResponse>
 {
@@ -37,7 +37,7 @@ sealed class CreateRequirementVerifierCommandHandler(
 
         if (!verifier.IsSuccess) return verifier.Map();
 
-        await context.AddAsync(verifier.Value, cancellationToken);
+        await context.EventRequirementVerifiers.AddAsync(verifier.Value, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return Result.Created(new EventRequirementVerifierSummaryResponse(

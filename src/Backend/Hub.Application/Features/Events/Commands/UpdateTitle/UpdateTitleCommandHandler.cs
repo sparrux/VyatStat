@@ -5,13 +5,13 @@ using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.UpdateTitle;
 
 sealed class UpdateTitleCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<UpdateTitleCommand, IdResponse>
 {
     public async Task<Result<IdResponse>> Handle(

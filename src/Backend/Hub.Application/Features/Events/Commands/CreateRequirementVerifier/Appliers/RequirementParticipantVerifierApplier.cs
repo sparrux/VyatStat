@@ -1,11 +1,11 @@
 using Ardalis.Result;
+using Hub.Application.Abstractions;
 using Hub.Domain.Events.Requirements;
-using Hub.Infrastructure.Persistence;
 
 namespace Hub.Application.Features.Events.Commands.CreateRequirementVerifier.Appliers;
 
 sealed class RequirementParticipantVerifierApplier(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : RequirementVerifierApplierBase<CreateRequirementParticipantVerifierRequest>
 {
     protected override async Task<Result<EventRequirementVerifier>> OnApplyAsync(
@@ -14,16 +14,18 @@ sealed class RequirementParticipantVerifierApplier(
         CancellationToken cancellationToken)
     {
         await dbContext
+            .Events
             .Entry(context.Event)
             .Collection(x => x.Participants)
             .LoadAsync(cancellationToken);
-            
-        var participant = context.Event.Participants.FirstOrDefault(x => x.UserId == request.ParticipantUserId);
-        if (participant is null) return Result.NotFound("Event Participant not found");
-            
+        
+        var participant = context.Event.Participants
+            .FirstOrDefault(x => x.UserId == request.ParticipantUserId);
+        if (participant is null)
+            return Result.NotFound("Event Participant not found");
+
         return context.Event
             .AddRequirementParticipantVerifier(context.Requirement, participant, request.IsRequired)
             .Map(EventRequirementVerifier (x) => x);
-
     }
 }

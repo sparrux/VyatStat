@@ -6,13 +6,12 @@ using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.UpdateState;
 
 sealed class UpdateStateCommandHandler(
-    HubDbContext dbContext,
+    IHubDbContext dbContext,
     IEventScheduler eventScheduler
 ) : IRequestHandler<UpdateStateCommand, IdResponse>
 {
@@ -32,12 +31,9 @@ sealed class UpdateStateCommandHandler(
 
         if (Event.IsFinished(ev.State))
             await eventScheduler.DeleteAsync(ev, cancellationToken);
-        
-        else if (ev.State is EventState.RegistrationOpen
-                 or EventState.RegistrationClosed
-                 or EventState.InProgress)
+        else if (Event.IsOngoing(ev.State))
             await eventScheduler.ScheduleAsync(ev, cancellationToken);
-        
+
         return Result.Success(new IdResponse(ev.Id));
     }
 }

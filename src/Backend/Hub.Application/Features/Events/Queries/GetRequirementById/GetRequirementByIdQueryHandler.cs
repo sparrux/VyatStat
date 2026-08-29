@@ -6,13 +6,13 @@ using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Features.Events.Specifications.Search;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events.Requirements;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Queries.GetRequirementById;
 
 sealed class GetRequirementByIdQueryHandler(
-    HubDbContext context
+    IHubDbContext context
 ) : IRequestHandler<GetRequirementQuery, EventRequirementDetailsResponse>
 {
     public async Task<Result<EventRequirementDetailsResponse>> Handle(

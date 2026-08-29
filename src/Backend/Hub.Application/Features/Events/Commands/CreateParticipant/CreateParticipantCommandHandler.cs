@@ -8,13 +8,13 @@ using Hub.Application.Features.Users.Contracts;
 using Hub.Application.Pipelines;
 using Hub.Domain;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.CreateParticipant;
 
 sealed class CreateParticipantCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<CreateParticipantCommand, EventParticipantSummaryResponse>
 {
     public async Task<Result<EventParticipantSummaryResponse>> Handle(

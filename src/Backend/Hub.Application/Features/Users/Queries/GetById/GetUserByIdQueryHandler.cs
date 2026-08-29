@@ -6,13 +6,13 @@ using Hub.Application.Features.Users.Contracts;
 using Hub.Application.Features.Users.Specifications.Projection;
 using Hub.Application.Pipelines;
 using Hub.Domain;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Users.Queries.GetById;
 
 sealed class GetUserByIdQueryHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<GetUserByIdQuery, UserDetailsResponse>
 {
     public async Task<Result<UserDetailsResponse>> Handle(
