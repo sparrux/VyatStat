@@ -5,13 +5,13 @@ using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.CreateParticipantRole;
 
 sealed class CreateParticipantRoleCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<CreateParticipantRoleCommand, EventParticipantRoleResponse>
 {
     public async Task<Result<EventParticipantRoleResponse>> Handle(

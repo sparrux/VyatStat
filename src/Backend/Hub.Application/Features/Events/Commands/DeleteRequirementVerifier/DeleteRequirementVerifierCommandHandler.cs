@@ -5,13 +5,13 @@ using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.DeleteRequirementVerifier;
 
 sealed class DeleteRequirementVerifierCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<DeleteRequirementVerifierCommand, IdResponse>
 {
     public async Task<Result<IdResponse>> Handle(

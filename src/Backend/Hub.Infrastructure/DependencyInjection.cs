@@ -1,3 +1,4 @@
+using Hub.Application.Abstractions;
 using Hub.Infrastructure.Persistence;
 using Hub.Infrastructure.Persistence.Interceptors;
 using Microsoft.EntityFrameworkCore;
@@ -18,5 +19,6 @@ public static class DependencyInjection
             
             options.AddInterceptors(provider.GetRequiredService<AuditInterceptor>());
         });
+        services.AddScoped<IHubDbContext>(sp => sp.GetRequiredService<HubDbContext>());
     }
 }

@@ -5,13 +5,13 @@ using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.CreateRequirement;
 
 sealed class CreateRequirementCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<CreateRequirementCommand, EventRequirementSummaryResponse>
 {
     public async Task<Result<EventRequirementSummaryResponse>> Handle(

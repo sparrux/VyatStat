@@ -7,13 +7,13 @@ using Hub.Application.Pipelines;
 using Hub.Domain;
 using Hub.Domain.Events;
 using Hub.Domain.ValueObjects;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.Create;
 
 sealed class CreateEventCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<CreateEventCommand, EventSummaryResponse>
 {
     public async Task<Result<EventSummaryResponse>> Handle(

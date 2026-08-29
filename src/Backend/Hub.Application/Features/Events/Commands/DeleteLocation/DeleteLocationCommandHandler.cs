@@ -6,13 +6,13 @@ using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.DeleteLocation;
 
 sealed class DeleteLocationCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<DeleteLocationCommand, IdResponse>
 {
     public async Task<Result<IdResponse>> Handle(
