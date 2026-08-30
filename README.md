@@ -6,6 +6,8 @@ Platform for organizing events, groups, and trainings — with a dedicated ident
 [![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Angular](https://img.shields.io/badge/Angular-22-DD0031?logo=angular)](https://angular.dev/)
 
+> **Not production-ready.** This repository is a **demonstration snapshot** for review and walkthrough of current architecture and progress. APIs, UX, and operations are still evolving. Do not deploy this as-is.
+
 ## Overview
 
 VyatStat is a modular system: **Identity** handles accounts and OAuth, **Hub** handles the domain (events, groups, participants, requirements, training). Both backends are ASP.NET Core services; both UIs are Angular SPAs in a single frontend workspace.
@@ -24,6 +26,7 @@ Local development is orchestrated by [.NET Aspire](https://learn.microsoft.com/d
 **Hub**
 
 - Event lifecycle: draft → registration → in progress → completed / cancelled
+- Scheduled start/end transitions (Hangfire) plus stricter date and state rules
 - Participants, roles, locations, and rich-text descriptions
 - Requirements with role, participant, and rule verifiers
 - Groups, membership, and attaching events to groups
@@ -57,7 +60,7 @@ flowchart LR
 | Layer | Stack |
 | --- | --- |
 | Identity API | ASP.NET Core, ASP.NET Identity, OpenIddict, EF Core |
-| Hub API | ASP.NET Core, Clean Architecture, EF Core, Ardalis Result / Specification |
+| Hub API | ASP.NET Core, Clean Architecture, EF Core, Hangfire, Ardalis Result / Specification |
 | Frontend | Angular 22, standalone components, Signals, shared `@vyatka-tracker/auth` and `@vyatka-tracker/ui` |
 | Data | PostgreSQL |
 | Local orchestration | .NET Aspire, Docker (Postgres + pgAdmin) |
@@ -115,6 +118,7 @@ Typical local URLs when ports are not remapped:
 | Hub SPA | http://localhost:4201 |
 | Identity API | https://localhost:7019 |
 | Hub API | https://localhost:7020 |
+| Hangfire dashboard (Hub, Development) | `/hangfire` on the Hub API |
 | pgAdmin | http://localhost:5050 |
 | Scalar (Identity / Hub) | `/scalar` on each API in Development |
 
@@ -175,6 +179,8 @@ npm run build:libs
 Interactive OpenAPI is served by Scalar on each API when `ASPNETCORE_ENVIRONMENT=Development`.
 
 ## Contributing
+
+`master` holds the latest demonstration snapshot, not a supported release.
 
 1. Create a branch from the default branch.
 2. Keep changes focused; match existing architecture and naming.
