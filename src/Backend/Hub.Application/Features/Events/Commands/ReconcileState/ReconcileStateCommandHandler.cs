@@ -42,8 +42,7 @@ sealed class ReconcileStateCommandHandler(
         if (ev.DatesRange.EndDate <= utcNow && Event.IsOngoing(ev.State))
             return EventState.Completed;
 
-        if (ev.DatesRange.StartDate <= utcNow &&
-            ev.State is EventState.RegistrationOpen or EventState.RegistrationClosed)
+        if (ev.DatesRange.StartDate <= utcNow && Event.IsReadyForStarting(ev.State))
             return EventState.InProgress;
 
         return null;

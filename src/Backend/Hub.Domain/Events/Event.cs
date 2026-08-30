@@ -413,4 +413,9 @@ public sealed class Event : AggregateRoot
             is EventState.RegistrationOpen
             or EventState.RegistrationClosed
             or EventState.InProgress;
+    
+    public static bool IsReadyForStarting(EventState state) =>
+        state
+            is EventState.RegistrationOpen
+            or EventState.RegistrationClosed;
 }
