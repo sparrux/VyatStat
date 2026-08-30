@@ -1,6 +1,7 @@
 using Hub.Application;
 using Hub.Infrastructure;
 using Hub.Web;
+using Hub.Web.Hangfire;
 using Microsoft.AspNetCore.HttpOverrides;
 using ServiceDefaults;
 
@@ -8,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddWeb();
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(dbConnectionName: "hubdb", builder.Configuration);
 
 var app = builder.Build();
 
@@ -31,6 +32,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHangfireUi();
 app.MapEndpoints();
 
 app.Run();

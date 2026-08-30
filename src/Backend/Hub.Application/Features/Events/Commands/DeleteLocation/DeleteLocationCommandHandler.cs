@@ -1,7 +1,6 @@
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using Hub.Application.Features.Common.Contracts;
-using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Pipelines;
