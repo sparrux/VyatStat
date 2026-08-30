@@ -1,22 +1,21 @@
-using Hub.Infrastructure.Persistence;
-using Hub.Infrastructure.Persistence.Interceptors;
-using Microsoft.EntityFrameworkCore;
+using Hub.Infrastructure.Hangfire.Extensions;
+using Hub.Infrastructure.Persistence.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Hub.Infrastructure;
 
 public static class DependencyInjection
 {
     public static void AddInfrastructure(
-        this IServiceCollection services, IConfiguration configuration)
+        this IServiceCollection services,
+        string dbConnectionName,
+        IConfiguration configuration)
     {
-        services.AddSingleton<AuditInterceptor>();
-        services.AddDbContext<HubDbContext>((provider, options) =>
-        {
-            options.UseNpgsql(configuration.GetConnectionString("hubdb"));
-            
-            options.AddInterceptors(provider.GetRequiredService<AuditInterceptor>());
-        });
+        services.TryAddSingleton(TimeProvider.System);
+
+        services.AddPersistenceServices(dbConnectionName, configuration);
+        services.AddSchedulerServices(dbConnectionName, configuration);
     }
 }

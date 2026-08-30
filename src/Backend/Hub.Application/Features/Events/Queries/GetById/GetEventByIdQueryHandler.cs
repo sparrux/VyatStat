@@ -1,19 +1,18 @@
 using Ardalis.Result;
 using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
-using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Features.Events.Contracts;
 using Hub.Application.Features.Events.Specifications.Projection;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Queries.GetById;
 
 sealed class GetEventByIdQueryHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<GetEventByIdQuery, EventDetailsResponse>
 {
     public async Task<Result<EventDetailsResponse>> Handle(

@@ -4,6 +4,7 @@ using Hub.Web.Authentication;
 using Hub.Web.Authentication.OAuth.Events;
 using Hub.Web.Authentication.OAuth.Store;
 using Hub.Web.Endpoints;
+using Hub.Web.Hangfire;
 using Hub.Web.OpenApi;
 using Hub.Web.Services.Seeders;
 using Hub.Web.Services.Users;
@@ -57,6 +58,8 @@ static class DependencyInjection
             builder.AddAuthentication();
             builder.AddCors();
             builder.Services.AddAuthorization();
+            
+            builder.AddHangfireHost();
         }
 
         void AddCors()

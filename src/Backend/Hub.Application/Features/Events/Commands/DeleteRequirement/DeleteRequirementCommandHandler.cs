@@ -1,18 +1,17 @@
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using Hub.Application.Features.Common.Contracts;
-using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Features.Events.Specifications.Include;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.DeleteRequirement;
 
 sealed class DeleteRequirementCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<DeleteRequirementCommand, IdResponse>
 {
     public async Task<Result<IdResponse>> Handle(

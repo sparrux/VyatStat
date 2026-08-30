@@ -17,6 +17,7 @@ using Hub.Application.Features.Events.Commands.UpdateCompletion;
 using Hub.Application.Features.Events.Commands.UpdateDates;
 using Hub.Application.Features.Events.Commands.UpdateDescription;
 using Hub.Application.Features.Events.Commands.UpdateLocation;
+using Hub.Application.Features.Events.Commands.ReconcileState;
 using Hub.Application.Features.Events.Commands.UpdateRequirement;
 using Hub.Application.Features.Events.Commands.UpdateState;
 using Hub.Application.Features.Events.Commands.UpdateTitle;
@@ -76,6 +77,7 @@ public static class DependencyInjection
             services.AddDecoratedHandler<GetParticipantByIdQuery, EventParticipantDetailsResponse, GetParticipantByIdQueryHandler>();
             services.AddDecoratedHandler<GetRequirementQuery, EventRequirementDetailsResponse, GetRequirementByIdQueryHandler>();
             services.AddDecoratedHandler<UpdateStateCommand, IdResponse, UpdateStateCommandHandler>();
+            services.AddDecoratedHandler<ReconcileStateCommand, IdResponse, ReconcileStateCommandHandler>();
             services.AddDecoratedHandler<UpdateRequirementCommand, IdResponse, UpdateRequirementCommandHandler>();
             services.AddDecoratedHandler<DeleteRequirementCommand, IdResponse, DeleteRequirementCommandHandler>();
             services.AddDecoratedHandler<CreateRequirementVerifierCommand, EventRequirementVerifierSummaryResponse, CreateRequirementVerifierCommandHandler>();

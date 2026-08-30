@@ -1,3 +1,4 @@
+using Hub.Application.Abstractions;
 using Hub.Domain;
 using Hub.Domain.Events;
 using Hub.Domain.Events.Goals;
@@ -7,10 +8,11 @@ using Hub.Domain.Groups;
 using Hub.Domain.Groups.Members;
 using Hub.Domain.Groups.Training;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Hub.Infrastructure.Persistence;
 
-public sealed class HubDbContext : DbContext
+public sealed class HubDbContext : DbContext, IHubDbContext
 {
     public HubDbContext(DbContextOptions options) : base(options)
     {
@@ -33,6 +35,7 @@ public sealed class HubDbContext : DbContext
         EventRequirements = Set<EventRequirement>();
         EventLocations = Set<EventLocation>();
         EventRequirementAssignments = Set<EventRequirementAssignment>();
+        EventRequirementVerifiers = Set<EventRequirementVerifier>();
     }
 
     public DbSet<User> Users { get; }
@@ -54,9 +57,13 @@ public sealed class HubDbContext : DbContext
     public DbSet<EventParticipant> EventParticipants { get; }
     public DbSet<EventParticipantRole> EventParticipantRoles { get; }
     public DbSet<EventRequirementAssignment> EventRequirementAssignments { get; }
+    public DbSet<EventRequirementVerifier> EventRequirementVerifiers { get; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HubDbContext).Assembly);
     }
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        => Database.BeginTransactionAsync(cancellationToken);
 }

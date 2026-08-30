@@ -1,18 +1,17 @@
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using Hub.Application.Features.Common.Contracts;
-using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
 using Hub.Domain.ValueObjects;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Events.Commands.UpdateDescription;
 
 sealed class UpdateDescriptionCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<UpdateDescriptionCommand, IdResponse>
 {
     public async Task<Result<IdResponse>> Handle(

@@ -7,13 +7,13 @@ using Hub.Application.Features.Events.Specifications.Projection;
 using Hub.Application.Features.Groups.Specifications.Search;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Groups.Queries.GetEvents;
 
 sealed class GetGroupEventsQueryHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<GetGroupEventsQuery, ListResponse<EventSummaryResponse>>
 {
     public async Task<Result<ListResponse<EventSummaryResponse>>> Handle(

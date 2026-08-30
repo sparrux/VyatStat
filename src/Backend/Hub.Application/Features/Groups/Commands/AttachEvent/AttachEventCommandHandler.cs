@@ -1,13 +1,13 @@
 using Ardalis.Result;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Pipelines;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Groups.Commands.AttachEvent;
 
 sealed class AttachEventCommandHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<AttachEventCommand, IdResponse>
 {
     public async Task<Result<IdResponse>> Handle(AttachEventCommand request, CancellationToken cancellationToken)

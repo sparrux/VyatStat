@@ -1,20 +1,19 @@
 using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using Hub.Application.Features.Common.Contracts;
-using Hub.Application.Features.Common.Specifications;
 using Hub.Application.Features.Common.Specifications.Search;
 using Hub.Application.Features.Users.Contracts;
 using Hub.Application.Features.Users.Specifications.Projection;
 using Hub.Application.Features.Users.Specifications.Search;
 using Hub.Application.Pipelines;
 using Hub.Domain;
-using Hub.Infrastructure.Persistence;
+using Hub.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Users.Queries.Get;
 
 sealed class GetUserQueryHandler(
-    HubDbContext dbContext
+    IHubDbContext dbContext
 ) : IRequestHandler<GetUserQuery, ListResponse<UserSummaryResponse>>
 {
     public async Task<Result<ListResponse<UserSummaryResponse>>> Handle(

@@ -3,13 +3,12 @@ using Hub.Application.Abstractions;
 using Hub.Application.Features.Groups.Contracts;
 using Hub.Application.Pipelines;
 using Hub.Domain.Groups;
-using Hub.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hub.Application.Features.Groups.Commands.Create;
 
 sealed class CreateGroupCommandHandler(
-    HubDbContext dbContext,
+    IHubDbContext dbContext,
     IUserContext userContext
 ) : IRequestHandler<CreateGroupCommand, GroupSummaryResponse>
 {
@@ -21,7 +20,7 @@ sealed class CreateGroupCommandHandler(
         var group = Group.Create(request.Name, actor);
         if (!group.IsSuccess) return group.Map();
         
-        await dbContext.AddAsync(group.Value, cancellationToken);
+        await dbContext.Groups.AddAsync(group.Value, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         
         return Result.Success(new GroupSummaryResponse(
