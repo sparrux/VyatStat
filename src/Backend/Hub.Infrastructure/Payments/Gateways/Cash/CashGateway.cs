@@ -49,11 +49,11 @@ sealed class CashGateway : IPaymentGateway
         string? idempotencyKey,
         CancellationToken cancellationToken) =>
         Task.FromResult<Result<GatewayPaymentResult>>(
-            Result.Error("Cash payments are confirmed by an administrator"));
+            Result.Error("Cash payments are confirmed separately"));
 
     public Task<Result<RefundGatewayPaymentResult>> RefundAsync(
         RefundGatewayPaymentRequest request,
         CancellationToken cancellationToken) =>
         Task.FromResult<Result<RefundGatewayPaymentResult>>(
-            Result.Error("Cash refunds are recorded by an administrator"));
+            Result.Error("Cash refunds are recorded separately"));
 }

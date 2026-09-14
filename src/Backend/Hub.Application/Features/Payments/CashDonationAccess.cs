@@ -36,7 +36,7 @@ static class CashDonationAccess
             return Result.Error("Donation payment has not been started");
 
         if (!DonationCheckout.IsCash(attempt))
-            return Result.Error("Only cash payments can be managed by an administrator this way");
+            return Result.Error("Only cash payments can be managed this way");
 
         return Result.Success((donation, payment, attempt));
     }

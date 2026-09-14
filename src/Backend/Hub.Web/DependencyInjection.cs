@@ -57,11 +57,7 @@ static class DependencyInjection
 
             builder.AddAuthentication();
             builder.AddCors();
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy(AuthorizationPolicies.Admin, policy =>
-                    policy.RequireClaim(IdentityClaims.Role, IdentityClaims.AdminRole));
-            });
+            builder.Services.AddAuthorization();
             
             builder.AddHangfireHost();
         }
@@ -107,7 +103,6 @@ static class DependencyInjection
             app.MapEventEndpoints();
             app.MapGroupEndpoints();
             app.MapDonationEndpoints();
-            app.MapAdminDonationEndpoints();
             app.MapPaymentWebhookEndpoints();
         }
 

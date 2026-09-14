@@ -1,6 +1,7 @@
 using Ardalis.Result;
 using Hub.Application.Abstractions;
 using Hub.Application.Abstractions.Payments;
+using Hub.Application.Features.Payments.Commands.ConfirmCashDonation;
 using Hub.Application.Features.Payments.Contracts;
 using Hub.Application.Pipelines;
 using Hub.Domain.Payments;
@@ -10,7 +11,8 @@ namespace Hub.Application.Features.Payments.Commands.ConfirmDonation;
 
 sealed class ConfirmDonationCommandHandler(
     IPaymentsDbContext paymentsDbContext,
-    IPaymentGatewayResolver gatewayResolver
+    IPaymentGatewayResolver gatewayResolver,
+    IRequestHandler<ConfirmCashDonationCommand, DonationResponse> confirmCashDonation
 ) : IRequestHandler<ConfirmDonationCommand, DonationResponse>
 {
     public async Task<Result<DonationResponse>> Handle(
@@ -48,12 +50,15 @@ sealed class ConfirmDonationCommandHandler(
         if (attempt?.ProviderPaymentId is null)
             return Result.Error("Donation payment has not been started with a provider");
 
+        if (DonationCheckout.IsCash(attempt))
+            return await confirmCashDonation.Handle(new(command.DonationId), cancellationToken);
+
         var gateway = gatewayResolver.Resolve(attempt.Provider.Value);
         if (!gateway.IsSuccess)
             return gateway.Map();
 
         if (!gateway.Value.SupportsRemoteCapture)
-            return Result.Error("This payment must be confirmed by an administrator");
+            return Result.Error("This payment cannot be confirmed through this endpoint");
 
         var captured = await gateway.Value.CapturePaymentAsync(
             attempt.ProviderPaymentId,
