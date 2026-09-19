@@ -15,7 +15,7 @@ sealed class GetInvoicesQueryHandler(
         GetInvoicesQuery request, CancellationToken cancellationToken)
     {
         var invoicesSelection = dbContext.Invoices
-            .Where(i => i.CustomerId == request.CustomerId)
+            .Where(i => i.CustomerId == request.UserId)
             .AsNoTracking();
         
         var invoices = await invoicesSelection

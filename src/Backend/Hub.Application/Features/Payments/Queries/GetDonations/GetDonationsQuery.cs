@@ -1,8 +1,8 @@
 using Hub.Application.Features.Common.Contracts;
 
-namespace Hub.Application.Features.Payments.Queries.GetInvoices;
+namespace Hub.Application.Features.Payments.Queries.GetDonations;
 
-public sealed record GetInvoicesQuery(
+public sealed record GetDonationsQuery(
     Guid UserId,
     int Take = 0,
     int Skip = 0

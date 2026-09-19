@@ -45,6 +45,7 @@ using Hub.Application.Features.Payments.Commands.ProcessPaymentWebhook;
 using Hub.Application.Features.Payments.Commands.ReceivePaymentWebhook;
 using Hub.Application.Features.Payments.Contracts;
 using Hub.Application.Features.Payments.Queries.GetDonationById;
+using Hub.Application.Features.Payments.Queries.GetDonations;
 using Hub.Application.Features.Payments.Queries.GetInvoices;
 using Hub.Application.Features.Payments.Services;
 using Hub.Application.Features.Users.Contracts;
@@ -123,6 +124,7 @@ public static class DependencyInjection
             services.AddDecoratedHandler<ConfirmCashCommand, PaymentResponse, ConfirmCashCommandHandler>();
             services.AddDecoratedHandler<CancelCashCommand, PaymentResponse, CancelCashCommandHandler>();
             services.AddDecoratedHandler<GetDonationByIdQuery, DonationResponse, GetDonationByIdQueryHandler>();
+            services.AddDecoratedHandler<GetDonationsQuery, ListResponse<DonationResponse>, GetDonationsQueryHandler>();
             services.AddDecoratedHandler<ReceivePaymentWebhookCommand, IdResponse, ReceivePaymentWebhookCommandHandler>();
             services.AddDecoratedHandler<ProcessPaymentWebhookCommand, IdResponse, ProcessPaymentWebhookCommandHandler>();
             services.AddDecoratedHandler<CreateInvoiceCommand, InvoiceResponse, CreateInvoiceCommandHandler>();
