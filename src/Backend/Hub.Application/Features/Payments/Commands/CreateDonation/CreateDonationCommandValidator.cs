@@ -23,10 +23,6 @@ sealed class CreateDonationCommandValidator : AbstractValidator<CreateDonationCo
             .MaximumLength(50)
             .When(x => !string.IsNullOrWhiteSpace(x.Request.Provider));
 
-        RuleFor(x => x.Request.EventId)
-            .NotEqual(Guid.Empty)
-            .When(x => x.Request.EventId.HasValue);
-
         RuleFor(x => x.Request.ReturnUrl)
             .Must(BeAbsoluteUri)
             .When(x => x.Request.ReturnUrl is not null)
@@ -37,11 +33,8 @@ sealed class CreateDonationCommandValidator : AbstractValidator<CreateDonationCo
             .When(x => x.Request.CancelUrl is not null)
             .WithMessage("Cancel URL must be an absolute URI");
 
-        RuleFor(x => x.IdempotencyKey)
-            .MaximumLength(100)
-            .When(x => !string.IsNullOrWhiteSpace(x.IdempotencyKey));
-
         RuleFor(x => x.Request.IdempotencyKey)
+            .NotEmpty()
             .MaximumLength(100)
             .When(x => !string.IsNullOrWhiteSpace(x.Request.IdempotencyKey));
     }

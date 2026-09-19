@@ -35,6 +35,15 @@ public static class PaymentIntegrationEvents
                         failed.Reason,
                         failed.OccurredOn));
                     break;
+                
+                case PaymentCancelledEvent cancelled:
+                    messages.Add(new PaymentCancelled(
+                        cancelled.EventId,
+                        cancelled.PaymentId,
+                        cancelled.Purpose.ToString(),
+                        cancelled.ReferenceId,
+                        cancelled.OccurredOn));
+                    break;
 
                 case RefundSucceededEvent refunded:
                     messages.Add(new RefundSucceeded(

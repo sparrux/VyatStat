@@ -1,9 +1,6 @@
 using Ardalis.Result.AspNetCore;
 using Hub.Application.Abstractions;
-using Hub.Application.Features.Payments.Commands.CancelCashDonation;
-using Hub.Application.Features.Payments.Commands.ConfirmDonation;
 using Hub.Application.Features.Payments.Commands.CreateDonation;
-using Hub.Application.Features.Payments.Commands.RecordCashDonation;
 using Hub.Application.Features.Payments.Contracts;
 using Hub.Application.Features.Payments.Queries.GetDonationById;
 using Hub.Application.Pipelines;
@@ -23,38 +20,17 @@ static class DonationEndpoints
             .HasApiVersion(1.0)
             .Produces<DonationResponse>(StatusCodes.Status201Created);
 
-        donations.MapPost("/cash", RecordCash)
-            .HasApiVersion(1.0)
-            .Produces<DonationResponse>(StatusCodes.Status201Created);
-
         donations.MapGet("/{donationId:guid}", GetById)
-            .HasApiVersion(1.0)
-            .Produces<DonationResponse>();
-
-        donations.MapPost("/{donationId:guid}/confirm", Confirm)
-            .HasApiVersion(1.0)
-            .Produces<DonationResponse>();
-
-        donations.MapPost("/{donationId:guid}/cancel", CancelCash)
             .HasApiVersion(1.0)
             .Produces<DonationResponse>();
     }
 
     static async Task<IResult> Create(
         [FromBody] CreateDonationRequest request,
-        [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
         [FromServices] IUserContext userContext,
         [FromServices] IRequestHandler<CreateDonationCommand, DonationResponse> handler,
         CancellationToken ctk) =>
-        (await handler.Handle(new(userContext.UserId, request, idempotencyKey), ctk))
-        .ToMinimalApiResult();
-
-    static async Task<IResult> RecordCash(
-        [FromBody] RecordCashDonationRequest request,
-        [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey,
-        [FromServices] IRequestHandler<RecordCashDonationCommand, DonationResponse> handler,
-        CancellationToken ctk) =>
-        (await handler.Handle(new(request, idempotencyKey), ctk))
+        (await handler.Handle(new(userContext.UserId, request), ctk))
         .ToMinimalApiResult();
 
     static async Task<IResult> GetById(
@@ -63,20 +39,5 @@ static class DonationEndpoints
         [FromServices] IRequestHandler<GetDonationByIdQuery, DonationResponse> handler,
         CancellationToken ctk) =>
         (await handler.Handle(new(userContext.UserId, donationId), ctk))
-        .ToMinimalApiResult();
-
-    static async Task<IResult> Confirm(
-        [FromRoute] Guid donationId,
-        [FromServices] IUserContext userContext,
-        [FromServices] IRequestHandler<ConfirmDonationCommand, DonationResponse> handler,
-        CancellationToken ctk) =>
-        (await handler.Handle(new(userContext.UserId, donationId), ctk))
-        .ToMinimalApiResult();
-
-    static async Task<IResult> CancelCash(
-        [FromRoute] Guid donationId,
-        [FromServices] IRequestHandler<CancelCashDonationCommand, DonationResponse> handler,
-        CancellationToken ctk) =>
-        (await handler.Handle(new(donationId), ctk))
         .ToMinimalApiResult();
 }

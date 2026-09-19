@@ -1,7 +1,6 @@
 using Hub.Application.Abstractions.Messaging;
 using Hub.Application.Features.Payments.Mapping;
 using Hub.Domain.Common;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 

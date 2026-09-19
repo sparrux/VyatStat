@@ -4,11 +4,10 @@ using Hub.Domain.Payments;
 
 namespace Hub.Application.Features.Payments;
 
-static class DonationCheckout
+static class PaymentCheckout
 {
     public static Result ApplyProviderResult(
         Payment payment,
-        Donation? donation,
         Guid attemptId,
         string providerPaymentId,
         PaymentAttemptStatus status,
@@ -21,7 +20,6 @@ static class DonationCheckout
 
         return ApplyGatewayStatus(
             payment,
-            donation,
             attemptId,
             status,
             failureCode,
@@ -30,13 +28,12 @@ static class DonationCheckout
 
     public static Result ApplyGatewayStatus(
         Payment payment,
-        Donation? donation,
         Guid attemptId,
         PaymentAttemptStatus status,
         string? failureCode = null,
-        string? failureMessage = null)
-    {
-        var applied = status switch
+        string? failureMessage = null
+    ) =>
+        status switch
         {
             PaymentAttemptStatus.Pending => Result.Success(),
             PaymentAttemptStatus.RequiresAction => payment.MarkAttemptRequiresAction(attemptId),
@@ -46,21 +43,6 @@ static class DonationCheckout
             PaymentAttemptStatus.Cancelled => payment.Cancel(),
             _ => Result.Error($"Unsupported payment attempt status '{status}'")
         };
-
-        if (!applied.IsSuccess)
-            return applied;
-
-        if (donation is null)
-            return Result.Success();
-
-        return status switch
-        {
-            PaymentAttemptStatus.Succeeded => donation.Complete(),
-            PaymentAttemptStatus.Failed => donation.Fail(),
-            PaymentAttemptStatus.Cancelled => donation.Cancel(),
-            _ => Result.Success()
-        };
-    }
 
     public static string GatewayIdempotencyKey(PaymentAttempt attempt, string operation)
     {

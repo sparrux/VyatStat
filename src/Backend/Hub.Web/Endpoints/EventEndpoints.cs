@@ -27,7 +27,6 @@ using Hub.Application.Features.Events.Queries.GetParticipantById;
 using Hub.Application.Features.Events.Queries.GetRequirementById;
 using Hub.Application.Pipelines;
 using Hub.Domain.Events;
-using Hub.Domain.Events.Requirements;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hub.Web.Endpoints;

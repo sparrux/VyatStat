@@ -6,7 +6,7 @@ using MassTransit;
 
 namespace Hub.Infrastructure.Messaging.Consumers;
 
-sealed class RefundSucceededConsumer(
+public sealed class RefundSucceededConsumer(
     IRequestHandler<HandleRefundSucceededCommand, IdResponse> handler
 ) : IConsumer<RefundSucceeded>
 {

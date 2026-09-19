@@ -1,5 +1,4 @@
 using Ardalis.Result;
-using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Pipelines;
 
 namespace Hub.Infrastructure.Messaging;

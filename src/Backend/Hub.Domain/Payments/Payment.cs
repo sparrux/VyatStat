@@ -185,6 +185,7 @@ public sealed class Payment : AggregateRoot
             return transitioned;
 
         CancelledAt = DateTimeOffset.UtcNow;
+        AddDomainEvent(new PaymentCancelledEvent(Id, Purpose, ReferenceId));
         return Result.Success();
     }
 

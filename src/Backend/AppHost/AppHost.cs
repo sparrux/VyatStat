@@ -8,7 +8,10 @@ var postgres = builder.AddPostgres("vyatka-db")
 var identityDb = postgres.AddDatabase("identitydb");
 var hubDb = postgres.AddDatabase("hubdb");
 
-var rabbitMq = builder.AddRabbitMQ("rabbitmq")
+var username = builder.AddParameter("username", secret: true);
+var password = builder.AddParameter("password", secret: true);
+
+var rabbitMq = builder.AddRabbitMQ("rabbitmq", username, password)
     .WithManagementPlugin()
     .WithDataVolume("vyatka_rabbitmq");
 

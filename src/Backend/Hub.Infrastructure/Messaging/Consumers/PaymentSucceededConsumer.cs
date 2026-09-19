@@ -6,7 +6,7 @@ using MassTransit;
 
 namespace Hub.Infrastructure.Messaging.Consumers;
 
-sealed class PaymentSucceededConsumer(
+public sealed class PaymentSucceededConsumer(
     IRequestHandler<HandlePaymentSucceededCommand, IdResponse> handler
 ) : IConsumer<PaymentSucceeded>
 {

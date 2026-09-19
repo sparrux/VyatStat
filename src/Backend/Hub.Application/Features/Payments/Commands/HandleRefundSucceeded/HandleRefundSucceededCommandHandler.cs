@@ -13,6 +13,8 @@ sealed class HandleRefundSucceededCommandHandler(
         HandleRefundSucceededCommand command,
         CancellationToken cancellationToken)
     {
+        throw new NotImplementedException();
+        
         logger.LogInformation(
             "Refund {RefundId} of {Amount} {Currency} succeeded for payment {PaymentId}",
             command.RefundId,

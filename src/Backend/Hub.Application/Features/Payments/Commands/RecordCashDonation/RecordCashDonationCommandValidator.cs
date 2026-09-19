@@ -26,10 +26,6 @@ sealed class RecordCashDonationCommandValidator : AbstractValidator<RecordCashDo
             .NotEqual(Guid.Empty)
             .When(x => x.Request.EventId.HasValue);
 
-        RuleFor(x => x.IdempotencyKey)
-            .MaximumLength(100)
-            .When(x => !string.IsNullOrWhiteSpace(x.IdempotencyKey));
-
         RuleFor(x => x.Request.IdempotencyKey)
             .MaximumLength(100)
             .When(x => !string.IsNullOrWhiteSpace(x.Request.IdempotencyKey));

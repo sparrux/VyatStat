@@ -6,4 +6,5 @@ public sealed record PaymentFailed(
     string Purpose,
     Guid ReferenceId,
     string? Reason,
-    DateTimeOffset OccurredOn);
+    DateTimeOffset OccurredOn
+);

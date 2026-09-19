@@ -1,8 +1,7 @@
 namespace Hub.Application.Features.Payments.Commands.RecordCashDonation;
 
 public sealed record RecordCashDonationCommand(
-    RecordCashDonationRequest Request,
-    string? IdempotencyKey
+    RecordCashDonationRequest Request
 );
 
 public sealed record RecordCashDonationRequest(

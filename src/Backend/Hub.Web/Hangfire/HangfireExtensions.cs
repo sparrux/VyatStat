@@ -1,6 +1,5 @@
 using Hangfire;
 using Hangfire.Dashboard;
-using Hub.Infrastructure.Hangfire;
 
 namespace Hub.Web.Hangfire;
 

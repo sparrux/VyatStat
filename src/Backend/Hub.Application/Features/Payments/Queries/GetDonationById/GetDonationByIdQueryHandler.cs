@@ -15,6 +15,7 @@ sealed class GetDonationByIdQueryHandler(
         CancellationToken cancellationToken)
     {
         var donation = await paymentsDbContext.Donations
+            .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.Id == query.DonationId && x.CustomerId == query.UserId,
                 cancellationToken);
@@ -26,6 +27,7 @@ sealed class GetDonationByIdQueryHandler(
             ? null
             : await paymentsDbContext.Payments
                 .Include(x => x.Attempts)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == donation.PaymentId, cancellationToken);
 
         return Result.Success(DonationResponse.From(donation, payment));

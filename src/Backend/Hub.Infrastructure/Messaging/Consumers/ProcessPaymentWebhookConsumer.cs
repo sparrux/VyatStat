@@ -6,7 +6,7 @@ using MassTransit;
 
 namespace Hub.Infrastructure.Messaging.Consumers;
 
-sealed class ProcessPaymentWebhookConsumer(
+public sealed class ProcessPaymentWebhookConsumer(
     IRequestHandler<ProcessPaymentWebhookCommand, IdResponse> handler
 ) : IConsumer<ProcessPaymentWebhook>
 {

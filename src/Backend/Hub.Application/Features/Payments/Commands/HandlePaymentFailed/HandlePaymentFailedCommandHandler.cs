@@ -17,9 +17,15 @@ sealed class HandlePaymentFailedCommandHandler(
         HandlePaymentFailedCommand command,
         CancellationToken cancellationToken)
     {
-        if (!IsDonation(command.Purpose))
-            return Result.Success(new IdResponse(command.PaymentId));
+        if (IsDonation(command.Purpose))
+            return await HandleDonation(command, cancellationToken);
+        
+        return Result.Conflict("Current purpose cannot be handled");
+    }
 
+    async Task<Result<IdResponse>> HandleDonation(
+        HandlePaymentFailedCommand command, CancellationToken cancellationToken)
+    {
         var donation = await paymentsDbContext.Donations
             .FirstOrDefaultAsync(x => x.Id == command.ReferenceId, cancellationToken);
 

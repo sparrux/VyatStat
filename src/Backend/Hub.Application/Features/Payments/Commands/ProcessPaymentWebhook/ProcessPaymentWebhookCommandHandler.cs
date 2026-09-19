@@ -2,7 +2,6 @@ using Ardalis.Result;
 using Hub.Application.Abstractions;
 using Hub.Application.Abstractions.Payments;
 using Hub.Application.Features.Common.Contracts;
-using Hub.Application.Features.Payments;
 using Hub.Application.Pipelines;
 using Hub.Domain.Payments;
 using Microsoft.EntityFrameworkCore;
@@ -76,9 +75,9 @@ sealed class ProcessPaymentWebhookCommandHandler(
                 return Result.Error("Donation not found for payment");
         }
 
-        var applied = DonationCheckout.ApplyProviderResult(
+        var applied = PaymentCheckout.ApplyProviderResult(
             payment,
-            donation,
+            // donation,
             attempt.Id,
             current.Value.ProviderPaymentId,
             current.Value.Status,
