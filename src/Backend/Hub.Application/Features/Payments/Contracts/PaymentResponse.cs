@@ -8,6 +8,7 @@ public sealed record PaymentResponse(
     PaymentPurpose Purpose,
     Guid ReferenceId,
     PaymentStatus Status,
+    MoneyResponse Money,
     DateTimeOffset? SucceededAt,
     DateTimeOffset? FailedAt,
     DateTimeOffset? CancelledAt,
@@ -22,6 +23,10 @@ public sealed record PaymentResponse(
             payment.Purpose, 
             payment.ReferenceId, 
             payment.Status, 
+            new MoneyResponse(
+                payment.Amount.Amount,
+                payment.Amount.Currency.Code
+            ),
             payment.SucceededAt, 
             payment.FailedAt, 
             payment.CancelledAt, 
