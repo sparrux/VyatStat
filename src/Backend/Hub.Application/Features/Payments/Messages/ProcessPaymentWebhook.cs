@@ -1,3 +1,5 @@
+using Hub.Application.Abstractions.Messaging;
+
 namespace Hub.Application.Features.Payments.Messages;
 
 public sealed record ProcessPaymentWebhook(
@@ -5,4 +7,5 @@ public sealed record ProcessPaymentWebhook(
     string Provider,
     string ProviderEventId,
     string EventType,
-    string? ProviderPaymentId);
+    string? ProviderPaymentId
+) : IIntegrationEvent;

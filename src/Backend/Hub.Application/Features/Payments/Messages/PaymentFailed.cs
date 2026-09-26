@@ -1,3 +1,5 @@
+using Hub.Application.Abstractions.Messaging;
+
 namespace Hub.Application.Features.Payments.Messages;
 
 public sealed record PaymentFailed(
@@ -7,4 +9,4 @@ public sealed record PaymentFailed(
     Guid ReferenceId,
     string? Reason,
     DateTimeOffset OccurredOn
-);
+) : IIntegrationEvent;

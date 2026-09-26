@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Ardalis.Result;
 using Hub.Domain.Common;
+using Hub.Domain.Events.Events;
 using Hub.Domain.Events.Goals;
 using Hub.Domain.Events.Handlers;
 using Hub.Domain.Events.Participants;
@@ -291,6 +292,8 @@ public sealed class Event : AggregateRoot
                 participant.Assign(requirement);
 
         _requirements.Add(requirement);
+        AddDomainEvent(new EventRequirementCreatedEvent(Id, requirement.Id));
+        
         return Result.Success(requirement);
     }
     

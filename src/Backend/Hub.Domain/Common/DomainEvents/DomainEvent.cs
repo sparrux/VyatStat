@@ -6,12 +6,12 @@ public abstract class DomainEvent : IDomainEvent
     {
     }
 
-    protected DomainEvent(Guid eventId)
+    protected DomainEvent(Guid id)
     {
-        EventId = eventId;
+        Id = id;
         OccurredOn = DateTimeOffset.UtcNow;
     }
     
-    public Guid EventId { get; }
+    public Guid Id { get; }
     public DateTimeOffset OccurredOn { get; }
 }

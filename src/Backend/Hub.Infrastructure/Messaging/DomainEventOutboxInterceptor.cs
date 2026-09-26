@@ -1,5 +1,5 @@
 using Hub.Application.Abstractions.Messaging;
-using Hub.Application.Features.Payments.Mapping;
+using Hub.Application.Features.Common.Mapping;
 using Hub.Domain.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +31,7 @@ sealed class DomainEventOutboxInterceptor(
 
         foreach (var aggregate in aggregates)
         {
-            foreach (var message in PaymentIntegrationEvents.From(aggregate.DomainEvents))
+            foreach (var message in IntegrationEvents.From(aggregate.DomainEvents))
                 await publisher.Publish(message, cancellationToken);
 
             aggregate.ClearDomainEvents();

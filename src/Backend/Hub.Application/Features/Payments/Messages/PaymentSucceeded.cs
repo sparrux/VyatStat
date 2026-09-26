@@ -1,3 +1,5 @@
+using Hub.Application.Abstractions.Messaging;
+
 namespace Hub.Application.Features.Payments.Messages;
 
 public sealed record PaymentSucceeded(
@@ -8,4 +10,5 @@ public sealed record PaymentSucceeded(
     Guid ReferenceId,
     decimal Amount,
     string Currency,
-    DateTimeOffset OccurredOn);
+    DateTimeOffset OccurredOn
+) : IIntegrationEvent;

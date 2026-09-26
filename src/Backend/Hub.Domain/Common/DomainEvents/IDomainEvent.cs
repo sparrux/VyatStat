@@ -2,6 +2,6 @@ namespace Hub.Domain.Common.DomainEvents;
 
 public interface IDomainEvent
 {
-    Guid EventId { get; }
+    Guid Id { get; }
     DateTimeOffset OccurredOn { get; }
 }

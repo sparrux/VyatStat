@@ -1,3 +1,5 @@
+using Hub.Application.Abstractions.Messaging;
+
 namespace Hub.Application.Features.Payments.Messages;
 
 public sealed record PaymentCancelled(
@@ -6,4 +8,4 @@ public sealed record PaymentCancelled(
     string Purpose,
     Guid ReferenceId,
     DateTimeOffset OccurredOn
-);
+) : IIntegrationEvent;
