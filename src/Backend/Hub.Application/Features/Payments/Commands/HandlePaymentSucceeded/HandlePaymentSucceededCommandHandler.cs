@@ -1,15 +1,14 @@
 using Ardalis.Result;
-using Hub.Application.Abstractions;
+using Hub.Application.Abstractions.Payments;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Pipelines;
-using Hub.Domain.Payments;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Hub.Application.Features.Payments.Commands.HandlePaymentSucceeded;
 
 sealed class HandlePaymentSucceededCommandHandler(
-    IPaymentsDbContext paymentsDbContext,
+    IServiceProvider serviceProvider,
     ILogger<HandlePaymentSucceededCommandHandler> logger
 ) : IRequestHandler<HandlePaymentSucceededCommand, IdResponse>
 {
@@ -17,42 +16,31 @@ sealed class HandlePaymentSucceededCommandHandler(
         HandlePaymentSucceededCommand command,
         CancellationToken cancellationToken)
     {
-        if (IsDonation(command.Purpose))
-            return await HandleDonation(command, cancellationToken);
+        var statusHandler = serviceProvider.GetKeyedService<IFinancialTargetStatusHandler>(command.Purpose);
 
-        return Result.Conflict("Current purpose cannot be handled");
-    }
-
-    async Task<Result<IdResponse>> HandleDonation(
-        HandlePaymentSucceededCommand command, CancellationToken cancellationToken)
-    {
-        var donation = await paymentsDbContext.Donations
-            .FirstOrDefaultAsync(x => x.Id == command.ReferenceId, cancellationToken);
-
-        if (donation is null)
+        if (statusHandler is null)
         {
-            logger.LogWarning(
-                "Donation {DonationId} was not found for succeeded payment {PaymentId}",
-                command.ReferenceId,
-                command.PaymentId);
-            return Result.Success(new IdResponse(command.PaymentId));
+            logger.LogError(
+                "Financial target status handler was not found for succeeded payment {PaymentId} for {Purpose}", 
+                command.PaymentId, 
+                command.Purpose);
+            return Result.Error("Financial target status handler was not found for succeeded payment");
         }
 
-        var completed = donation.Complete();
-        if (!completed.IsSuccess)
+        var statusHandle = await statusHandler.HandleSucceededAsync(new SucceededStatusRequest(
+            command.ReferenceId,
+            command.PaymentId
+        ), cancellationToken);
+
+        if (!statusHandle.IsSuccess)
         {
-            logger.LogWarning(
-                "Donation {DonationId} was not completed after payment {PaymentId}: {Error}",
-                donation.Id,
-                command.PaymentId,
-                completed.Errors.FirstOrDefault());
-            return Result.Success(new IdResponse(command.PaymentId));
+            logger.LogError(
+                "Failed to handle status for succeeded payment {PaymentId} for {Purpose}", 
+                command.PaymentId, 
+                command.Purpose);
+            return Result.Error("Failed to handle status for succeeded payment");
         }
 
-        await paymentsDbContext.SaveChangesAsync(cancellationToken);
-        return Result.Success(new IdResponse(command.PaymentId));
+        return new IdResponse(command.PaymentId);
     }
-
-    static bool IsDonation(string purpose) =>
-        string.Equals(purpose, nameof(PaymentPurpose.Donation), StringComparison.OrdinalIgnoreCase);
 }

@@ -7,7 +7,10 @@ public sealed record InvoiceResponse(
     Guid Id,
     MoneyResponse Amount,
     DateTimeOffset DueDate,
-    DatesRangeModel? BillingPeriod
+    DatesRangeModel? BillingPeriod,
+    Guid? SourceId,
+    InvoiceSourceType SourceType,
+    InvoiceStatus Status
 )
 {
     public static InvoiceResponse From(Invoice invoice) =>
@@ -17,6 +20,9 @@ public sealed record InvoiceResponse(
             invoice.DueDate,
             invoice.BillingPeriod is null
                 ? null
-                : new DatesRangeModel(invoice.BillingPeriod.StartDate, invoice.BillingPeriod.EndDate)
+                : new DatesRangeModel(invoice.BillingPeriod.StartDate, invoice.BillingPeriod.EndDate),
+            invoice.SourceId,
+            invoice.SourceType,
+            invoice.Status
         );
 }

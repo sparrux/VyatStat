@@ -13,46 +13,10 @@ sealed class HandlePaymentFailedCommandHandler(
     ILogger<HandlePaymentFailedCommandHandler> logger
 ) : IRequestHandler<HandlePaymentFailedCommand, IdResponse>
 {
-    public async Task<Result<IdResponse>> Handle(
+    public Task<Result<IdResponse>> Handle(
         HandlePaymentFailedCommand command,
         CancellationToken cancellationToken)
     {
-        if (IsDonation(command.Purpose))
-            return await HandleDonation(command, cancellationToken);
-        
-        return Result.Conflict("Current purpose cannot be handled");
+        return Task.FromResult(Result.Success(new IdResponse(command.PaymentId)));
     }
-
-    async Task<Result<IdResponse>> HandleDonation(
-        HandlePaymentFailedCommand command, CancellationToken cancellationToken)
-    {
-        var donation = await paymentsDbContext.Donations
-            .FirstOrDefaultAsync(x => x.Id == command.ReferenceId, cancellationToken);
-
-        if (donation is null)
-        {
-            logger.LogWarning(
-                "Donation {DonationId} was not found for failed payment {PaymentId}",
-                command.ReferenceId,
-                command.PaymentId);
-            return Result.Success(new IdResponse(command.PaymentId));
-        }
-
-        var failed = donation.Fail();
-        if (!failed.IsSuccess)
-        {
-            logger.LogWarning(
-                "Donation {DonationId} was not failed after payment {PaymentId}: {Error}",
-                donation.Id,
-                command.PaymentId,
-                failed.Errors.FirstOrDefault());
-            return Result.Success(new IdResponse(command.PaymentId));
-        }
-
-        await paymentsDbContext.SaveChangesAsync(cancellationToken);
-        return Result.Success(new IdResponse(command.PaymentId));
-    }
-
-    static bool IsDonation(string purpose) =>
-        string.Equals(purpose, nameof(PaymentPurpose.Donation), StringComparison.OrdinalIgnoreCase);
 }

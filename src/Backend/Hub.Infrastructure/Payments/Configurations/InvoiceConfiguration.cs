@@ -23,17 +23,16 @@ sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         builder.Property(invoice => invoice.Status).AsStringEnum();
 
+        builder.Property(x => x.SourceId)
+            .IsRequired(false);
+        
+        builder.Property(invoice => invoice.SourceType).AsStringEnum();
+
         builder.HasOne<Customer>()
             .WithMany()
             .HasForeignKey(invoice => invoice.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne<Subscription>()
-            .WithMany()
-            .HasForeignKey(invoice => invoice.SubscriptionId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired(false);
-
+        
         builder.HasOne<Payment>()
             .WithMany()
             .HasForeignKey(invoice => invoice.PaymentId)
@@ -41,7 +40,7 @@ sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .IsRequired(false);
 
         builder.HasIndex(invoice => invoice.CustomerId);
-        builder.HasIndex(invoice => invoice.SubscriptionId);
+        builder.HasIndex(invoice => invoice.SourceId);
         builder.HasIndex(invoice => invoice.PaymentId);
         builder.HasIndex(invoice => invoice.Status);
         builder.HasIndex(invoice => invoice.DueDate);

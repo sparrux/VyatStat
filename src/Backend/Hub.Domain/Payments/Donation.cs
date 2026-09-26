@@ -84,18 +84,6 @@ public sealed class Donation : AggregateRoot
         return Result.Success();
     }
 
-    public Result Fail()
-    {
-        if (Status == DonationStatus.Failed)
-            return Result.Success();
-
-        if (Status is DonationStatus.Completed or DonationStatus.Cancelled)
-            return Result.Error($"Cannot fail a donation that is {Status}");
-
-        Status = DonationStatus.Failed;
-        return Result.Success();
-    }
-
     public Result Cancel()
     {
         if (Status == DonationStatus.Cancelled)

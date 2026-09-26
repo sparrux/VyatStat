@@ -10,9 +10,25 @@ namespace Hub.Application.Features.Payments.Services;
 
 sealed class PaymentService(
     IPaymentsDbContext paymentsDbContext,
-    IPaymentGatewayResolver gatewayResolver
+    IPaymentGatewayResolver gatewayResolver,
+    ICustomerService customerService
 ) : IPaymentService
 {
+    public async Task<Result<Payment>> FindPaymentAsync(
+        Guid paymentId, 
+        CancellationToken cancellationToken)
+    {
+        var payment = await paymentsDbContext.Payments
+            .Include(x => x.Attempts)
+            .FirstOrDefaultAsync(x =>
+                x.Id == paymentId, cancellationToken);
+
+        if (payment is null)
+            return Result.NotFound("Payment not found");
+        
+        return payment;
+    }
+
     public async Task<Result<Payment>> FindPaymentAsync(
         Guid? referenceId, 
         string idempotencyKey, 
@@ -58,7 +74,7 @@ sealed class PaymentService(
         
         if (request is { IsAnonymous: false, CustomerId: not null })
         {
-            var customerResult = await GetOrCreateCustomer(request.CustomerId.Value, cancellationToken);
+            var customerResult = await customerService.GetOrCreateAsync(request.CustomerId.Value, cancellationToken);
             if (!customerResult.IsSuccess)
                 return customerResult.Map();
             
@@ -155,30 +171,11 @@ sealed class PaymentService(
             attempt.Id,
             created.Value.ProviderPaymentId,
             created.Value.Status);
-
         if (!applied.IsSuccess)
-        {
-            await paymentsDbContext.SaveChangesAsync(cancellationToken);
             return applied.Map();
-        }
 
         await paymentsDbContext.SaveChangesAsync(cancellationToken);
         return Result.Created(new PaymentCheckoutResult(payment, created.Value.ApprovalUrl));
-    }
-
-    async Task<Result<Customer>> GetOrCreateCustomer(Guid userId, CancellationToken cancellationToken)
-    {
-        var customer = await paymentsDbContext.Customers
-            .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
-        if (customer is not null)
-            return Result.Success(customer);
-
-        var created = Customer.Create(userId);
-        if (!created.IsSuccess)
-            return created;
-
-        await paymentsDbContext.Customers.AddAsync(created.Value, cancellationToken);
-        return created;
     }
 
     async Task<Payment?> FindByIdempotencyKey(

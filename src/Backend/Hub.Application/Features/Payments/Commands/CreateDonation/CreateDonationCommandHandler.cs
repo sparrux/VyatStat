@@ -74,6 +74,9 @@ sealed class CreateDonationCommandHandler(
     
     async Task<(Donation Donation, Payment Payment)?> FindByIdempotencyKeyAsync(string idempotencyKey, CancellationToken cancellationToken)
     {
+        // TODO: Find returns NotFound Error if payment not found. But it should be handled by another way
+        
+        
         var payment = await paymentService.FindPaymentAsync(null, idempotencyKey, cancellationToken);
         
         if (!payment.IsSuccess)

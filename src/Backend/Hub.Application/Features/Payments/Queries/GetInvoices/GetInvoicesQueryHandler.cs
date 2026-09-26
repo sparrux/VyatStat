@@ -19,6 +19,7 @@ sealed class GetInvoicesQueryHandler(
             .AsNoTracking();
         
         var invoices = await invoicesSelection
+            .OrderByDescending(x => x.CreatedAt)
             .Skip(request.Skip)
             .Take(request.Take)
             .ToListAsync(cancellationToken);

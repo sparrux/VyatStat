@@ -1,5 +1,6 @@
 using Ardalis.Result.AspNetCore;
 using Hub.Application.Features.Common.Contracts;
+using Hub.Application.Features.Payments.Commands.CheckoutInvoice;
 using Hub.Application.Features.Payments.Commands.CreateInvoice;
 using Hub.Application.Features.Payments.Contracts;
 using Hub.Application.Features.Payments.Queries.GetInvoices;
@@ -20,6 +21,10 @@ static class InvoiceEndpoints
             .HasApiVersion(1.0)
             .Produces<InvoiceResponse>(StatusCodes.Status201Created);
         
+        invoices.MapPost("/{invoiceId:guid}/checkout", Checkout)
+            .HasApiVersion(1.0)
+            .Produces<CheckoutInvoiceResponse>();
+        
         invoices.MapGet("/", Get)
             .HasApiVersion(1.0)
             .Produces<ListResponse<InvoiceResponse>>();
@@ -30,6 +35,14 @@ static class InvoiceEndpoints
         [FromServices] IRequestHandler<CreateInvoiceCommand, InvoiceResponse> handler,
         CancellationToken ctk) =>
         (await handler.Handle(new(request), ctk))
+        .ToMinimalApiResult();
+    
+    static async Task<IResult> Checkout(
+        [FromRoute] Guid invoiceId,
+        [FromBody] CheckoutInvoiceRequest request,
+        [FromServices] IRequestHandler<CheckoutInvoiceCommand, CheckoutInvoiceResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(invoiceId, request), ctk))
         .ToMinimalApiResult();
     
     static async Task<IResult> Get(

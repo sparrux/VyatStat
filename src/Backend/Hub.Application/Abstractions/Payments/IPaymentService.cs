@@ -16,6 +16,10 @@ public sealed record PaymentCheckoutResult(
 public interface IPaymentService
 {
     Task<Result<Payment>> FindPaymentAsync(
+        Guid paymentId,
+        CancellationToken cancellationToken);
+    
+    Task<Result<Payment>> FindPaymentAsync(
         Guid? referenceId, 
         string idempotencyKey, 
         CancellationToken cancellationToken);

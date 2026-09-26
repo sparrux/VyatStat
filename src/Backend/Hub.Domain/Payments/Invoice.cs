@@ -17,20 +17,23 @@ public sealed class Invoice : AggregateRoot
         Guid customerId,
         Money amount,
         DateTimeOffset dueDate,
-        Guid? subscriptionId,
+        Guid? sourceId,
+        InvoiceSourceType sourceType,
         DatesRange? billingPeriod)
     {
         Id = Guid.NewGuid();
         CustomerId = customerId;
         Amount = amount;
         DueDate = dueDate;
-        SubscriptionId = subscriptionId;
+        SourceId = sourceId;
+        SourceType = sourceType;
         BillingPeriod = billingPeriod;
         Status = InvoiceStatus.Open;
     }
 
     public Guid CustomerId { get; private set; }
-    public Guid? SubscriptionId { get; private set; }
+    public Guid? SourceId { get; private set; }
+    public InvoiceSourceType SourceType { get; private set; }
     public DatesRange? BillingPeriod { get; private set; }
     public Money Amount { get; private set; }
     public DateTimeOffset DueDate { get; private set; }
@@ -41,17 +44,32 @@ public sealed class Invoice : AggregateRoot
         Guid customerId,
         Money amount,
         DateTimeOffset dueDate,
-        Guid? subscriptionId = null,
+        Guid? sourceId,
+        InvoiceSourceType sourceType,
         DatesRange? billingPeriod = null)
     {
         if (customerId == Guid.Empty)
             return Result.Invalid(new ValidationError("Customer id cannot be empty"));
+        
+        if (sourceId != null && sourceType == InvoiceSourceType.None)
+            return Result.Invalid(new ValidationError("Source id cannot be set when source type is None"));
 
         if (amount.IsZero)
             return Result.Invalid(new ValidationError("Invoice amount must be greater than zero"));
 
-        return Result.Success(new Invoice(customerId, amount, dueDate, subscriptionId, billingPeriod));
+        return Result.Success(new Invoice(customerId, amount, dueDate, sourceId, sourceType, billingPeriod));
     }
+    
+    public static Result<Invoice> IssueForNone(
+        Guid customerId, 
+        Money amount,
+        DateTimeOffset dueDate) =>
+        Issue(
+            customerId,
+            amount,
+            dueDate,
+            null,
+            InvoiceSourceType.None);
 
     public static Result<Invoice> IssueForSubscription(
         Subscription subscription,
@@ -66,6 +84,7 @@ public sealed class Invoice : AggregateRoot
             subscription.PriceSnapshot,
             dueDate,
             subscription.Id,
+            InvoiceSourceType.Subscription,
             billingPeriod);
     }
 

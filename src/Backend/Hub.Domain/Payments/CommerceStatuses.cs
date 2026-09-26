@@ -5,8 +5,7 @@ public enum DonationStatus
     Created = 0,
     Pending = 1,
     Completed = 2,
-    Failed = 3,
-    Cancelled = 4
+    Cancelled = 3
 }
 
 public enum SubscriptionStatus
@@ -30,6 +29,13 @@ public enum InvoiceStatus
     Paid = 2,
     Overdue = 3,
     Void = 4
+}
+
+public enum InvoiceSourceType
+{
+    None = 0,
+    Subscription = 1,
+    EventParticipationFee = 2
 }
 
 public enum OrderStatus

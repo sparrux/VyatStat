@@ -66,18 +66,8 @@ sealed class ProcessPaymentWebhookCommandHandler(
         if (!current.IsSuccess)
             return current.Map();
 
-        Donation? donation = null;
-        if (payment.Purpose == PaymentPurpose.Donation)
-        {
-            donation = await paymentsDbContext.Donations
-                .FirstOrDefaultAsync(x => x.Id == payment.ReferenceId, cancellationToken);
-            if (donation is null)
-                return Result.Error("Donation not found for payment");
-        }
-
         var applied = PaymentCheckout.ApplyProviderResult(
             payment,
-            // donation,
             attempt.Id,
             current.Value.ProviderPaymentId,
             current.Value.Status,
