@@ -8,6 +8,13 @@ var postgres = builder.AddPostgres("vyatka-db")
 var identityDb = postgres.AddDatabase("identitydb");
 var hubDb = postgres.AddDatabase("hubdb");
 
+var username = builder.AddParameter("username", secret: true);
+var password = builder.AddParameter("password", secret: true);
+
+var rabbitMq = builder.AddRabbitMQ("rabbitmq", username, password)
+    .WithManagementPlugin()
+    .WithDataVolume("vyatka_rabbitmq");
+
 var identityApi = builder.AddProject<Projects.Identity_WebAPI>(
         "identity-api")
     .WithExternalHttpEndpoints()
@@ -19,6 +26,8 @@ var hubApi = builder.AddProject<Projects.Hub_Web>(
     .WithExternalHttpEndpoints()
     .WithReference(identityApi)
     .WithReference(hubDb)
+    .WithReference(rabbitMq)
+    .WaitFor(rabbitMq)
     .WithHttpHealthCheck("/health");
 
 var frontend = "../../Frontend";

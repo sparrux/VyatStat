@@ -14,7 +14,7 @@ namespace Hub.Infrastructure.Persistence;
 
 public sealed class HubDbContext : DbContext, IHubDbContext
 {
-    public HubDbContext(DbContextOptions options) : base(options)
+    public HubDbContext(DbContextOptions<HubDbContext> options) : base(options)
     {
         Users = Set<User>();
         
@@ -61,7 +61,9 @@ public sealed class HubDbContext : DbContext, IHubDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(HubDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(HubDbContext).Assembly,
+            type => type.Namespace?.StartsWith("Hub.Infrastructure.Persistence", StringComparison.Ordinal) == true);
     }
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)

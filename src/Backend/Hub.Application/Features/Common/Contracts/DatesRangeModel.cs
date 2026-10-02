@@ -1,6 +1,6 @@
 namespace Hub.Application.Features.Common.Contracts;
 
-public abstract record DatesRangeModel(
+public record DatesRangeModel(
     DateTimeOffset StartDate,
     DateTimeOffset EndDate
 );

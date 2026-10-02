@@ -1,4 +1,6 @@
 using Hub.Infrastructure.Hangfire.Extensions;
+using Hub.Infrastructure.Messaging;
+using Hub.Infrastructure.Payments.Extensions;
 using Hub.Infrastructure.Persistence.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,5 +19,7 @@ public static class DependencyInjection
 
         services.AddPersistenceServices(dbConnectionName, configuration);
         services.AddSchedulerServices(dbConnectionName, configuration);
+        services.AddPaymentGateways(configuration);
+        services.AddMessaging(configuration);
     }
 }

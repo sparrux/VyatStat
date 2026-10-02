@@ -1,4 +1,5 @@
 using FluentValidation;
+using Hub.Application.Abstractions.Payments;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Events.Commands.Create;
 using Hub.Application.Features.Events.Commands.CreateParticipant;
@@ -31,10 +32,30 @@ using Hub.Application.Features.Groups.Commands.Create;
 using Hub.Application.Features.Groups.Contracts;
 using Hub.Application.Features.Groups.Queries.Get;
 using Hub.Application.Features.Groups.Queries.GetEvents;
+using Hub.Application.Features.Payments.Commands.CancelCash;
+using Hub.Application.Features.Payments.Commands.CheckoutInvoice;
+using Hub.Application.Features.Payments.Commands.ConfirmCash;
+using Hub.Application.Features.Payments.Commands.CreateDonation;
+using Hub.Application.Features.Payments.Commands.CreateInvoice;
+using Hub.Application.Features.Payments.Commands.HandlePaymentCancelled;
+using Hub.Application.Features.Payments.Commands.HandlePaymentFailed;
+using Hub.Application.Features.Payments.Commands.HandlePaymentSucceeded;
+using Hub.Application.Features.Payments.Commands.HandleRefundSucceeded;
+using Hub.Application.Features.Payments.Commands.ProcessPaymentWebhook;
+using Hub.Application.Features.Payments.Commands.ReceivePaymentWebhook;
+using Hub.Application.Features.Payments.Commands.VoidInvoice;
+using Hub.Application.Features.Payments.Contracts;
+using Hub.Application.Features.Payments.Queries.GetDonationById;
+using Hub.Application.Features.Payments.Queries.GetDonations;
+using Hub.Application.Features.Payments.Queries.GetInvoiceById;
+using Hub.Application.Features.Payments.Queries.GetInvoices;
+using Hub.Application.Features.Payments.Services;
+using Hub.Application.Features.Payments.Services.FinancialTargets;
 using Hub.Application.Features.Users.Contracts;
 using Hub.Application.Features.Users.Queries.Get;
 using Hub.Application.Features.Users.Queries.GetById;
 using Hub.Application.Pipelines;
+using Hub.Domain.Payments;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hub.Application;
@@ -51,6 +72,7 @@ public static class DependencyInjection
             services.AddUserHandlers();
             services.AddEventHandlers();
             services.AddGroupHandlers();
+            services.AddPaymentHandlers();
         }
 
         void AddUserHandlers()
@@ -97,6 +119,34 @@ public static class DependencyInjection
             services.AddDecoratedHandler<GetGroupQuery, ListResponse<GroupSummaryResponse>, GetGroupQueryHandler>();
             services.AddDecoratedHandler<GetGroupEventsQuery, ListResponse<EventSummaryResponse>, GetGroupEventsQueryHandler>();
             services.AddDecoratedHandler<AttachEventCommand, IdResponse, AttachEventCommandHandler>();
+        }
+
+        void AddPaymentHandlers()
+        {
+            services.AddDecoratedHandler<CreateDonationCommand, DonationResponse, CreateDonationCommandHandler>();
+            services.AddDecoratedHandler<ConfirmCashCommand, PaymentResponse, ConfirmCashCommandHandler>();
+            services.AddDecoratedHandler<CancelCashCommand, PaymentResponse, CancelCashCommandHandler>();
+            services.AddDecoratedHandler<GetDonationByIdQuery, DonationResponse, GetDonationByIdQueryHandler>();
+            services.AddDecoratedHandler<GetDonationsQuery, ListResponse<DonationResponse>, GetDonationsQueryHandler>();
+            services.AddDecoratedHandler<ReceivePaymentWebhookCommand, IdResponse, ReceivePaymentWebhookCommandHandler>();
+            services.AddDecoratedHandler<ProcessPaymentWebhookCommand, IdResponse, ProcessPaymentWebhookCommandHandler>();
+            services.AddDecoratedHandler<CreateInvoiceCommand, InvoiceResponse, CreateInvoiceCommandHandler>();
+            services.AddDecoratedHandler<CheckoutInvoiceCommand, CheckoutInvoiceResponse, CheckoutInvoiceHandler>();
+            services.AddDecoratedHandler<GetInvoicesQuery, ListResponse<InvoiceResponse>, GetInvoicesQueryHandler>();
+            services.AddDecoratedHandler<GetInvoiceByIdQuery, InvoiceResponse, GetInvoiceByIdQueryHandler>();
+            services.AddDecoratedHandler<VoidInvoiceCommand, IdResponse, VoidInvoiceCommandHandler>();
+
+            services.AddDecoratedHandler<HandlePaymentSucceededCommand, IdResponse, HandlePaymentSucceededCommandHandler>();
+            services.AddDecoratedHandler<HandlePaymentFailedCommand, IdResponse, HandlePaymentFailedCommandHandler>();
+            services.AddDecoratedHandler<HandlePaymentCancelledCommand, IdResponse, HandlePaymentCancelledCommandHandler>();
+            services.AddDecoratedHandler<HandleRefundSucceededCommand, IdResponse, HandleRefundSucceededCommandHandler>();
+
+            services.AddKeyedScoped<IFinancialTargetStatusHandler, DonationStatusHandler>(nameof(PaymentPurpose.Donation));
+            services.AddKeyedScoped<IFinancialTargetStatusHandler, InvoiceStatusHandler>(nameof(PaymentPurpose.Invoice));
+            
+            services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IInvoiceService, InvoiceService>();
+            services.AddScoped<ICustomerService, CustomerService>();
         }
     }
 }

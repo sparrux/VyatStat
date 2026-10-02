@@ -1,3 +1,4 @@
+using Hub.Infrastructure.Payments;
 using Hub.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,10 @@ public static class DatabaseMigration
     {
         await using var scope = provider.CreateAsyncScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<HubDbContext>();
-        await context.Database.MigrateAsync();
+        var hub = scope.ServiceProvider.GetRequiredService<HubDbContext>();
+        await hub.Database.MigrateAsync();
+
+        var payments = scope.ServiceProvider.GetRequiredService<PaymentsDbContext>();
+        await payments.Database.MigrateAsync();
     }
 }
