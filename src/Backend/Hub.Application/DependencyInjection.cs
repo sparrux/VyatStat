@@ -38,12 +38,12 @@ using Hub.Application.Features.Payments.Commands.ConfirmCash;
 using Hub.Application.Features.Payments.Commands.CreateDonation;
 using Hub.Application.Features.Payments.Commands.CreateInvoice;
 using Hub.Application.Features.Payments.Commands.HandlePaymentCancelled;
-using Hub.Application.Features.Payments.Commands.RecordCashDonation;
 using Hub.Application.Features.Payments.Commands.HandlePaymentFailed;
 using Hub.Application.Features.Payments.Commands.HandlePaymentSucceeded;
 using Hub.Application.Features.Payments.Commands.HandleRefundSucceeded;
 using Hub.Application.Features.Payments.Commands.ProcessPaymentWebhook;
 using Hub.Application.Features.Payments.Commands.ReceivePaymentWebhook;
+using Hub.Application.Features.Payments.Commands.VoidInvoice;
 using Hub.Application.Features.Payments.Contracts;
 using Hub.Application.Features.Payments.Queries.GetDonationById;
 using Hub.Application.Features.Payments.Queries.GetDonations;
@@ -123,7 +123,6 @@ public static class DependencyInjection
         void AddPaymentHandlers()
         {
             services.AddDecoratedHandler<CreateDonationCommand, DonationResponse, CreateDonationCommandHandler>();
-            services.AddDecoratedHandler<RecordCashDonationCommand, DonationResponse, RecordCashDonationCommandHandler>();
             services.AddDecoratedHandler<ConfirmCashCommand, PaymentResponse, ConfirmCashCommandHandler>();
             services.AddDecoratedHandler<CancelCashCommand, PaymentResponse, CancelCashCommandHandler>();
             services.AddDecoratedHandler<GetDonationByIdQuery, DonationResponse, GetDonationByIdQueryHandler>();
@@ -133,6 +132,7 @@ public static class DependencyInjection
             services.AddDecoratedHandler<CreateInvoiceCommand, InvoiceResponse, CreateInvoiceCommandHandler>();
             services.AddDecoratedHandler<CheckoutInvoiceCommand, CheckoutInvoiceResponse, CheckoutInvoiceHandler>();
             services.AddDecoratedHandler<GetInvoicesQuery, ListResponse<InvoiceResponse>, GetInvoicesQueryHandler>();
+            services.AddDecoratedHandler<VoidInvoiceCommand, IdResponse, VoidInvoiceCommandHandler>();
 
             services.AddDecoratedHandler<HandlePaymentSucceededCommand, IdResponse, HandlePaymentSucceededCommandHandler>();
             services.AddDecoratedHandler<HandlePaymentFailedCommand, IdResponse, HandlePaymentFailedCommandHandler>();

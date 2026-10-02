@@ -2,6 +2,7 @@ using Ardalis.Result.AspNetCore;
 using Hub.Application.Features.Common.Contracts;
 using Hub.Application.Features.Payments.Commands.CheckoutInvoice;
 using Hub.Application.Features.Payments.Commands.CreateInvoice;
+using Hub.Application.Features.Payments.Commands.VoidInvoice;
 using Hub.Application.Features.Payments.Contracts;
 using Hub.Application.Features.Payments.Queries.GetInvoices;
 using Hub.Application.Pipelines;
@@ -28,6 +29,10 @@ static class InvoiceEndpoints
         invoices.MapGet("/", Get)
             .HasApiVersion(1.0)
             .Produces<ListResponse<InvoiceResponse>>();
+        
+        invoices.MapDelete("/{invoiceId:guid}", Void)
+            .HasApiVersion(1.0)
+            .Produces<ListResponse<InvoiceResponse>>();
     }
 
     static async Task<IResult> Create(
@@ -50,5 +55,12 @@ static class InvoiceEndpoints
         [FromServices] IRequestHandler<GetInvoicesQuery, ListResponse<InvoiceResponse>> handler,
         CancellationToken ctk) =>
         (await handler.Handle(query, ctk))
+        .ToMinimalApiResult();
+    
+    static async Task<IResult> Void(
+        [FromRoute] Guid invoiceId,
+        [FromServices] IRequestHandler<VoidInvoiceCommand, IdResponse> handler,
+        CancellationToken ctk) =>
+        (await handler.Handle(new(invoiceId), ctk))
         .ToMinimalApiResult();
 }
