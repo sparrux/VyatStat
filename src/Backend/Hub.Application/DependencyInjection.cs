@@ -47,6 +47,7 @@ using Hub.Application.Features.Payments.Commands.VoidInvoice;
 using Hub.Application.Features.Payments.Contracts;
 using Hub.Application.Features.Payments.Queries.GetDonationById;
 using Hub.Application.Features.Payments.Queries.GetDonations;
+using Hub.Application.Features.Payments.Queries.GetInvoiceById;
 using Hub.Application.Features.Payments.Queries.GetInvoices;
 using Hub.Application.Features.Payments.Services;
 using Hub.Application.Features.Payments.Services.FinancialTargets;
@@ -132,6 +133,7 @@ public static class DependencyInjection
             services.AddDecoratedHandler<CreateInvoiceCommand, InvoiceResponse, CreateInvoiceCommandHandler>();
             services.AddDecoratedHandler<CheckoutInvoiceCommand, CheckoutInvoiceResponse, CheckoutInvoiceHandler>();
             services.AddDecoratedHandler<GetInvoicesQuery, ListResponse<InvoiceResponse>, GetInvoicesQueryHandler>();
+            services.AddDecoratedHandler<GetInvoiceByIdQuery, InvoiceResponse, GetInvoiceByIdQueryHandler>();
             services.AddDecoratedHandler<VoidInvoiceCommand, IdResponse, VoidInvoiceCommandHandler>();
 
             services.AddDecoratedHandler<HandlePaymentSucceededCommand, IdResponse, HandlePaymentSucceededCommandHandler>();
